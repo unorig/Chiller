@@ -1,0 +1,1868 @@
+﻿### 6502bench SourceGen dis65 v1.0 ###
+{
+"_ContentVersion":5,
+"FileDataLength":51178,
+"FileDataCrc32":-224083982,
+"ProjectProps":{
+"CpuName":"6502",
+"IncludeUndocumentedInstr":false,
+"TwoByteBrk":false,
+"EntryFlags":32702671,
+"AutoLabelStyle":"Simple",
+"AnalysisParams":{
+"AnalyzeUncategorizedData":true,
+"DefaultTextScanMode":"C64Petscii",
+"MinCharsForString":4,
+"SeekNearbyTargets":true,
+"UseRelocData":false,
+"SmartPlpHandling":false,
+"SmartPlbHandling":true},
+
+"PlatformSymbolFileIdentifiers":["RT:Commodore/C64-Kernal.sym65"],
+"ExtensionScriptFileIdentifiers":["RT:Commodore/VisC64.cs"],
+"ProjectSyms":{
+"BorderColor":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"BorderColor",
+"Value":53280,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"CurrentRasterLine":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"CurrentRasterLine",
+"Value":53266,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"ExtraBackgroundColor1":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"ExtraBackgroundColor1",
+"Value":53282,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"ExtraBackgroundColor2":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"ExtraBackgroundColor2",
+"Value":53283,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"FilterCutoffFrequencyHigh":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"FilterCutoffFrequencyHigh",
+"Value":54294,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"FilterCutoffFrequencyLow":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"FilterCutoffFrequencyLow",
+"Value":54293,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"FilterModeVolume":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"FilterModeVolume",
+"Value":54296,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"FilterResonanceRouting":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"FilterResonanceRouting",
+"Value":54295,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"InputPortA":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"InputPortA",
+"Value":56320,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"IRQVectorHigh":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"IRQVectorHigh",
+"Value":789,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"IRQVectorLow":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"IRQVectorLow",
+"Value":788,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"PointerSprite1":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"PointerSprite1",
+"Value":2040,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"PointerSprite2":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"PointerSprite2",
+"Value":2041,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Scr_HealthBar":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Scr_HealthBar",
+"Value":1070,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"ScreenControlRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"ScreenControlRegister",
+"Value":53265,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Sprite0XPositionRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Sprite0XPositionRegister",
+"Value":53248,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Sprite0YPositionRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Sprite0YPositionRegister",
+"Value":53249,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Sprite1XPositionRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Sprite1XPositionRegister",
+"Value":53250,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Sprite1YPositionRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Sprite1YPositionRegister",
+"Value":53251,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"SpriteEnableRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"SpriteEnableRegister",
+"Value":53269,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"SpritePointers":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"SpritePointers",
+"Value":2042,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"SpriteXMSBRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"SpriteXMSBRegister",
+"Value":53264,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"SpriteXPositionRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"SpriteXPositionRegister",
+"Value":53252,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"SpriteYPositionRegister":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"SpriteYPositionRegister",
+"Value":53253,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Var_KeyboardInput":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Var_KeyboardInput",
+"Value":197,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"}}},
+
+"AddressMap":[{
+"Offset":2,
+"Addr":2072,
+"Length":51176,
+"PreLabel":"",
+"IsRelative":false}],
+"TypeHints":[{
+"Low":2,
+"High":2,
+"Hint":"Code"}],
+"StatusFlagOverrides":{
+},
+
+"Comments":{
+"0":"load address",
+"8686":"$2afe = A (#02)",
+"8689":"A = Sprite0YPositionRegister",
+"8692":"Set carry",
+"8695":"Divide by 2",
+"8696":"Divide by 2",
+"8697":"Divide by 2",
+"8698":"Transfer A to Y. Y = (Y Pos - #2c) / 8",
+"8699":"A = Sprite0XPositionRegister",
+"8702":"Set carry",
+"8705":"Branch if carry clear",
+"8708":"Update Var_CharacterXPosLow",
+"8723":"Divide by 2",
+"8724":"Divide by 2",
+"8725":"Transfer A to X",
+"8726":"Transfer Y to A. Y = (Y Pos - #2c) / 8 ",
+"8727":"Multiply by 2",
+"8728":"Transfer A to Y",
+"8810":"$fb = #bf",
+"8812":"$fc = #5b",
+"8814":"Y = #00",
+"8816":"A = 5bbf,00. Start of the index set.",
+"8818":"$C29E = #00",
+"8821":"Increase Y",
+"8822":"A = #b2",
+"8824":"$C2A2 = #b2",
+"8827":"Increase Y",
+"8828":"A = #ff",
+"8830":"$C2AE = #ff",
+"8833":"Increase Y",
+"8834":"A = #b5",
+"8836":"$C2B3 = #b5",
+"8839":"Increase Y",
+"8840":"A = 00",
+"8842":"$C2A6 = #00",
+"8845":"Increase Y",
+"8846":"A = #30",
+"8848":"C2AA = #30",
+"9601":"Get Joystick input. At start screen will be 7A.",
+"9604":"Isolate the 4th bit which checks if fire is pressed.",
+"9606":"Branch if fire not pressed.",
+"9608":"Branch as fire is pressed.",
+"9612":"Disable all sprites",
+"9632":"Load A with $cf7f",
+"9635":"Compare cf7f with #00",
+"9639":"Cant see this ever being triggered",
+"9651":"At menu screen is #f0",
+"9654":"And on #f0 becomes #00",
+"9656":"Jump to $2dd3",
+"20591":"Left = #ff / Right = #01",
+"20866":"X = #ff",
+"20868":"Increase X",
+"20869":"A = $042e, x",
+"20872":"Check if health bar is populated. Get the position where it ends.",
+"20874":"Loop if equal zero",
+"20883":"Check if currently at empty position",
+"20885":"Branch if at empty health bar position",
+"20887":"Decrease current health bar block from #a9 to #a1",
+"20895":"Branch if current healthbar position is #00",
+"20897":"Decrease X",
+"20898":"A = #a8",
+"20900":"Store #a8 to current health bar position",
+"21002":"Left = #ff / Right = #01",
+"21005":"Branch if no input",
+"21273":"RTS if damage is not occuring",
+"21278":"RTS if DamageOccuring is not zero",
+"21280":"A = #12",
+"21282":"DamageOccuring+1 = #12",
+"21285":"Decrease DamageOccuring",
+"21429":"JSR $2a80 with Y = #5b / X = #bf",
+"21432":"A = #00",
+"21434":"Disable all sprites",
+"21437":"A = #00",
+"21439":"Extra Background Color 1 = Black",
+"21442":"Extra Background Color 2 = Black",
+"21445":"Y = #74",
+"21447":"A = 00",
+"21449":"Transfer A to X",
+"21450":"Increase Y",
+"21451":"A = #41",
+"21453":"Transfer A to Y",
+"21457":"Set interrupts",
+"21466":"Clear interrupts",
+"22666":"A = 05",
+"22668":"$d415 = 05",
+"22671":"A = 45",
+"22673":"$d416 = 45",
+"22676":"A = f1",
+"22678":"$d417 = f1",
+"22681":"A = 3f",
+"22683":"$d418 = 3f",
+"22708":"A = 00",
+"22710":"$02 = 00",
+"22712":"Reset $02ff to 00. This sets the \u0027Not transitioning flag\u0027.",
+"22715":"X = 20. Counter for 20 loops.",
+"22717":"Store A (00) to $d400,x",
+"22720":"Decrease X",
+"22721":"Loop 20 times.",
+"22723":"A = f8",
+"22725":"$b7 = f8",
+"22727":"$b7 = f8",
+"22729":"A = 61",
+"22731":"$b8 = 61",
+"22733":"$ba = 61",
+"22735":"Setting various sound settings",
+"22738":"Set Interrupt Flag",
+"22739":"A = f5",
+"22741":"Set interrupt address (low)",
+"22744":"A = 60",
+"22746":"Set interrupt address (High)",
+"22749":"Clear interrupt flag",
+"27300":"Reduce health bar at the top of the screen",
+"27303":"Dont know why this is happening. Goes from #04 to #00",
+"27306":"RTS if not #00",
+"27308":"A = #04",
+"27310":"72b9 = #04",
+"27313":"Get current raster line position",
+"27316":"Compare raster line to #10",
+"27318":"Loop if raster line is not #10",
+"27320":"Load screen control register",
+"27327":"Load border colour",
+"27330":"Alternate colour between #f6 (Blue) and #fe (Light blue)",
+"27332":"Store updated colour to background colour.",
+"28010":"Sent from $776D",
+"28013":"Compare Y to 00",
+"28015":"Branch if not 00. Goes to RTS.",
+"28032":"Jumps to an RTS",
+"28043":"Jumps to an RTS",
+"28154":"$02ff is either 00 or 01. 01 when transitioning to game or load screen.",
+"28157":"Branch if not in transition from/to game",
+"28162":"Returned with Y (C000 data) and X (#20)",
+"28201":"A = #00",
+"28203":"$fb = #00",
+"28205":"A = #04",
+"28207":"$fc = #04",
+"28209":"Y = #00",
+"28211":"A = $0400,00",
+"28213":"Store $0400,00 to $0200,00",
+"28216":"Increase Y",
+"28217":"Compare Y to #50",
+"28219":"Loop to copy first two rows of start screen",
+"47316":"A = C0e3 (Alternates between #00-04)",
+"47319":"Transfer A to X",
+"47320":"Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)",
+"47323":"Enable/disable sprite in $d015",
+"47326":"Update sprite register",
+"48901":"A = #00",
+"48903":"$cf06 = #00. This seems to go to #01 when moving left/right",
+"48909":"A = Var_DownInput. 01 = Down pressed / 00 = No input",
+"48912":"Dont know if this would ever be true?",
+"48950":"A = Var_DownInput. 01 = Down pressed / 00 = No input",
+"48953":"Check if down is pressed",
+"48955":"Branch if down not pressed",
+"48992":"Left = #ff / Right = #01",
+"48995":"Check if left input received",
+"48997":"Branch if left not input",
+"48999":"A = Var_Falling (#00 = Falling on rope)",
+"49002":"Check if falling on rope",
+"49004":"Branch if falling on rope",
+"49006":"A = #02",
+"49008":"X = #00",
+"49010":"JSR as only moving right with no rope",
+"49034":"Left = #ff / Right = #01",
+"49037":"Check if going right",
+"49039":"Branch if not going right",
+"49041":"Sliding on rope =  #00",
+"49044":"Check if sliding on rope",
+"49046":"Branch if sliding on rope",
+"49048":"A = #03",
+"49050":"X = #00",
+"49207":"A = #00",
+"49209":"Var_UpInput = #00",
+"49212":"Cant see this ever being set",
+"49215":"Compare $4511 = #01",
+"49219":"A = #00",
+"49221":"Var_DownInput = #00",
+"49224":"Var_LeftRightInput = #00",
+"49227":"A = KeyboardInput",
+"49229":"Compare A = #40",
+"49231":"Branch if no keyboard input",
+"49233":"A = #00",
+"49235":"Var_DownInput = #00",
+"49238":"Var_LeftRightInput = #00",
+"49241":"A = Var_KeyboardInput",
+"49243":"Compare $c5 = $4512",
+"49246":"Always taken from what I can see",
+"49313":"Reset movement variables and get port A input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)",
+"49316":"Isolate first bit",
+"49318":"Compare to see if the bit is true",
+"49320":"Branch if up is not pressed",
+"49322":"A = #01",
+"49324":"Store #01 to Var_UpInput",
+"49327":"Get Port A inputs",
+"49330":"Isolate second bit",
+"49332":"Check if second bit is set",
+"49334":"Branch if down is not pressed",
+"49336":"A = #01",
+"49338":"Store #01 to Var_DownInput",
+"49341":"Get Port A inputs",
+"49350":"A = #ff",
+"49352":"Store #ff (Left) to Var_LeftRightInput",
+"49355":"Get Port A inputs",
+"49362":"Branch to RTS",
+"49364":"A = #01",
+"49366":"Store #01 (Right) to Var_LeftRightInput",
+"49386":"Y = #ff",
+"49388":"$c8fe = #ff",
+"49391":"$c8ff = #ff",
+"49394":"Transfer X to A",
+"49395":"Clear carry",
+"49396":"Multiply by 2",
+"49397":"Transfer A to X",
+"49398":"A = $c8fe",
+"49401":"Compare A = #00",
+"49403":"Branch if equal #00",
+"49582":"Load joystick input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)",
+"49585":"AND on input recieved",
+"49587":"Check if no input received",
+"49589":"Branch if no input received",
+"49591":"Not sure what $c5 is used for",
+"49597":"A = #00",
+"49599":"Reset down input",
+"49602":"Reset left/right input",
+"49605":"Load port A inputs",
+"49934":"Rotates between #00-04",
+"49937":"Transfer A to X",
+"49938":"Multiply A by 2",
+"49939":"Transfer A to Y",
+"49940":"A = cf0d,x (X is the enemy number)",
+"49943":"Transfer A to X"},
+
+"LongComments":{
+"-2147483647":{
+"Text":"6502bench SourceGen v1.8.3",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":0},
+
+"9601":{
+"Text":"     Main menu loop",
+"BoxMode":true,
+"MaxWidth":30,
+"BackgroundColor":0}},
+
+"Notes":{
+"9649":{
+"Text":"Main menu loop end\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-5383962},
+
+"20591":{
+"Text":"Get left/right input",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-7278960},
+
+"20877":{
+"Text":"Reduce health bar\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-23296},
+
+"21002":{
+"Text":"Get left/right input",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-7278960},
+
+"21270":{
+"Text":"Check for damage",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-23296},
+
+"27300":{
+"Text":"Damage subroutine",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-23296},
+
+"28201":{
+"Text":"Once fire is pressed on attract screen, this will begin screen load",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-23296},
+
+"48901":{
+"Text":"Checking this area out",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-18751},
+
+"48992":{
+"Text":"Get left/right input",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-7278960},
+
+"49034":{
+"Text":"Get left/right input",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-7278960},
+
+"49207":{
+"Text":"Sub Get keyboard Inputs\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-256},
+
+"49313":{
+"Text":"Sub Get Joystick Inputs\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-256}},
+
+"UserLabels":{
+"9358":{
+"Label":"Sub_SetRandomVariables",
+"Value":11428,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21866":{
+"Label":"ScreenSetup",
+"Value":23936,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20987":{
+"Label":"Var_DamageOccuringLoop1",
+"Value":23057,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21402":{
+"Label":"loop",
+"Value":23472,
+"Source":"User",
+"Type":"NonUniqueLocalAddr",
+"LabelAnno":"None"},
+
+"22717":{
+"Label":"loop",
+"Value":24787,
+"Source":"User",
+"Type":"NonUniqueLocalAddr",
+"LabelAnno":"None"},
+
+"22666":{
+"Label":"SoundConfig",
+"Value":24736,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"9601":{
+"Label":"MainMenuLoop",
+"Value":11671,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21270":{
+"Label":"Sub_CheckForDamage",
+"Value":23340,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21291":{
+"Label":"Exit_CheckForDamage",
+"Value":23361,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20868":{
+"Label":"loop",
+"Value":22938,
+"Source":"User",
+"Type":"NonUniqueLocalAddr",
+"LabelAnno":"None"},
+
+"20866":{
+"Label":"Sub_GetCurrentHealthBar",
+"Value":22936,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20893":{
+"Label":"Sub_UpdateHealthBar",
+"Value":22963,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20877":{
+"Label":"Sub_ReduceHealthBar",
+"Value":22947,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"27313":{
+"Label":"loop",
+"Value":29383,
+"Source":"User",
+"Type":"NonUniqueLocalAddr",
+"LabelAnno":"None"},
+
+"27300":{
+"Label":"Sub_DamageRoutine",
+"Value":29370,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"27299":{
+"Label":"Var_DamageLoopCounter",
+"Value":29369,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20988":{
+"Label":"Var_DamageOccuringLoop2",
+"Value":23058,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"47575":{
+"Label":"Var_LeftRightInput",
+"Value":49645,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"47576":{
+"Label":"Var_UpInput",
+"Value":49646,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"47574":{
+"Label":"Var_DownInput",
+"Value":49644,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"49207":{
+"Label":"Sub_GetKeyboardInputs",
+"Value":51277,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"49582":{
+"Label":"Sub_ResetMovementVars",
+"Value":51652,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"49313":{
+"Label":"Sub_GetJoystickInputs",
+"Value":51383,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"15596":{
+"Label":"Var_RopeFall",
+"Value":17666,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"8936":{
+"Label":"Var_CharacterXPosHigh",
+"Value":11006,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"8937":{
+"Label":"Var_CharacterXPosLow",
+"Value":11007,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"15597":{
+"Label":"Var_SlidingOnRope",
+"Value":17667,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50928":{
+"Label":"Var_MovingLeftRight",
+"Value":52998,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20044":{
+"Label":"Sub_VerticalMovingEnemies",
+"Value":22114,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"49934":{
+"Label":"Sub_HorizontalMovingEnemies",
+"Value":52004,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"47310":{
+"Label":"Sub_UpdateEnemySprites",
+"Value":49380,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"47309":{
+"Label":"Var_EnemyIndex",
+"Value":49379,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"}},
+
+"OperandFormats":{
+"0":{
+"Length":2,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"10213":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"10214":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"10215":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"10216":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"10217":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"10218":{
+"Length":1032,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"11250":{
+"Length":504,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"11754":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"11818":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"11882":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"11946":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12010":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12074":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12138":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12202":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12266":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12330":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12394":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12458":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12522":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12586":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12650":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12714":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12778":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12842":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12906":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12970":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13034":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13098":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13162":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13226":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13290":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13354":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13418":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13482":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13546":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13610":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13674":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13738":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13802":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13866":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13930":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13994":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"14058":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"14122":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"14186":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"14250":{
+"Length":64,
+"Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null}},
+
+"LvTables":{
+},
+
+"Visualizations":[{
+"Tag":"vis0027ea",
+"VisGenIdent":"c64-hi-res-font",
+"VisGenParams":{
+"offset":10218,
+"count":121}},
+
+{
+"Tag":"vis002bf2",
+"VisGenIdent":"c64-hi-res-font",
+"VisGenParams":{
+"offset":11250,
+"count":63}},
+
+{
+"Tag":"vis002dea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":11754,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis002e2a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":11818,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis002e6a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":11882,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis002eaa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":11946,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis002eea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12010,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis002f2a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12074,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis002f6a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12138,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis002faa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12202,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis002fea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12266,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00302a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12330,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00306a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12394,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0030aa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12458,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0030ea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12522,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00312a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12586,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00316a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12650,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0031aa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12714,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0031ea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12778,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00322a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12842,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00326a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12906,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0032aa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":12970,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0032ea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13034,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00332a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13098,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00336a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13162,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0033aa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13226,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0033ea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13290,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00342a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13354,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00346a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13418,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0034aa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13482,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0034ea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13546,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00352a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13610,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00356a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13674,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0035aa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13738,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0035ea",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13802,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00362a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13866,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00366a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13930,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0036aa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":13994,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00372a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":14122,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis00376a",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":14186,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}},
+
+{
+"Tag":"vis0037aa",
+"VisGenIdent":"c64-multi-color-sprite",
+"VisGenParams":{
+"offset":14250,
+"color":1,
+"color01":0,
+"color11":2,
+"doubleWide":false,
+"doubleHigh":false}}],
+"VisualizationAnimations":[],
+"VisualizationSets":{
+"10218":{
+"Tags":["vis0027ea"]},
+
+"11250":{
+"Tags":["vis002bf2"]},
+
+"11754":{
+"Tags":["vis002dea"]},
+
+"11818":{
+"Tags":["vis002e2a"]},
+
+"11882":{
+"Tags":["vis002e6a"]},
+
+"11946":{
+"Tags":["vis002eaa"]},
+
+"12010":{
+"Tags":["vis002eea"]},
+
+"12074":{
+"Tags":["vis002f2a"]},
+
+"12138":{
+"Tags":["vis002f6a"]},
+
+"12202":{
+"Tags":["vis002faa"]},
+
+"12266":{
+"Tags":["vis002fea"]},
+
+"12330":{
+"Tags":["vis00302a"]},
+
+"12394":{
+"Tags":["vis00306a"]},
+
+"12458":{
+"Tags":["vis0030aa"]},
+
+"12522":{
+"Tags":["vis0030ea"]},
+
+"12586":{
+"Tags":["vis00312a"]},
+
+"12650":{
+"Tags":["vis00316a"]},
+
+"12714":{
+"Tags":["vis0031aa"]},
+
+"12778":{
+"Tags":["vis0031ea"]},
+
+"12842":{
+"Tags":["vis00322a"]},
+
+"12906":{
+"Tags":["vis00326a"]},
+
+"12970":{
+"Tags":["vis0032aa"]},
+
+"13034":{
+"Tags":["vis0032ea"]},
+
+"13098":{
+"Tags":["vis00332a"]},
+
+"13162":{
+"Tags":["vis00336a"]},
+
+"13226":{
+"Tags":["vis0033aa"]},
+
+"13290":{
+"Tags":["vis0033ea"]},
+
+"13354":{
+"Tags":["vis00342a"]},
+
+"13418":{
+"Tags":["vis00346a"]},
+
+"13482":{
+"Tags":["vis0034aa"]},
+
+"13546":{
+"Tags":["vis0034ea"]},
+
+"13610":{
+"Tags":["vis00352a"]},
+
+"13674":{
+"Tags":["vis00356a"]},
+
+"13738":{
+"Tags":["vis0035aa"]},
+
+"13802":{
+"Tags":["vis0035ea"]},
+
+"13866":{
+"Tags":["vis00362a"]},
+
+"13930":{
+"Tags":["vis00366a"]},
+
+"13994":{
+"Tags":["vis0036aa"]},
+
+"14122":{
+"Tags":["vis00372a"]},
+
+"14186":{
+"Tags":["vis00376a"]},
+
+"14250":{
+"Tags":["vis0037aa"]}},
+
+"RelocList":{
+},
+
+"DbrValues":{
+}}

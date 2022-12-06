@@ -1007,12 +1007,32 @@
 "Value":49379,
 "Source":"User",
 "Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"9632":{
+"Label":"Menu_FireNotPressed",
+"Value":11702,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"9651":{
+"Label":"Menu_FirePressed",
+"Value":11721,
+"Source":"User",
+"Type":"GlobalAddr",
 "LabelAnno":"None"}},
 
 "OperandFormats":{
 "0":{
 "Length":2,
 "Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"33":{
+"Length":6089,
+"Format":"Uninit",
 "SubFormat":"None",
 "SymbolRef":null},
 

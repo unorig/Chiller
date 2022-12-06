@@ -506,6 +506,7 @@
 "9612":"Disable all sprites",
 "9632":"Load A with $cf7f",
 "9635":"Compare cf7f with #00",
+"9637":"Always #00",
 "9639":"Cant see this ever being triggered",
 "9651":"At menu screen is #f0",
 "9654":"And on #f0 becomes #00",
@@ -602,6 +603,11 @@
 "28216":"Increase Y",
 "28217":"Compare Y to #50",
 "28219":"Loop to copy first two rows of start screen",
+"28425":"Exits to $2dc3",
+"28426":"Load border colour",
+"28429":"Set Most Significant Byte to 0",
+"28431":"Branch if border colour is black",
+"28436":"Branch if not #00. Will RTS.",
 "47316":"A = C0e3 (Alternates between #00-04)",
 "47319":"Transfer A to X",
 "47320":"Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)",
@@ -1019,6 +1025,13 @@
 "9651":{
 "Label":"Menu_FirePressed",
 "Value":11721,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"9610":{
+"Label":"ResetToMenuScreen",
+"Value":11680,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

@@ -436,7 +436,7 @@
 "SubFormat":"Hex",
 "SymbolRef":null},
 
-"Comment":"",
+"Comment":"This is for the keyboard player inputs",
 "HasWidth":false,
 "Direction":"ReadWrite",
 "MultiMask":null,
@@ -455,6 +455,56 @@
 "TypeHints":[{
 "Low":2,
 "High":2,
+"Hint":"Code"},
+
+{
+"Low":22751,
+"High":22751,
+"Hint":"Code"},
+
+{
+"Low":22776,
+"High":22776,
+"Hint":"Code"},
+
+{
+"Low":22800,
+"High":22800,
+"Hint":"Code"},
+
+{
+"Low":22824,
+"High":22824,
+"Hint":"Code"},
+
+{
+"Low":22869,
+"High":22869,
+"Hint":"Code"},
+
+{
+"Low":22886,
+"High":22886,
+"Hint":"Code"},
+
+{
+"Low":22892,
+"High":22892,
+"Hint":"Code"},
+
+{
+"Low":22907,
+"High":22907,
+"Hint":"Code"},
+
+{
+"Low":22934,
+"High":22934,
+"Hint":"Code"},
+
+{
+"Low":22961,
+"High":22961,
 "Hint":"Code"}],
 "StatusFlagOverrides":{
 },
@@ -508,6 +558,9 @@
 "9635":"Compare cf7f with #00",
 "9637":"Always #00",
 "9639":"Cant see this ever being triggered",
+"9645":"Check for keyboard input received",
+"9647":"#40 = No keyboard input",
+"9649":"Loop on main menu as no joystick or keyboard input received",
 "9651":"At menu screen is #f0",
 "9654":"And on #f0 becomes #00",
 "9656":"Jump to $2dd3",
@@ -607,7 +660,8 @@
 "28426":"Load border colour",
 "28429":"Set Most Significant Byte to 0",
 "28431":"Branch if border colour is black",
-"28436":"Branch if not #00. Will RTS.",
+"28433":"Starts at #ff.",
+"28436":"Branch if not #00. Will RTS. Since above will be #fe it will RTS.",
 "47316":"A = C0e3 (Alternates between #00-04)",
 "47319":"Transfer A to X",
 "47320":"Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)",
@@ -1030,8 +1084,22 @@
 "LabelAnno":"None"},
 
 "9610":{
-"Label":"ResetToMenuScreen",
+"Label":"SetupMenuScreen",
 "Value":11680,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"28426":{
+"Label":"Sub_ResetToMenu",
+"Value":30496,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"9642":{
+"Label":"ResetToMenuScreen",
+"Value":11712,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

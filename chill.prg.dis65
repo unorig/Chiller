@@ -554,6 +554,7 @@
 "9606":"Branch if fire not pressed.",
 "9608":"Branch as fire is pressed.",
 "9612":"Disable all sprites",
+"9626":"Register for a loop. Not sure why though.",
 "9632":"Load A with $cf7f",
 "9635":"Compare cf7f with #00",
 "9637":"Always #00",
@@ -1084,7 +1085,7 @@
 "LabelAnno":"None"},
 
 "9610":{
-"Label":"SetupMenuScreen",
+"Label":"ExecuteAfterDeath",
 "Value":11680,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -1100,6 +1101,13 @@
 "9642":{
 "Label":"ResetToMenuScreen",
 "Value":11712,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"48849":{
+"Label":"TimeWastingLoop",
+"Value":50919,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

@@ -1,7 +1,7 @@
 ; Target assembler: 64tass v1.56.2625 [--ascii --case-sensitive -Wall]
 ; 6502bench SourceGen v1.8.3
         .cpu    "6502"
-Var_KeyboardInput = $c5
+Var_KeyboardInput = $c5    ;This is for the keyboard player inputs
 IRQVectorLow =  $0314
 IRQVectorHigh = $0315
 Scr_HealthBar = $042e
@@ -1227,7 +1227,8 @@ MainMenuLoop
         bne     Menu_FireNotPressed ;Branch if fire not pressed.
         beq     Menu_FirePressed ;Branch as fire is pressed.
 
-L2DA0   lda     #$00
+SetupMenuScreen
+        lda     #$00
         sta     SpriteEnableRegister ;Disable all sprites
         lda     L45EE
         jsr     L2CF3
@@ -1238,13 +1239,14 @@ L2DA0   lda     #$00
 Menu_FireNotPressed
         lda     LCF7F      ;Load A with $cf7f
         cmp     #$00       ;Compare cf7f with #00
-        beq     _L2DC0
+        beq     ResetToMenuScreen ;Always #00
         jmp     L2CB4      ;Cant see this ever being triggered
 
-_L2DC0  jsr     L7720
-        lda     Var_KeyboardInput
-        cmp     #$40
-        beq     MainMenuLoop
+ResetToMenuScreen
+        jsr     Sub_ResetToMenu
+        lda     Var_KeyboardInput ;Check for keyboard input received
+        cmp     #$40       ;#40 = No keyboard input
+        beq     MainMenuLoop ;Loop on main menu as no joystick or keyboard input received
 Menu_FirePressed
         lda     BorderColor ;At menu screen is #f0
         and     #$0f       ;And on #f0 becomes #00
@@ -6371,7 +6373,7 @@ L5DA9   lda     $02ff
         lda     #$00
         sta     L5A0D
         sta     Var_DamageOccuringLoop1
-        jmp     L2DA0
+        jmp     SetupMenuScreen
 
         .byte   $00
         .byte   $00
@@ -6841,27 +6843,15 @@ SoundConfig
         sta     FilterModeVolume ;$d418 = 3f
         rts
 
-        .byte   $a9
-        .byte   $03
-        .byte   $c5
-        .byte   $02
-        .byte   $d0
-        .byte   $0c
-        .byte   $ae
-        .byte   $ac
-        .byte   $02
-        .byte   $ca
-        .byte   $8e
-        .byte   $04
-        .byte   $d4
-        .byte   $a9
-        .byte   $50
-        .byte   $8d
-        .byte   $0b
-        .byte   $d4
-        .byte   $4c
-        .byte   $31
-        .byte   $ea
+L60B5   lda     #$03
+        cmp     $02
+        bne     _L60C7
+        ldx     $02ac
+        dex
+        stx     $d404
+        lda     #$50
+        sta     $d40b
+_L60C7  jmp     $ea31
 
 L60CA   lda     #$00       ;A = 00
         sta     $02        ;$02 = 00
@@ -6885,227 +6875,95 @@ _loop   sta     $d400,x    ;Store A (00) to $d400,x
         cli                ;Clear interrupt flag
         rts
 
-        .byte   $a0
-        .byte   $00
-        .byte   $c5
-        .byte   $02
-        .byte   $f0
-        .byte   $05
-        .byte   $c6
-        .byte   $02
-        .byte   $4c
-        .byte   $b5
-        .byte   $60
-        .byte   $e6
-        .byte   $b7
-        .byte   $d0
-        .byte   $02
-        .byte   $e6
-        .byte   $b8
-        .byte   $b1
-        .byte   $b7
-        .byte   $8d
-        .byte   $0c
-        .byte   $61
-        .byte   $4c
-        .byte   $74
-        .byte   $61
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $01
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $00
-        .byte   $d4
-        .byte   $ad
-        .byte   $ac
-        .byte   $02
-        .byte   $8c
-        .byte   $04
-        .byte   $d4
-        .byte   $8d
-        .byte   $04
-        .byte   $d4
-        .byte   $4c
-        .byte   $00
-        .byte   $61
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $08
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $07
-        .byte   $d4
-        .byte   $ad
-        .byte   $ad
-        .byte   $02
-        .byte   $8c
-        .byte   $0b
-        .byte   $d4
-        .byte   $8d
-        .byte   $0b
-        .byte   $d4
-        .byte   $4c
-        .byte   $00
-        .byte   $61
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $01
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $00
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $08
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $07
-        .byte   $d4
-        .byte   $8c
-        .byte   $04
-        .byte   $d4
-        .byte   $8c
-        .byte   $0b
-        .byte   $d4
-        .byte   $ad
-        .byte   $ac
-        .byte   $02
-        .byte   $8d
-        .byte   $04
-        .byte   $d4
-        .byte   $ad
-        .byte   $ad
-        .byte   $02
-        .byte   $8d
-        .byte   $0b
-        .byte   $d4
-        .byte   $4c
-        .byte   $00
-        .byte   $61
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $aa
-        .byte   $02
-        .byte   $4c
-        .byte   $31
-        .byte   $ea
-        .byte   $ad
-        .byte   $aa
-        .byte   $02
-        .byte   $85
-        .byte   $02
-        .byte   $4c
-        .byte   $31
-        .byte   $ea
-        .byte   $ee
-        .byte   $ff
-        .byte   $02
-        .byte   $4c
-        .byte   $31
-        .byte   $ea
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $ac
-        .byte   $02
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $ad
-        .byte   $02
-        .byte   $4c
-        .byte   $00
-        .byte   $61
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $05
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $0c
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $06
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $0d
-        .byte   $d4
-        .byte   $4c
-        .byte   $00
-        .byte   $61
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $02
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $03
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $09
-        .byte   $d4
-        .byte   $20
-        .byte   $e9
-        .byte   $61
-        .byte   $8d
-        .byte   $0a
-        .byte   $d4
-        .byte   $4c
-        .byte   $00
-        .byte   $61
-        .byte   $a5
-        .byte   $b9
-        .byte   $85
-        .byte   $b7
-        .byte   $a5
-        .byte   $ba
-        .byte   $85
-        .byte   $b8
-        .byte   $4c
-        .byte   $31
-        .byte   $ea
+        ldy     #$00
+        cmp     $02
+        beq     _L6100
+        dec     $02
+        jmp     L60B5
+
+_L6100  inc     $b7
+        bne     _L6106
+        inc     $b8
+_L6106  lda     ($b7),y
+        sta     _L610B+1
+_L610B  jmp     _L6174
+
+        jsr     L61E9
+        sta     $d401
+        jsr     L61E9
+        sta     $d400
+        lda     $02ac
+        sty     $d404
+        sta     $d404
+        jmp     _L6100
+
+        jsr     L61E9
+        sta     $d408
+        jsr     L61E9
+        sta     $d407
+        lda     $02ad
+        sty     $d40b
+        sta     $d40b
+        jmp     _L6100
+
+        jsr     L61E9
+        sta     $d401
+        jsr     L61E9
+        sta     $d400
+        jsr     L61E9
+        sta     $d408
+        jsr     L61E9
+        sta     $d407
+        sty     $d404
+        sty     $d40b
+        lda     $02ac
+        sta     $d404
+        lda     $02ad
+        sta     $d40b
+        jmp     _L6100
+
+        jsr     L61E9
+        sta     $02aa
+        jmp     $ea31
+
+_L6174  lda     $02aa
+        sta     $02
+        jmp     $ea31
+
+        inc     $02ff
+        jmp     $ea31
+
+        jsr     L61E9
+        sta     $02ac
+        jsr     L61E9
+        sta     $02ad
+        jmp     _L6100
+
+        jsr     L61E9
+        sta     $d405
+        jsr     L61E9
+        sta     $d40c
+        jsr     L61E9
+        sta     $d406
+        jsr     L61E9
+        sta     $d40d
+        jmp     _L6100
+
+        jsr     L61E9
+        sta     $d402
+        jsr     L61E9
+        sta     $d403
+        jsr     L61E9
+        sta     $d409
+        jsr     L61E9
+        sta     $d40a
+        jmp     _L6100
+
+        lda     $b9
+        sta     $b7
+        lda     $ba
+        sta     $b8
+        jmp     $ea31
 
 L61D2   lda     #$00
         ldx     #$20
@@ -7120,15 +6978,12 @@ _L61D6  sta     $d400,x
         cli
         rts
 
-        .byte   $e6
-        .byte   $b7
-        .byte   $d0
-        .byte   $02
-        .byte   $e6
-        .byte   $b8
-        .byte   $b1
-        .byte   $b7
-        .byte   $60
+L61E9   inc     $b7
+        bne     _L61EF
+        inc     $b8
+_L61EF  lda     ($b7),y
+        rts
+
         .byte   $00
         .byte   $ff
         .byte   $00
@@ -11913,13 +11768,14 @@ L771C   .byte   $ff
 L771D   .byte   $ff
 L771E   .byte   $0a
 
-L771F   rts
+L771F   rts                ;Exits to $2dc3
 
-L7720   lda     BorderColor
-        and     #$0f
-        beq     _L776D
-        dec     L771C
-        bne     L771F
+Sub_ResetToMenu
+        lda     BorderColor ;Load border colour
+        and     #$0f       ;Set Most Significant Byte to 0
+        beq     _L776D     ;Branch if border colour is black
+        dec     L771C      ;Starts at #ff.
+        bne     L771F      ;Branch if not #00. Will RTS. Since above will be #fe it will RTS.
         lda     #$ff
         sta     L771C
         dec     L771D

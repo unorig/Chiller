@@ -208,40 +208,6 @@
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
 
-"PointerSprite1":{
-"DataDescriptor":{
-"Length":1,
-"Format":"NumericLE",
-"SubFormat":"Hex",
-"SymbolRef":null},
-
-"Comment":"",
-"HasWidth":false,
-"Direction":"ReadWrite",
-"MultiMask":null,
-"Label":"PointerSprite1",
-"Value":2040,
-"Source":"Project",
-"Type":"ExternalAddr",
-"LabelAnno":"None"},
-
-"PointerSprite2":{
-"DataDescriptor":{
-"Length":1,
-"Format":"NumericLE",
-"SubFormat":"Hex",
-"SymbolRef":null},
-
-"Comment":"",
-"HasWidth":false,
-"Direction":"ReadWrite",
-"MultiMask":null,
-"Label":"PointerSprite2",
-"Value":2041,
-"Source":"Project",
-"Type":"ExternalAddr",
-"LabelAnno":"None"},
-
 "Scr_HealthBar":{
 "DataDescriptor":{
 "Length":1,
@@ -357,6 +323,40 @@
 "MultiMask":null,
 "Label":"SpriteEnableRegister",
 "Value":53269,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"SpritePointer0":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"SpritePointer0",
+"Value":2040,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"SpritePointer1":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"SpritePointer1",
+"Value":2041,
 "Source":"Project",
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
@@ -566,6 +566,12 @@
 "9654":"And on #f0 becomes #00",
 "9656":"Jump to $2dd3",
 "20591":"Left = #ff / Right = #01",
+"20719":"Set girl sprite position",
+"20722":"Set girl sprite position",
+"20725":"Value will be used to set border to blue",
+"20728":"Set border colour to blue",
+"20733":"Update sprite pointer for girl",
+"20736":"Return from subroutine",
 "20866":"X = #ff",
 "20868":"Increase X",
 "20869":"A = $042e, x",
@@ -1085,7 +1091,7 @@
 "LabelAnno":"None"},
 
 "9610":{
-"Label":"ExecuteAfterDeath",
+"Label":"ThisRunsAfterDeath",
 "Value":11680,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -1108,6 +1114,13 @@
 "48849":{
 "Label":"TimeWastingLoop",
 "Value":50919,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20714":{
+"Label":"ResetGirl",
+"Value":22784,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

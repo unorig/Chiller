@@ -565,6 +565,7 @@
 "9651":"At menu screen is #f0",
 "9654":"And on #f0 becomes #00",
 "9656":"Jump to $2dd3",
+"20309":"JSR from $5d65",
 "20591":"Left = #ff / Right = #01",
 "20719":"Set girl sprite position",
 "20722":"Set girl sprite position",
@@ -591,6 +592,12 @@
 "21280":"A = #12",
 "21282":"DamageOccuring+1 = #12",
 "21285":"Decrease DamageOccuring",
+"21402":"JSR from $576b",
+"21405":"Check if rasterline is #10",
+"21407":"Loop back two instructions if raster not #10",
+"21409":"Would be #1b (0001 1011)",
+"21412":"(1000 0000)",
+"21416":"Return from subroutine",
 "21429":"JSR $2a80 with Y = #5b / X = #bf",
 "21432":"A = #00",
 "21434":"Disable all sprites",
@@ -605,6 +612,7 @@
 "21453":"Transfer A to Y",
 "21457":"Set interrupts",
 "21466":"Clear interrupts",
+"21834":"JSR from $c649",
 "21836":"This variable changes between boy (Blue) and girl (Red)",
 "22666":"A = 05",
 "22668":"$d415 = 05",
@@ -875,10 +883,10 @@
 "LabelAnno":"None"},
 
 "21402":{
-"Label":"loop",
+"Label":"Sub_WaitForCurrentRaster",
 "Value":23472,
 "Source":"User",
-"Type":"NonUniqueLocalAddr",
+"Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "22717":{

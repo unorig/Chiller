@@ -5507,7 +5507,7 @@ L5768   jmp     L7280
 L576B   jsr     Sub_WaitForCurrentRaster ;JSR from $5d65
         nop
         nop
-        jsr     L58E6
+        jsr     SetupSpritePositions
         lda     SpriteEnableRegister
         ora     #$03
         sta     SpriteEnableRegister
@@ -5661,23 +5661,24 @@ _L58C7  lda     Var_KeyboardInput
 _L58CF  cpx     #$00
         bne     _L58DB
         lda     #$00
-        sta     SpiteXMSBReg_Enemies-1
+        sta     Temp_SpiteXMSBReg-1
         jmp     L5844
 
-_L58DB  lda     SpiteXMSBReg_Enemies-1
+_L58DB  lda     Temp_SpiteXMSBReg-1
         beq     _L58E3
         jmp     L5844
 
 _L58E3  jmp     L5768
 
-L58E6   lda     #$01       ;JSR from $5770
-        sta     SpiteXMSBReg_Enemies-1 ;Store #01 to $5A06
+SetupSpritePositions
+        lda     #$01       ;JSR from $5770
+        sta     Temp_SpiteXMSBReg-1 ;Store #01 to $5A06
         ldx     Sprite0XPositionRegister ;Load X with Sprite0_X_Position
         lda     Sprite1XPositionRegister ;Load A with Sprite1_X_Position
         sta     Sprite0XPositionRegister ;Update Sprite0_X_Position with Sprite1_X_Position
         stx     Sprite1XPositionRegister ;Update Sprite1_X_Position with Sprite0_X_Position
         ldx     Sprite0YPositionRegister ;Load A with Sprite0_Y_Position
-        jmp     L5919
+        jmp     ContSetupSpritePositions
 
         .byte   $8d
         .byte   $f8
@@ -5698,35 +5699,37 @@ ResetGirl
         .byte   $ea
         .byte   $ea
 
-L5919   lda     Sprite1YPositionRegister ;Load A with Sprite1_Y_Position
+ContSetupSpritePositions
+        lda     Sprite1YPositionRegister ;Load A with Sprite1_Y_Position
         sta     Sprite0YPositionRegister ;Update Sprite0_Y_Position with Sprite1_Y_Position
         stx     Sprite1YPositionRegister ;Update Sprite1_Y_Position with Sprite0_Y_Position
         lda     SpriteXMSBRegister
         and     #$01       ;Isolate first bit in SpriteXMSBRegister
-        tax                ;Transfer A to X
+        tax                ;Store boy X-MSB flag in X
         lda     SpriteXMSBRegister
-        and     #$02       ;Isolate first bit in SpriteXMSBRegister
-        tay                ;Transfer A to Y
+        and     #$02       ;Isolate second bit in SpriteXMSBRegister
+        tay                ;Store girl X-MSB flag in Y
         lda     SpriteXMSBRegister
         and     #$fc       ;Get remaining bits (Exlcuding 1 and 2)
-        sta     SpiteXMSBReg_Enemies
-        cpy     #$00
-        beq     _L5942
-        lda     #$01
-        ora     SpiteXMSBReg_Enemies
-        sta     SpiteXMSBReg_Enemies
-_L5942  cpx     #$00
+        sta     Temp_SpiteXMSBReg ;Store enemy X-MSB values
+        cpy     #$00       ;Compare girl X-MSB values to #00
+        beq     CheckGirlMSBX ;Branch if girl X-MSB flag not set
+        lda     #$01       ;Load A with #01
+        ora     Temp_SpiteXMSBReg ;Turn on first byte for MSB-X register
+        sta     Temp_SpiteXMSBReg ;Store girl into SpriteXMSBReg
+CheckGirlMSBX
+        cpx     #$00       ;Branch if girl X-MSB flag not set
         beq     _L594E
-        lda     #$02
-        ora     SpiteXMSBReg_Enemies
-        sta     SpiteXMSBReg_Enemies
-_L594E  lda     SpiteXMSBReg_Enemies
-        sta     SpriteXMSBRegister
-        ldx     SpritePointer0
-        lda     SpritePointer1
-        sta     SpritePointer0
-        stx     SpritePointer1
-        rts
+        lda     #$02       ;Load A with #01
+        ora     Temp_SpiteXMSBReg ;Turn on second byte for MSB-X register
+        sta     Temp_SpiteXMSBReg ;Store bpy into SpriteXMSBReg
+_L594E  lda     Temp_SpiteXMSBReg
+        sta     SpriteXMSBRegister ;Update SpriteXMSBRegister
+        ldx     SpritePointer0 ;Set X with SpritePointer0 (Boy)
+        lda     SpritePointer1 ;Set A with SpritePointer1 (Girl)
+        sta     SpritePointer0 ;Store SpritePointer1 (Girl) to SpritePointer0 (Boy)
+        stx     SpritePointer1 ;Store SpritePointer0 (Boy) to SpritePointer1 (Girl)
+        rts                ;Return from subroutine ($5770)
 
 L5961   lda     $0430
         cmp     #$a9
@@ -5835,7 +5838,7 @@ L5A03   .byte   $c1
         .byte   $ff
         .byte   $00
         .byte   $00
-SpiteXMSBReg_Enemies
+Temp_SpiteXMSBReg
         .byte   $20
 Var_BorderColour
         .byte   $01

@@ -5,8 +5,8 @@ Var_KeyboardInput = $c5    ;This is for the keyboard player inputs
 IRQVectorLow =  $0314
 IRQVectorHigh = $0315
 Scr_HealthBar = $042e
-PointerSprite1 = $07f8
-PointerSprite2 = $07f9
+SpritePointer0 = $07f8
+SpritePointer1 = $07f9
 SpritePointers = $07fa
 Sprite0XPositionRegister = $d000
 Sprite0YPositionRegister = $d001
@@ -1211,7 +1211,7 @@ _L2D85  jsr     L5D98
         .byte   $ea
         .byte   $ea
 
-L2D8D   sta     PointerSprite2
+L2D8D   sta     SpritePointer1
         lda     #$00
         sta     LC544
         rts
@@ -1227,15 +1227,15 @@ MainMenuLoop
         bne     Menu_FireNotPressed ;Branch if fire not pressed.
         beq     Menu_FirePressed ;Branch as fire is pressed.
 
-SetupMenuScreen
+ThisRunsAfterDeath
         lda     #$00
         sta     SpriteEnableRegister ;Disable all sprites
         lda     L45EE
         jsr     L2CF3
         lda     #$ff
         sta     LCF65
-        sta     LCF66
-        jsr     LC6E7
+        sta     LCF66      ;Register for a loop. Not sure why though.
+        jsr     TimeWastingLoop
 Menu_FireNotPressed
         lda     LCF7F      ;Load A with $cf7f
         cmp     #$00       ;Compare cf7f with #00
@@ -5330,7 +5330,7 @@ _L566F  lda     L45E7,x
         cpx     #$05
         bne     _L566F
         lda     L45EC
-        sta     PointerSprite1
+        sta     SpritePointer0
         rts
 
 L5681   ldx     #$00
@@ -5591,11 +5591,11 @@ L5836   jmp     L59E6
 
         .fill   11,$ea
 
-L5844   lda     PointerSprite1
+L5844   lda     SpritePointer0
 L5847   cmp     #$f1
         bne     L5850
 L584B   lda     #$f6
-        sta     PointerSprite1
+        sta     SpritePointer0
 L5850   ldx     Sprite0XPositionRegister
         lda     L5A02
         stx     L5A02
@@ -5609,14 +5609,14 @@ _L5864  inc     L5A03
         lda     L5A03
         cmp     #$90
         bne     _L5863
-        lda     PointerSprite1
+        lda     SpritePointer0
         and     #$04
         bne     L587A
 L5875   lda     #$f2
         jmp     L587C
 
 L587A   lda     #$f6
-L587C   sta     PointerSprite1
+L587C   sta     SpritePointer0
         rts
 
 L5880   lda     #$00
@@ -5626,16 +5626,16 @@ L5880   lda     #$00
         lda     #$60
         sta     Sub_GetKeyboardInputs
         sta     L5980
-        lda     PointerSprite1
+        lda     SpritePointer0
         and     #$04
         bne     L58A3
 L589A   lda     #$f0
         nop
-        sta     PointerSprite1
+        sta     SpritePointer0
         jmp     L58A8
 
 L58A3   lda     #$f1
-        sta     PointerSprite1
+        sta     SpritePointer0
 L58A8   lda     #$f0
         sta     LC79B+1
         sta     LC7C5+1
@@ -5683,16 +5683,17 @@ L58E6   lda     #$01
         .byte   $f8
         .byte   $07
 
-L5900   jsr     Sub_SetRandomVariables
+ResetGirl
+        jsr     Sub_SetRandomVariables
         lda     #$e0
-        sta     Sprite1XPositionRegister
-        sta     Sprite1YPositionRegister
-        lda     #$06
+        sta     Sprite1XPositionRegister ;Set girl sprite position
+        sta     Sprite1YPositionRegister ;Set girl sprite position
+        lda     #$06       ;Value will be used to set border to blue
         nop
-        sta     BorderColor
+        sta     BorderColor ;Set border colour to blue
         lda     #$ee
-        sta     PointerSprite2
-        rts
+        sta     SpritePointer1 ;Update sprite pointer for girl
+        rts                ;Return from subroutine
 
         .byte   $ea
         .byte   $ea
@@ -5721,10 +5722,10 @@ _L5942  cpx     #$00
         sta     L5A07
 _L594E  lda     L5A07
         sta     SpriteXMSBRegister
-        ldx     PointerSprite1
-        lda     PointerSprite2
-        sta     PointerSprite1
-        stx     PointerSprite2
+        ldx     SpritePointer0
+        lda     SpritePointer1
+        sta     SpritePointer0
+        stx     SpritePointer1
         rts
 
 L5961   lda     $0430
@@ -5746,16 +5747,16 @@ _L597B  jmp     L5A88
         .byte   $ea
         .byte   $ea
 
-L5980   lda     PointerSprite1
+L5980   lda     SpritePointer0
         and     #$03
         cmp     #$03
         beq     _L598F
-        inc     PointerSprite1
+        inc     SpritePointer0
         jmp     _L5997
 
-_L598F  lda     PointerSprite1
+_L598F  lda     SpritePointer0
         and     #$fc
-        sta     PointerSprite1
+        sta     SpritePointer0
 _L5997  rts
 
 Sub_GetCurrentHealthBar
@@ -6373,7 +6374,7 @@ L5DA9   lda     $02ff
         lda     #$00
         sta     L5A0D
         sta     Var_DamageOccuringLoop1
-        jmp     SetupMenuScreen
+        jmp     ThisRunsAfterDeath
 
         .byte   $00
         .byte   $00
@@ -6471,7 +6472,7 @@ L5E19   lda     L7290,x
         jsr     L7F2E
         iny
         lda     ($11),y
-        sta     PointerSprite1
+        sta     SpritePointer0
         iny
         lda     ($11),y
         sta     Sprite1XPositionRegister
@@ -6485,7 +6486,7 @@ L5E19   lda     L7290,x
         sta     SpriteXMSBRegister
         iny
         lda     ($11),y
-        sta     PointerSprite2
+        sta     SpritePointer1
         iny
         lda     ($11),y
         sta     LCF68
@@ -11735,10 +11736,10 @@ _L769A  ldx     L767F
         jsr     L5E19
         lda     L5A08
         beq     _L76BB
-        lda     PointerSprite1
-        ldx     PointerSprite2
-        sta     PointerSprite2
-        stx     PointerSprite1
+        lda     SpritePointer0
+        ldx     SpritePointer1
+        sta     SpritePointer1
+        stx     SpritePointer0
         lda     #$0a
         sta     BorderColor
         jmp     _L76C0
@@ -22253,10 +22254,10 @@ _LC4FF  lda     SpriteEnableRegister
         sta     SpriteEnableRegister
         rts
 
-_LC508  lda     PointerSprite2
+_LC508  lda     SpritePointer1
         eor     #$ff
         eor     #$fe
-        sta     PointerSprite2
+        sta     SpritePointer1
         inc     LC544
         lda     LC544
         cmp     #$05
@@ -22477,7 +22478,7 @@ _LC63F  lda     L455B,x
         sta     LCF54,x
 _LC645  rts
 
-LC646   jsr     L5900
+LC646   jsr     ResetGirl
         jsr     L5D60
         lda     L450F
         sta     ExtraBackgroundColor1-1
@@ -22570,7 +22571,8 @@ LC6E0   lda     L45AD,x
 
         .byte   $60
 
-LC6E7   tya
+TimeWastingLoop
+        tya
         pha
         txa
         pha
@@ -22586,7 +22588,7 @@ _LC6F1  dec     LCF67
         tay
         rts
 
-LC700   lda     PointerSprite2
+LC700   lda     SpritePointer1
         clc
         sbc     #$df
         ldx     #$01
@@ -22619,11 +22621,11 @@ LC71B   lda     #$00       ;A = #00
         lda     Var_SlidingOnRope+1
         cmp     #$00
         beq     _LC74C
-        lda     PointerSprite1
+        lda     SpritePointer0
         and     #$01
         clc
         adc     #$d8
-        sta     PointerSprite1
+        sta     SpritePointer0
 _LC74C  lda     Var_DownInput ;A = Var_DownInput. 01 = Down pressed / 00 = No input
         cmp     #$01       ;Check if down is pressed
         bne     _LC776     ;Branch if down not pressed
@@ -22637,11 +22639,11 @@ _LC74C  lda     Var_DownInput ;A = Var_DownInput. 01 = Down pressed / 00 = No in
         lda     Var_SlidingOnRope+2
         cmp     #$00
         beq     _LC776
-        lda     PointerSprite1
+        lda     SpritePointer0
         and     #$01
         clc
         adc     #$da
-        sta     PointerSprite1
+        sta     SpritePointer0
 _LC776  lda     Var_LeftRightInput ;Left = #ff / Right = #01
         cmp     #$ff       ;Check if left input received
         bne     LC7A0      ;Branch if left not input
@@ -22655,11 +22657,11 @@ _LC776  lda     Var_LeftRightInput ;Left = #ff / Right = #01
         lda     Var_SlidingOnRope+3
         cmp     #$00
         beq     LC7A0
-        lda     PointerSprite1
+        lda     SpritePointer0
         and     #$03
         clc
 LC79B   adc     #$e8
-        sta     PointerSprite1
+        sta     SpritePointer0
 LC7A0   lda     Var_LeftRightInput ;Left = #ff / Right = #01
         cmp     #$01       ;Check if going right
         bne     LC7CA      ;Branch if not going right
@@ -22673,11 +22675,11 @@ LC7A0   lda     Var_LeftRightInput ;Left = #ff / Right = #01
         lda     L4507
         cmp     #$00
         beq     LC7CA
-        lda     PointerSprite1
+        lda     SpritePointer0
         and     #$03
         clc
 LC7C5   adc     #$ec
-        sta     PointerSprite1
+        sta     SpritePointer0
 LC7CA   lda     Var_UpInput
         cmp     #$00
         beq     LC819
@@ -22686,7 +22688,7 @@ LC7CA   lda     Var_UpInput
 LC7D4   and     #$02
         cmp     #$00
         bne     LC819
-        lda     PointerSprite1
+        lda     SpritePointer0
         clc
         sbc     #$d7
         lsr     a

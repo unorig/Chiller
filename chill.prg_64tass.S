@@ -5512,7 +5512,7 @@ L576B   jsr     Sub_WaitForCurrentRaster ;JSR from $5d65
         ora     #$03
         sta     SpriteEnableRegister
         lda     Var_BorderColour
-        beq     _L5783
+        beq     _L5783     ;Have not seen this executed yet.
         jmp     _L57BD
 
 _L5783  lda     #$01
@@ -5591,18 +5591,18 @@ L5836   jmp     L59E6
 
         .fill   11,$ea
 
-L5844   lda     SpritePointer0
-L5847   cmp     #$f1
+L5844   lda     SpritePointer0 ;Load SpritePointer0
+L5847   cmp     #$f1       ;Check if SpritePointer0 = #f1
         bne     L5850
 L584B   lda     #$f6
         sta     SpritePointer0
-L5850   ldx     Sprite0XPositionRegister
-        lda     L5A02
-        stx     L5A02
-        cmp     L5A02
-        beq     _L5864
-        lda     #$00
-        sta     L5A03
+L5850   ldx     Sprite0XPositionRegister ;Set X to Boy X position register
+        lda     L5A02      ;Set A with $5a02
+        stx     L5A02      ;Set $5a02 with Boy x position register
+        cmp     L5A02      ;Compare $5a02 to Boy x position
+        beq     _L5864     ;Branch if $5a02 is up to date with boy X position
+        lda     #$00       ;A = #00
+        sta     L5A03      ;Store #00 to $5a03
 _L5863  rts
 
 _L5864  inc     L5A03

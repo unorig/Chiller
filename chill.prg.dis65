@@ -605,6 +605,7 @@
 "21453":"Transfer A to Y",
 "21457":"Set interrupts",
 "21466":"Clear interrupts",
+"21836":"This variable changes between boy (Blue) and girl (Red)",
 "22666":"A = 05",
 "22668":"$d415 = 05",
 "22671":"A = 45",
@@ -1121,6 +1122,13 @@
 "20714":{
 "Label":"ResetGirl",
 "Value":22784,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20978":{
+"Label":"Var_BorderColour",
+"Value":23048,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

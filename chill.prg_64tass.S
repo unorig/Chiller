@@ -5661,22 +5661,22 @@ _L58C7  lda     Var_KeyboardInput
 _L58CF  cpx     #$00
         bne     _L58DB
         lda     #$00
-        sta     L5A06
+        sta     SpiteXMSBReg_Enemies-1
         jmp     L5844
 
-_L58DB  lda     L5A06
+_L58DB  lda     SpiteXMSBReg_Enemies-1
         beq     _L58E3
         jmp     L5844
 
 _L58E3  jmp     L5768
 
-L58E6   lda     #$01
-        sta     L5A06
-        ldx     Sprite0XPositionRegister
-        lda     Sprite1XPositionRegister
-        sta     Sprite0XPositionRegister
-        stx     Sprite1XPositionRegister
-        ldx     Sprite0YPositionRegister
+L58E6   lda     #$01       ;JSR from $5770
+        sta     SpiteXMSBReg_Enemies-1 ;Store #01 to $5A06
+        ldx     Sprite0XPositionRegister ;Load X with Sprite0_X_Position
+        lda     Sprite1XPositionRegister ;Load A with Sprite1_X_Position
+        sta     Sprite0XPositionRegister ;Update Sprite0_X_Position with Sprite1_X_Position
+        stx     Sprite1XPositionRegister ;Update Sprite1_X_Position with Sprite0_X_Position
+        ldx     Sprite0YPositionRegister ;Load A with Sprite0_Y_Position
         jmp     L5919
 
         .byte   $8d
@@ -5698,29 +5698,29 @@ ResetGirl
         .byte   $ea
         .byte   $ea
 
-L5919   lda     Sprite1YPositionRegister
-        sta     Sprite0YPositionRegister
-        stx     Sprite1YPositionRegister
+L5919   lda     Sprite1YPositionRegister ;Load A with Sprite1_Y_Position
+        sta     Sprite0YPositionRegister ;Update Sprite0_Y_Position with Sprite1_Y_Position
+        stx     Sprite1YPositionRegister ;Update Sprite1_Y_Position with Sprite0_Y_Position
         lda     SpriteXMSBRegister
-        and     #$01
-        tax
+        and     #$01       ;Isolate first bit in SpriteXMSBRegister
+        tax                ;Transfer A to X
         lda     SpriteXMSBRegister
-        and     #$02
-        tay
+        and     #$02       ;Isolate first bit in SpriteXMSBRegister
+        tay                ;Transfer A to Y
         lda     SpriteXMSBRegister
-        and     #$fc
-        sta     Var_BorderColour-1
+        and     #$fc       ;Get remaining bits (Exlcuding 1 and 2)
+        sta     SpiteXMSBReg_Enemies
         cpy     #$00
         beq     _L5942
         lda     #$01
-        ora     Var_BorderColour-1
-        sta     Var_BorderColour-1
+        ora     SpiteXMSBReg_Enemies
+        sta     SpiteXMSBReg_Enemies
 _L5942  cpx     #$00
         beq     _L594E
         lda     #$02
-        ora     Var_BorderColour-1
-        sta     Var_BorderColour-1
-_L594E  lda     Var_BorderColour-1
+        ora     SpiteXMSBReg_Enemies
+        sta     SpiteXMSBReg_Enemies
+_L594E  lda     SpiteXMSBReg_Enemies
         sta     SpriteXMSBRegister
         ldx     SpritePointer0
         lda     SpritePointer1
@@ -5834,7 +5834,8 @@ L5A02   .byte   $70
 L5A03   .byte   $c1
         .byte   $ff
         .byte   $00
-L5A06   .byte   $00
+        .byte   $00
+SpiteXMSBReg_Enemies
         .byte   $20
 Var_BorderColour
         .byte   $01

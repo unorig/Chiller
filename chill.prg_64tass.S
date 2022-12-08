@@ -5504,7 +5504,7 @@ L5762   .byte   $22
 
 L5768   jmp     L7280
 
-L576B   jsr     loop
+L576B   jsr     Sub_WaitForCurrentRaster ;JSR from $5d65
         nop
         nop
         jsr     L58E6
@@ -6083,13 +6083,14 @@ _L5BA0  dec     Var_DamageOccuringLoop2+2
 
 _L5BAD  jmp     L7673
 
-loop    lda     CurrentRasterLine
-        cmp     #$10
-        bne     loop
-        lda     ScreenControlRegister
-        and     #$80
-        bne     loop
-        rts
+Sub_WaitForCurrentRaster
+        lda     CurrentRasterLine ;JSR from $576b
+        cmp     #$10       ;Check if rasterline is #10
+        bne     Sub_WaitForCurrentRaster ;Loop back two instructions if raster not #10
+        lda     ScreenControlRegister ;Would be #1b (0001 1011)
+        and     #$80       ;(1000 0000)
+        bne     Sub_WaitForCurrentRaster
+        rts                ;Return from subroutine
 
         .byte   $00
         .byte   $b2
@@ -6338,7 +6339,7 @@ _L5D4F  lda     $fe
         .byte   $00
         .byte   $00
 
-L5D60   lda     #$01
+L5D60   lda     #$01       ;JSR from $c649
         sta     Var_BorderColour ;This variable changes between boy (Blue) and girl (Red)
         jsr     L576B
         rts

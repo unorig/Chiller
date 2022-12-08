@@ -5511,12 +5511,12 @@ L576B   jsr     loop
         lda     SpriteEnableRegister
         ora     #$03
         sta     SpriteEnableRegister
-        lda     L5A08
+        lda     Var_BorderColour
         beq     _L5783
         jmp     _L57BD
 
 _L5783  lda     #$01
-        sta     L5A08
+        sta     Var_BorderColour
         lda     #$e8
         sta     L582C+1
         lda     #$ec
@@ -5540,7 +5540,7 @@ _L5783  lda     #$01
         jmp     L5844
 
 _L57BD  lda     #$00
-        sta     L5A08
+        sta     Var_BorderColour
         lda     #$d8
         sta     L582C+1
         lda     #$dc
@@ -5709,18 +5709,18 @@ L5919   lda     Sprite1YPositionRegister
         tay
         lda     SpriteXMSBRegister
         and     #$fc
-        sta     L5A07
+        sta     Var_BorderColour-1
         cpy     #$00
         beq     _L5942
         lda     #$01
-        ora     L5A07
-        sta     L5A07
+        ora     Var_BorderColour-1
+        sta     Var_BorderColour-1
 _L5942  cpx     #$00
         beq     _L594E
         lda     #$02
-        ora     L5A07
-        sta     L5A07
-_L594E  lda     L5A07
+        ora     Var_BorderColour-1
+        sta     Var_BorderColour-1
+_L594E  lda     Var_BorderColour-1
         sta     SpriteXMSBRegister
         ldx     SpritePointer0
         lda     SpritePointer1
@@ -5815,10 +5815,10 @@ _L59D0  lda     #$0a
 
 L59E6   lda     LC19C
         beq     _L59F9
-        dec     L5A09
+        dec     Var_BorderColour+1
         bne     _L59F8
         lda     #$00
-        sta     L5A09
+        sta     Var_BorderColour+1
         jsr     Sub_ReduceHealthBar
 _L59F8  rts
 
@@ -5835,11 +5835,12 @@ L5A03   .byte   $c1
         .byte   $ff
         .byte   $00
 L5A06   .byte   $00
-L5A07   .byte   $20
-L5A08   .byte   $01
-L5A09   .byte   $64
-L5A0A   .byte   $96
-L5A0B   .byte   $02
+        .byte   $20
+Var_BorderColour
+        .byte   $01
+        .byte   $64
+        .byte   $96
+        .byte   $02
         .byte   $12
 L5A0D   .byte   $00
 L5A0E   .byte   $10
@@ -5857,14 +5858,14 @@ L5A16   .byte   $09
 
 L5A20   lda     Var_LeftRightInput ;Left = #ff / Right = #01
         beq     _L5A3C     ;Branch if no input
-        dec     L5A0A
+        dec     Var_BorderColour+2
         bne     _L5A3C
         lda     #$ff
-        sta     L5A0A
-        dec     L5A0B
+        sta     Var_BorderColour+2
+        dec     Var_BorderColour+3
         bne     _L5A3C
         lda     #$03
-        sta     L5A0B
+        sta     Var_BorderColour+3
         jsr     Sub_ReduceHealthBar
 _L5A3C  rts
 
@@ -5874,7 +5875,7 @@ _L5A3C  rts
         .byte   $f6
 
 L5A41   jsr     L7659
-        lda     L5A08
+        lda     Var_BorderColour
         bne     _L5A4F
         lda     #$06
         sta     BorderColor
@@ -6338,7 +6339,7 @@ _L5D4F  lda     $fe
         .byte   $00
 
 L5D60   lda     #$01
-        sta     L5A08
+        sta     Var_BorderColour ;This variable changes between boy (Blue) and girl (Red)
         jsr     L576B
         rts
 
@@ -11618,7 +11619,7 @@ L75A7   lda     #$ea
 
 L75B0   lda     Var_DamageOccuringLoop1
         bne     _L75C7
-        lda     L5A08
+        lda     Var_BorderColour
         bne     _L75C2
         lda     #$06
         sta     BorderColor
@@ -11734,7 +11735,7 @@ _L769A  ldx     L767F
         inx
         inx
         jsr     L5E19
-        lda     L5A08
+        lda     Var_BorderColour
         beq     _L76BB
         lda     SpritePointer0
         ldx     SpritePointer1
@@ -12562,7 +12563,7 @@ L7F50   lda     $fc
         lda     ($fb),y
         and     #$04
         tax
-        lda     L5A08
+        lda     Var_BorderColour
         beq     _L7F67
         cpx     #$00
         beq     _L7F6C

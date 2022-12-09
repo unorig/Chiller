@@ -1509,16 +1509,17 @@ L2F4D   jsr     L60CA
         .byte   $d0
         .byte   $2e
 
-L2FB2   inc     LCF75
-        lda     LCF75
-        cmp     #$ff
-        beq     Sub_UpdateEnemyLoop
-        rts
+Sub_EnemyLoopTimer
+        inc     LCF75      ;Increment $cfb2
+        lda     LCF75      ;A = $cfb2
+        cmp     #$ff       ;Check if $cfb2 is up to 255 loops
+        beq     Sub_EnemyPositionLoop ;Branch if looped through 254 times
+        rts                ;Return from subroutine (Back to $ca57)
 
-;*****************************
-;*         Enemy loop        *
-;*****************************
-Sub_UpdateEnemyLoop
+;***************************************
+;*        Enemy positioning loop       *
+;***************************************
+Sub_EnemyPositionLoop
         lda     #$00
         sta     LCF75
         ldx     #$00       ;Start loop value at #00
@@ -23050,7 +23051,7 @@ _LCA2C  lda     Var_CurrentEnemyIndex
         jmp     LC694
 
 _LCA51  jsr     LC011
-        jsr     L2FB2
+        jsr     Sub_EnemyLoopTimer
         lda     LCF7F
         cmp     #$ff
         bne     _LCA61

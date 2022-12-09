@@ -582,6 +582,11 @@
 "9651":"At menu screen is #f0",
 "9654":"And on #f0 becomes #00",
 "9656":"Jump to $2dd3",
+"10140":"Increment $cfb2",
+"10143":"A = $cfb2",
+"10146":"Check if $cfb2 is up to 255 loops",
+"10148":"Branch if looped through 254 times",
+"10150":"Return from subroutine (Back to $ca57)",
 "10156":"Start loop value at #00",
 "10158":"Isolate the enemy bit",
 "10161":"Compare to the SpriteEnableRegister",
@@ -872,9 +877,9 @@
 "BackgroundColor":0},
 
 "10151":{
-"Text":"        Enemy loop",
+"Text":"       Enemy positioning loop",
 "BoxMode":true,
-"MaxWidth":30,
+"MaxWidth":40,
 "BackgroundColor":0}},
 
 "Notes":{
@@ -1300,7 +1305,7 @@
 "LabelAnno":"None"},
 
 "10151":{
-"Label":"Sub_UpdateEnemyLoop",
+"Label":"Sub_EnemyPositionLoop",
 "Value":12221,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -1316,6 +1321,13 @@
 "10207":{
 "Label":"Branch_NextEnemy",
 "Value":12277,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"10140":{
+"Label":"Sub_EnemyLoopTimer",
+"Value":12210,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

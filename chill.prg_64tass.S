@@ -36,7 +36,7 @@ PLOT    =       $fff0      ;read/set cursor X/Y position
 L081A   lda     _L0837+201,x
         sta     LCE00,x
         lda     _L0837+$1c9,x
-        sta     LCF00,x
+        sta     Var_CurrentEnemyIndex+1,x
         inx
         bne     L081A
 _L0829  lda     _L0837+153,x
@@ -1534,7 +1534,7 @@ _L2FC4  lda     Var_MovingLeftRight+2,x
         and     #$7f
         cmp     L45E2,x
         bpl     _L2FF5
-        txa
+        txa                ;A will be used for enemy index in later subroutines
         jsr     Sub_UpdateEnemySprites
         dec     LCF76,x
         lda     #$01
@@ -4764,7 +4764,7 @@ _L537E  jsr     L54AC
 
         .byte   $ea
 
-L538E   inc     LCF02
+L538E   inc     Var_CurrentEnemyIndex+3
         lda     LC19C
         beq     L5350
         dec     L2A7F
@@ -5566,7 +5566,7 @@ _L57BD  lda     #$00
 
         .fill   9,$ea
 
-L5800   inc     LCF02
+L5800   inc     Var_CurrentEnemyIndex+3
         jsr     L5961
         jsr     L5B00
         nop
@@ -22547,10 +22547,10 @@ LC646   jsr     ResetGirl
 LC694   lda     L45AB
         bne     _LC6AC
         lda     #$00
-        sta     LCEFF
+        sta     Var_CurrentEnemyIndex ;Enemy index (1-5)
 _LC69E  jsr     Sub_UpdateEnemySprites
-        inc     LCEFF
-        lda     LCEFF
+        inc     Var_CurrentEnemyIndex ;Increase enemy index
+        lda     Var_CurrentEnemyIndex
         cmp     L45AC
         bne     _LC69E
 _LC6AC  jsr     LC032
@@ -23015,7 +23015,7 @@ LCA00   jsr     L75B0
 LCA06   cmp     #$08
         bne     _LCA12
         lda     #$00
-        sta     LCF02
+        sta     Var_CurrentEnemyIndex+3
         jsr     LC700
 _LCA12  inc     LCF03
         lda     LCF03
@@ -23027,11 +23027,11 @@ LCA18   cmp     #$20
 _LCA24  jmp     L2D4B
 
 LCA27   lda     #$00
-        sta     LCEFF
-_LCA2C  lda     LCEFF
+        sta     Var_CurrentEnemyIndex
+_LCA2C  lda     Var_CurrentEnemyIndex
         jsr     LCDE9
-        inc     LCEFF
-        lda     LCEFF
+        inc     Var_CurrentEnemyIndex
+        lda     Var_CurrentEnemyIndex
         cmp     #$05
         bne     _LCA2C
         jsr     LCCF5
@@ -23397,7 +23397,7 @@ _LCCBF  inc     LCF97,x
         bne     _LCCF2
         lda     #$00
         sta     LCF97,x
-        ldx     LCEFF
+        ldx     Var_CurrentEnemyIndex
         inc     LCF33,x
         lda     LCF33,x
         cmp     L54E5,x
@@ -23758,10 +23758,11 @@ LCEF6   sta     $d027
         lda     L45EC
         jmp     LCAED
 
-LCEFF   .byte   $05
-LCF00   .byte   $00
+Var_CurrentEnemyIndex
+        .byte   $05
+        .byte   $00
         .byte   $ea
-LCF02   .byte   $7f
+        .byte   $7f
 LCF03   .byte   $06
         .byte   $00
         .byte   $06

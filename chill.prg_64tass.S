@@ -19,6 +19,7 @@ ScreenControlRegister = $d011
 CurrentRasterLine = $d012
 SpriteEnableRegister = $d015
 BorderColor =   $d020
+BackgroundColor = $d021
 ExtraBackgroundColor1 = $d022
 ExtraBackgroundColor2 = $d023
 FilterCutoffFrequencyLow = $d415
@@ -1095,7 +1096,7 @@ L2CB4   sei
         lda     #$05
         sta     BorderColor
         lda     #$0f
-        sta     ExtraBackgroundColor1-1
+        sta     BackgroundColor
         lda     #$15
         sta     $d018
         lda     #$93
@@ -6190,7 +6191,7 @@ L5C4F   jsr     L5CD8
         nop
         lda     #$00
         sta     BorderColor
-        sta     ExtraBackgroundColor1-1
+        sta     BackgroundColor
         sta     L5BFD
         jsr     L5C00
         lda     $d016
@@ -6343,9 +6344,10 @@ _L5D4F  lda     $fe
         .byte   $00
         .byte   $00
 
-L5D60   lda     #$01       ;JSR from $c649
+Sub_SetupSpritesEtc
+        lda     #$01       ;JSR from $c649
         sta     Var_BorderColour ;This variable changes between boy (Blue) and girl (Red)
-        jsr     L576B
+        jsr     L576B      ;Setup sprites etc.
         rts
 
         .byte   $ea
@@ -6432,7 +6434,8 @@ L5E0A   lda     $01
         .byte   $00
         .byte   $00
 
-L5E19   lda     L7290,x
+Sub_SetupBackground
+        lda     L7290,x
         sta     $11
         lda     L7291,x
         sta     $12
@@ -11739,7 +11742,7 @@ L7680   stx     L767F
 _L769A  ldx     L767F
         inx
         inx
-        jsr     L5E19
+        jsr     Sub_SetupBackground
         lda     Var_BorderColour
         beq     _L76BB
         lda     SpritePointer0
@@ -11802,7 +11805,7 @@ Sub_ResetToMenu
         sta     ExtraBackgroundColor1
         sta     ExtraBackgroundColor2
         sta     BorderColor
-        sta     ExtraBackgroundColor1-1
+        sta     BackgroundColor
         ldx     #$00
         ldy     #$7c
         jsr     L5C4F
@@ -22485,19 +22488,19 @@ _LC63F  lda     L455B,x
 _LC645  rts
 
 LC646   jsr     ResetGirl
-        jsr     L5D60
-        lda     L450F
-        sta     ExtraBackgroundColor1-1
+        jsr     Sub_SetupSpritesEtc
+        lda     L450F      ;Value is usually #f0 (Light grey)
+        sta     BackgroundColor ;Set the background colour to light grey
         lda     #$08
-        jsr     BSOUT
+        jsr     BSOUT      ;Not sure why this exists
         nop
-        lda     #$00
-        sta     SpriteEnableRegister
+        lda     #$00       ;A = #00
+        sta     SpriteEnableRegister ;Disable all sprites
         nop
         nop
         nop
-        ldx     #$00
-        jsr     L5E19
+        ldx     #$00       ;X = #00
+        jsr     Sub_SetupBackground
         nop
         nop
         nop

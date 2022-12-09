@@ -1334,7 +1334,7 @@ L2EB3   jmp     LCA27
 
         .byte   $ea
 
-L2EB7   lda     Var_MovingLeftRight+2,x
+L2EB7   lda     Var_4,x
         and     SpriteEnableRegister
         cmp     #$00
         beq     L2EC4
@@ -1512,38 +1512,44 @@ L2F4D   jsr     L60CA
 L2FB2   inc     LCF75
         lda     LCF75
         cmp     #$ff
-        beq     _L2FBD
+        beq     Sub_UpdateEnemyLoop
         rts
 
-_L2FBD  lda     #$00
+;*****************************
+;*         Enemy loop        *
+;*****************************
+Sub_UpdateEnemyLoop
+        lda     #$00
         sta     LCF75
-        ldx     #$00
-_L2FC4  lda     Var_MovingLeftRight+2,x
-        and     SpriteEnableRegister
-        cmp     #$00
-        bne     _L2FF5
+        ldx     #$00       ;Start loop value at #00
+Loop_NextEnemy
+        lda     Var_4,x    ;Isolate the enemy bit
+        and     SpriteEnableRegister ;Compare to the SpriteEnableRegister
+        cmp     #$00       ;Check if enemy is visible
+        bne     Branch_NextEnemy ;Branch if enemy is not visible
         lda     LCF76,x
-        cmp     #$00
-        beq     _L2FF5
-        txa
-        pha
+        cmp     #$00       ;Compare A to #00
+        beq     Branch_NextEnemy ;Branch if equal to #00
+        txa                ;Transfer X (Enemy index) to A
+        pha                ;Push accumulator to the stack
         jsr     LC9F1
-        pla
-        tax
-        tya
+        pla                ;Pull accumulator from the stack
+        tax                ;Transfer A to X
+        tya                ;Transfer Y to A
         and     #$7f
         cmp     L45E2,x
-        bpl     _L2FF5
+        bpl     Branch_NextEnemy
         txa                ;A will be used for enemy index in later subroutines
-        jsr     Sub_UpdateEnemySprites
+        jsr     Sub_UpdateEnemySprites ;Will use A for the enemy index
         dec     LCF76,x
         lda     #$01
         sta     LCF29,x
         lda     #$00
         sta     LCF1A,x
-_L2FF5  inx
-        cpx     #$05
-        bne     _L2FC4
+Branch_NextEnemy
+        inx                ;Increase loop
+        cpx     #$05       ;Check if loop is at #05 which is max enemy index
+        bne     Loop_NextEnemy ;Loop if not at the end of the enemy index
         rts
 
         .byte   $ea
@@ -23206,7 +23212,7 @@ Sub_HorizontalMovingEnemies
         lda     L451A,x
         sta     SpriteYPositionRegister,y
         ldy     Sub_HorizontalMovingEnemies-1
-        lda     Var_MovingLeftRight+2,y
+        lda     Var_4,y
         eor     #$ff
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
@@ -23249,7 +23255,7 @@ _LCB8B  lda     Sub_HorizontalMovingEnemies-1
         lda     L4519,x
         sta     SpriteXPositionRegister,y
         ldy     Sub_HorizontalMovingEnemies-1
-        lda     Var_MovingLeftRight+2,y
+        lda     Var_4,y
         eor     #$ff
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
@@ -23749,7 +23755,7 @@ _LCEC2  stx     LCF5F
         .byte   $60
 
 LCEEE   inc     LCF76,x
-        lda     Var_MovingLeftRight+2,x
+        lda     Var_4,x
         rts
 
         .byte   $ea
@@ -23769,7 +23775,7 @@ LCF03   .byte   $06
 Var_MovingLeftRight
         .byte   $00
         .byte   $00
-        .byte   $04
+Var_4   .byte   $04
         .byte   $08
         .byte   $10
         .byte   $20

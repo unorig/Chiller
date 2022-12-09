@@ -21,6 +21,23 @@
 "PlatformSymbolFileIdentifiers":["RT:Commodore/C64-Kernal.sym65"],
 "ExtensionScriptFileIdentifiers":["RT:Commodore/VisC64.cs"],
 "ProjectSyms":{
+"BackgroundColor":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"BackgroundColor",
+"Value":53281,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
 "BorderColor":{
 "DataDescriptor":{
 "Length":1,
@@ -655,6 +672,7 @@
 "21466":"Clear interrupts",
 "21834":"JSR from $c649",
 "21836":"This variable changes between boy (Blue) and girl (Red)",
+"21839":"Setup sprites etc.",
 "22666":"A = 05",
 "22668":"$d415 = 05",
 "22671":"A = 45",
@@ -724,6 +742,12 @@
 "47320":"Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)",
 "47323":"Enable/disable sprite in $d015",
 "47326":"Update sprite register",
+"48694":"Value is usually #f0 (Light grey)",
+"48697":"Set the background colour to light grey",
+"48702":"Not sure why this exists",
+"48706":"A = #00",
+"48708":"Disable all sprites",
+"48714":"X = #00",
 "48901":"A = #00",
 "48903":"$cf06 = #00. This seems to go to #01 when moving left/right",
 "48909":"A = Var_DownInput. 01 = Down pressed / 00 = No input",
@@ -1212,6 +1236,20 @@
 "20688":{
 "Label":"SetupSpritePositions",
 "Value":22758,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21834":{
+"Label":"Sub_SetupSpritesEtc",
+"Value":23904,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"22019":{
+"Label":"Sub_SetupBackground",
+"Value":24089,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

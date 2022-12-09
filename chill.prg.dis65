@@ -582,6 +582,7 @@
 "9651":"At menu screen is #f0",
 "9654":"And on #f0 becomes #00",
 "9656":"Jump to $2dd3",
+"10190":"A will be used for enemy index in later subroutines",
 "20309":"JSR from $5d65",
 "20328":"Have not seen this executed yet.",
 "20526":"Load SpritePointer0",
@@ -748,6 +749,8 @@
 "48706":"A = #00",
 "48708":"Disable all sprites",
 "48714":"X = #00",
+"48773":"Enemy index (1-5)",
+"48779":"Increase enemy index",
 "48901":"A = #00",
 "48903":"$cf06 = #00. This seems to go to #01 when moving left/right",
 "48909":"A = Var_DownInput. 01 = Down pressed / 00 = No input",
@@ -858,6 +861,12 @@
 "BoxMode":false,
 "MaxWidth":80,
 "BackgroundColor":-5383962},
+
+"10191":{
+"Text":"Checking for enemy movement possibly",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-256},
 
 "20591":{
 "Text":"Get left/right input",
@@ -1250,6 +1259,13 @@
 "22019":{
 "Label":"Sub_SetupBackground",
 "Value":24089,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50921":{
+"Label":"Var_CurrentEnemyIndex",
+"Value":52991,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

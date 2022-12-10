@@ -657,7 +657,7 @@ _L2A6E  jmp     L5AC7
 
         .byte   $60
 
-L2A72   sta     LC19B
+L2A72   sta     Var_JumpInput-1
         lda     L544A
         sta     L2A7F
         jmp     L5880
@@ -1509,7 +1509,7 @@ L2F4D   jsr     L60CA
         .byte   $d0
         .byte   $2e
 
-Sub_EnemyLoopTimer
+Sub_StartEnemyUpdate
         inc     LCF75      ;Increment $cfb2
         lda     LCF75      ;A = $cfb2
         cmp     #$ff       ;Check if $cfb2 is up to 255 loops
@@ -4772,8 +4772,8 @@ _L537E  jsr     L54AC
         .byte   $ea
 
 L538E   inc     Var_CurrentEnemyIndex+3
-        lda     LC19C
-        beq     L5350
+        lda     Var_JumpInput ;Seems to be related to jumping
+        beq     L5350      ;Branch if not jumping
         dec     L2A7F
         beq     _L539E
         rts
@@ -4796,7 +4796,7 @@ _L53B5  lda     L544A,x
         jmp     L54FC
 
 _L53BE  lda     #$01
-        sta     LC19B
+        sta     Var_JumpInput-1
         rts
 
         .byte   $ea
@@ -4817,7 +4817,7 @@ _L53D8  lda     L544A,x
         .byte   $ea
 
 _L53E2  lda     #$00
-        sta     LC19C
+        sta     Var_JumpInput
         lda     #$18
         sta     L534E
         rts
@@ -4858,7 +4858,7 @@ _L53FF  nop
 L5418   lda     L534E
         bne     _L5425
         lda     #$01
-        sta     LC19C
+        sta     Var_JumpInput
         jmp     LC1B4
 
 _L5425  jmp     LC819
@@ -4869,7 +4869,7 @@ L542A   .byte   $e3
 
 L542B   lda     Sprite0YPositionRegister
         sta     L542A
-        lda     LC19B
+        lda     Var_JumpInput-1
         rts
 
         .byte   $ea
@@ -4879,7 +4879,7 @@ L5437   lda     Sprite0YPositionRegister
         cmp     L542A
         bne     _L5444
         lda     #$01
-        sta     LC19B
+        sta     Var_JumpInput-1
 _L5444  inc     L2A7E
         rts
 
@@ -4920,7 +4920,7 @@ L5467   lda     Sprite0YPositionRegister
         rts
 
 _L547B  lda     #$00
-        sta     LC19C
+        sta     Var_JumpInput
         rts
 
         .byte   $ea
@@ -5583,7 +5583,7 @@ L5800   inc     Var_CurrentEnemyIndex+3
         beq     _L5818
         lda     L5A01
         sta     Var_LeftRightInput
-_L5818  lda     LC19C
+_L5818  lda     Var_JumpInput
         cmp     #$00
         bne     L5836
         lda     #$a9
@@ -5824,7 +5824,7 @@ _L59D0  lda     #$0a
         .byte   $ea
         .byte   $ea
 
-L59E6   lda     LC19C
+L59E6   lda     Var_JumpInput
         beq     _L59F9
         dec     Var_BorderColour+1
         bne     _L59F8
@@ -5858,7 +5858,7 @@ L5A0D   .byte   $00
 L5A0E   .byte   $10
 L5A0F   .byte   $01
         .byte   $00
-Var_DamageOccuringLoop1
+Var_DamageOccuring
         .byte   $00
 Var_DamageOccuringLoop2
         .byte   $12
@@ -6009,8 +6009,8 @@ L5B00   lda     L5A0D
         jsr     L59C3
 _L5B15  jmp     Sub_CheckForDamage
 
-L5B18   stx     Var_DamageOccuringLoop1-1
-_L5B1B  dec     Var_DamageOccuringLoop1-1
+L5B18   stx     Var_DamageOccuring-1
+_L5B1B  dec     Var_DamageOccuring-1
         beq     _L5B28
         inc     L5A0D
         beq     _L5B28
@@ -6023,13 +6023,13 @@ _L5B28  rts
         .byte   $ea
 
 Sub_CheckForDamage
-        lda     Var_DamageOccuringLoop1
+        lda     Var_DamageOccuring
         beq     Exit_CheckForDamage ;RTS if damage is not occuring
         dec     Var_DamageOccuringLoop2
         bne     Exit_CheckForDamage ;RTS if DamageOccuring is not zero
         lda     #$12       ;A = #12
         sta     Var_DamageOccuringLoop2 ;DamageOccuring+1 = #12
-        dec     Var_DamageOccuringLoop1 ;Decrease DamageOccuring
+        dec     Var_DamageOccuring ;Decrease DamageOccuring
         jsr     Sub_DamageRoutine
 Exit_CheckForDamage
         rts
@@ -6040,7 +6040,7 @@ Exit_CheckForDamage
 L5B44   stx     Var_DamageOccuringLoop2+1
 _L5B47  dec     Var_DamageOccuringLoop2+1
         beq     _L5B54
-        inc     Var_DamageOccuringLoop1
+        inc     Var_DamageOccuring
         beq     _L5B54
         jmp     _L5B47
 
@@ -6388,7 +6388,7 @@ L5DA9   lda     $02ff
         jsr     L61D2
         lda     #$00
         sta     L5A0D
-        sta     Var_DamageOccuringLoop1
+        sta     Var_DamageOccuring
         jmp     ThisRunsAfterDeath
 
         .byte   $00
@@ -11632,7 +11632,7 @@ L75A7   lda     #$ea
 
         .byte   $00
 
-L75B0   lda     Var_DamageOccuringLoop1
+L75B0   lda     Var_DamageOccuring ;#00 No damage / #01 Damage
         bne     _L75C7
         lda     Var_BorderColour
         bne     _L75C2
@@ -11764,7 +11764,7 @@ _L76BB  lda     #$06
         sta     BorderColor
 _L76C0  ldy     #$73
         lda     #$01
-        sta     LC19B
+        sta     Var_JumpInput-1
         lda     ($11),y
         cmp     #$0a
         bmi     _L76D5
@@ -21239,9 +21239,9 @@ LC000   lda     LCF46,x
 
 _LC00E  jmp     LCD55
 
-LC011   lda     L4555
-        cmp     #$ff
-        beq     _LC031
+LC011   lda     L4555      ;A = $4555
+        cmp     #$ff       ;Compare A to #ff
+        beq     _LC031     ;Branch if A = #ff
         dec     LCF43
         jsr     LC525
         bne     _LC031
@@ -21583,15 +21583,16 @@ LC144   sta     Sprite0YPositionRegister
         .byte   $00
         .byte   $4e
         .byte   $ea
-LC19B   .byte   $01
-LC19C   .byte   $00
+        .byte   $01
+Var_JumpInput
+        .byte   $00
 
 LC19D   lda     L45FF
         bne     _LC1A8
         lda     SpriteEnableRegister
         jmp     LC7D4
 
-_LC1A8  lda     LC19C
+_LC1A8  lda     Var_JumpInput
         beq     _LC1B0
         jmp     LC819
 
@@ -23050,12 +23051,12 @@ _LCA2C  lda     Var_CurrentEnemyIndex
         sta     LCF81
         jmp     LC694
 
-_LCA51  jsr     LC011
-        jsr     Sub_EnemyLoopTimer
+_LCA51  jsr     LC011      ;Not sure what this does as it never goes into subroutine
+        jsr     Sub_StartEnemyUpdate
         lda     LCF7F
         cmp     #$ff
         bne     _LCA61
-        jmp     L2CB4
+        jmp     L2CB4      ;Never seems to go into here
 
 _LCA61  jmp     LCA00
 

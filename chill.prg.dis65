@@ -604,6 +604,8 @@
 "10207":"Increase loop",
 "10208":"Check if loop is at #05 which is max enemy index",
 "10210":"Loop if not at the end of the enemy index",
+"19323":"Seems to be related to jumping",
+"19326":"Branch if not jumping",
 "20309":"JSR from $5d65",
 "20328":"Have not seen this executed yet.",
 "20526":"Load SpritePointer0",
@@ -740,6 +742,7 @@
 "28015":"Branch if not 00. Goes to RTS.",
 "28032":"Jumps to an RTS",
 "28043":"Jumps to an RTS",
+"28058":"#00 No damage / #01 Damage",
 "28154":"$02ff is either 00 or 01. 01 when transitioning to game or load screen.",
 "28157":"Branch if not in transition from/to game",
 "28162":"Returned with Y (C000 data) and X (#20)",
@@ -759,6 +762,9 @@
 "28431":"Branch if border colour is black",
 "28433":"Starts at #ff.",
 "28436":"Branch if not #00. Will RTS. Since above will be #fe it will RTS.",
+"47099":"A = $4555",
+"47102":"Compare A to #ff",
+"47104":"Branch if A = #ff",
 "47316":"A = C0e3 (Alternates between #00-04)",
 "47319":"Transfer A to X",
 "47320":"Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)",
@@ -850,6 +856,8 @@
 "49599":"Reset down input",
 "49602":"Reset left/right input",
 "49605":"Load port A inputs",
+"49723":"Not sure what this does as it never goes into subroutine",
+"49736":"Never seems to go into here",
 "49934":"Rotates between #00-04",
 "49937":"Transfer A to X",
 "49938":"Multiply A by 2",
@@ -983,7 +991,7 @@
 "LabelAnno":"None"},
 
 "20987":{
-"Label":"Var_DamageOccuringLoop1",
+"Label":"Var_DamageOccuring",
 "Value":23057,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -1326,8 +1334,15 @@
 "LabelAnno":"None"},
 
 "10140":{
-"Label":"Sub_EnemyLoopTimer",
+"Label":"Sub_StartEnemyUpdate",
 "Value":12210,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"47494":{
+"Label":"Var_JumpInput",
+"Value":49564,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

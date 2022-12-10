@@ -606,6 +606,9 @@
 "10210":"Loop if not at the end of the enemy index",
 "19323":"Seems to be related to jumping",
 "19326":"Branch if not jumping",
+"19339":"Branch if not jumping",
+"19341":"A = #00",
+"19483":"#01 Not jumping / #00 Jumping",
 "20309":"JSR from $5d65",
 "20328":"Have not seen this executed yet.",
 "20526":"Load SpritePointer0",
@@ -743,6 +746,11 @@
 "28032":"Jumps to an RTS",
 "28043":"Jumps to an RTS",
 "28058":"#00 No damage / #01 Damage",
+"28061":"Branch if damage received",
+"28063":"Load border colour",
+"28066":"Branch if background colour not #00",
+"28068":"A = $06 (blue)",
+"28070":"Set background colour to blue",
 "28154":"$02ff is either 00 or 01. 01 when transitioning to game or load screen.",
 "28157":"Branch if not in transition from/to game",
 "28162":"Returned with Y (C000 data) and X (#20)",
@@ -902,6 +910,12 @@
 "BoxMode":false,
 "MaxWidth":80,
 "BackgroundColor":-256},
+
+"19336":{
+"Text":"Jumping?",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":-18751},
 
 "20591":{
 "Text":"Get left/right input",
@@ -1343,6 +1357,27 @@
 "47494":{
 "Label":"Var_JumpInput",
 "Value":49564,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"19476":{
+"Label":"Temp_Sprite0YPos",
+"Value":21546,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"47493":{
+"Label":"Temp_NotJumping",
+"Value":49563,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"19477":{
+"Label":"Sub_GetBoyJumpPosTemps",
+"Value":21547,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

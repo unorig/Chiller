@@ -657,7 +657,7 @@ _L2A6E  jmp     L5AC7
 
         .byte   $60
 
-L2A72   sta     Var_JumpInput-1
+L2A72   sta     Temp_NotJumping
         lda     L544A
         sta     L2A7F
         jmp     L5880
@@ -4781,9 +4781,9 @@ L538E   inc     Var_CurrentEnemyIndex+3
         .byte   $ea
         .byte   $ea
 
-_L539E  jsr     L542B
-        bne     _L53C6
-        lda     #$00
+_L539E  jsr     Sub_GetBoyJumpPosTemps
+        bne     _L53C6     ;Branch if not jumping
+        lda     #$00       ;A = #00
         jsr     L2A04
         jsr     L5437
         ldx     L2A7E
@@ -4796,7 +4796,7 @@ _L53B5  lda     L544A,x
         jmp     L54FC
 
 _L53BE  lda     #$01
-        sta     Var_JumpInput-1
+        sta     Temp_NotJumping
         rts
 
         .byte   $ea
@@ -4865,21 +4865,23 @@ _L5425  jmp     LC819
 
         .byte   $ea
         .byte   $ea
-L542A   .byte   $e3
+Temp_Sprite0YPos
+        .byte   $e3
 
-L542B   lda     Sprite0YPositionRegister
-        sta     L542A
-        lda     Var_JumpInput-1
+Sub_GetBoyJumpPosTemps
+        lda     Sprite0YPositionRegister
+        sta     Temp_Sprite0YPos
+        lda     Temp_NotJumping ;#01 Not jumping / #00 Jumping
         rts
 
         .byte   $ea
         .byte   $ea
 
 L5437   lda     Sprite0YPositionRegister
-        cmp     L542A
+        cmp     Temp_Sprite0YPos
         bne     _L5444
         lda     #$01
-        sta     Var_JumpInput-1
+        sta     Temp_NotJumping
 _L5444  inc     L2A7E
         rts
 
@@ -11633,11 +11635,11 @@ L75A7   lda     #$ea
         .byte   $00
 
 L75B0   lda     Var_DamageOccuring ;#00 No damage / #01 Damage
-        bne     _L75C7
-        lda     Var_BorderColour
-        bne     _L75C2
-        lda     #$06
-        sta     BorderColor
+        bne     _L75C7     ;Branch if damage received
+        lda     Var_BorderColour ;Load border colour
+        bne     _L75C2     ;Branch if background colour not #00
+        lda     #$06       ;A = $06 (blue)
+        sta     BorderColor ;Set background colour to blue
         jmp     L7FAE
 
 _L75C2  lda     #$0a
@@ -11764,7 +11766,7 @@ _L76BB  lda     #$06
         sta     BorderColor
 _L76C0  ldy     #$73
         lda     #$01
-        sta     Var_JumpInput-1
+        sta     Temp_NotJumping
         lda     ($11),y
         cmp     #$0a
         bmi     _L76D5
@@ -21583,6 +21585,7 @@ LC144   sta     Sprite0YPositionRegister
         .byte   $00
         .byte   $4e
         .byte   $ea
+Temp_NotJumping
         .byte   $01
 Var_JumpInput
         .byte   $00

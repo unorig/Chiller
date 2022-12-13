@@ -5603,14 +5603,15 @@ L5836   jmp     L59E6
 
 L5844   lda     SpritePointer0 ;Load SpritePointer0
 L5847   cmp     #$f1       ;Check if SpritePointer0 = #f1
-        bne     L5850
-L584B   lda     #$f6
-        sta     SpritePointer0
-L5850   ldx     Sprite0XPositionRegister ;Set X to Boy X position register
-        lda     L5A02      ;Set A with $5a02
-        stx     L5A02      ;Set $5a02 with Boy x position register
-        cmp     L5A02      ;Compare $5a02 to Boy x position
-        beq     _L5864     ;Branch if $5a02 is up to date with boy X position
+        bne     Sub_CheckXMovement ;Branch if SpritePointer0 not equal #f1
+L584B   lda     #$f6       ;A = #f6
+        sta     SpritePointer0 ;SpritePointer0 = #f6
+Sub_CheckXMovement
+        ldx     Sprite0XPositionRegister ;Set X to Boy X position
+        lda     L5A02      ;Set A with previous X position
+        stx     L5A02      ;Update $5a02 with Boy x position
+        cmp     L5A02      ;Compare current position to previous position
+        beq     _L5864     ;Branch if no movement change
         lda     #$00       ;A = #00
         sta     L5A03      ;Store #00 to $5a03
 _L5863  rts

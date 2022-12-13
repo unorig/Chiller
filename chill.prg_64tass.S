@@ -592,7 +592,7 @@ _L0837  .byte   $41,$4e,$54,$49,$53,$4f,$46,$54,$41,$4e,$54,$49,$53,$4f,$46,$54
         .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
 L2A00   lsr     a
-        clc
+        clc                ;Clear carry
         bcc     L2A29
 
 L2A04   sta     Var_CharacterXPosHigh ;$2afe = A (#02)
@@ -602,15 +602,15 @@ L2A0B   sbc     #$2c
         lsr     a          ;Divide by 2
         lsr     a          ;Divide by 2
         lsr     a          ;Divide by 2
-        tay                ;Transfer A to Y. Y = (Y Pos - #2c) / 8
+        tay                ;Transfer A to Y.
         lda     Sprite0XPositionRegister ;A = Sprite0XPositionRegister
         sec                ;Set carry
         sbc     #$0c
         bcc     L2A00      ;Branch if carry clear
-        lsr     a
+        lsr     a          ;Divide by 2
         sta     Var_CharacterXPosLow ;Update Var_CharacterXPosLow
         lda     SpriteXMSBRegister
-        and     #$01
+        and     #$01       ;Isolate the first bit
         beq     _L2A26
         lda     #$80
 _L2A26  ora     Var_CharacterXPosLow
@@ -5576,8 +5576,8 @@ _L57BD  lda     #$00
         .fill   9,$ea
 
 L5800   inc     Var_CurrentEnemyIndex+3
-        jsr     L5961
-        jsr     L5B00
+        jsr     Sub_RedHealthBarZone
+        jsr     Sub_HealthBarUpdates
         nop
         nop
         lda     L5A00
@@ -5741,13 +5741,14 @@ _L594E  lda     Temp_SpiteXMSBReg
         stx     SpritePointer1 ;Store SpritePointer0 (Boy) to SpritePointer1 (Girl)
         rts                ;Return from subroutine ($5770)
 
-L5961   lda     $0430
-        cmp     #$a9
-        beq     _L5973
-        lda     #$80
-        sta     LCA18+1
-        lda     #$04
-        sta     L450C
+Sub_RedHealthBarZone
+        lda     $0430      ;Load top red health block
+        cmp     #$a9       ;Check if no red health bar consumed
+        beq     _L5973     ;Branch if no red health bar consumed
+        lda     #$80       ;A = #80
+        sta     LCA18+1    ;$ca19 = #80
+        lda     #$04       ;A = #04
+        sta     L450C      ;$450c = #04
         rts
 
 _L5973  lda     L450C
@@ -5781,19 +5782,19 @@ _loop   inx                ;Increase X
         rts
 
 Sub_ReduceHealthBar
-        jsr     Sub_GetCurrentHealthBar
-        lda     Scr_HealthBar,x
+        jsr     Sub_GetCurrentHealthBar ;Get the number position from $042e where the bar is blank
+        lda     Scr_HealthBar,x ;Get the number value of the bar block
         cmp     #$a1       ;Check if currently at empty position
         beq     Sub_UpdateHealthBar ;Branch if at empty health bar position
-        dec     Scr_HealthBar,x ;Decrease current health bar block from #a9 to #a1
+        dec     Scr_HealthBar,x ;Decrease current health bar block (Goes from #a9 to #a1)
         rts
 
         .byte   $ea
         .byte   $ea
 
 Sub_UpdateHealthBar
-        cpx     #$00
-        beq     _L59C0     ;Branch if current healthbar position is #00
+        cpx     #$00       ;Check if at the last health block
+        beq     JMP_NoHealthLeft ;Branch if at last healthbar block
         dex                ;Decrease X
         lda     #$a8       ;A = #a8
         sta     Scr_HealthBar,x ;Store #a8 to current health bar position
@@ -5802,12 +5803,14 @@ Sub_UpdateHealthBar
         .byte   $ea
         .byte   $ea
 
-_L59C0  jmp     L5A70
+JMP_NoHealthLeft
+        jmp     Sub_NoHealthLeft
 
-L59C3   jsr     Sub_GetCurrentHealthBar
-        cpx     #$21
-        beq     _L59D0
-        inc     Scr_HealthBar,x
+Sub_IncreaseHealthBlock
+        jsr     Sub_GetCurrentHealthBar ;Get current health bar block
+        cpx     #$21       ;Check if at maximum health block
+        beq     _L59D0     ;Branch if already full health
+        inc     Scr_HealthBar,x ;Increase health bar block (a1 - a9)
         rts
 
         .byte   $ea
@@ -5856,13 +5859,14 @@ Var_BorderColour
         .byte   $96
         .byte   $02
         .byte   $12
-L5A0D   .byte   $00
-L5A0E   .byte   $10
-L5A0F   .byte   $01
+Var_HealthIncreaseTimer
+        .byte   $00
+        .byte   $10
+        .byte   $01
         .byte   $00
 Var_DamageOccuring
         .byte   $00
-Var_DamageOccuringLoop2
+Var_DamageOccuringLoop
         .byte   $12
         .byte   $00
         .byte   $01
@@ -5911,15 +5915,16 @@ L5A60   lda     #$02
         .byte   $00
         .byte   $00
 
-L5A70   lda     #$01
-        sta     LCF7D
-        lda     #$02
-        sta     L450C
-        lda     #$00
-        sta     Var_MovingLeftRight+1
-        lda     #$20
-        sta     LCA18+1
-        rts
+Sub_NoHealthLeft
+        lda     #$01       ;A = #01
+        sta     LCF7D      ;Store #01 to $cf7d
+        lda     #$02       ;A = #02
+        sta     L450C      ;Store #02 to $450c
+        lda     #$00       ;A = #00
+        sta     Var_MovingLeftRight+1 ;Store #00 to $cf07
+        lda     #$20       ;A = #20
+        sta     LCA18+1    ;Store #20 to $ca19
+        rts                ;Return from subroutine ($72bd)
 
         .byte   $ff
         .byte   $ff
@@ -5942,7 +5947,7 @@ L5A9A   cmp     #$4d
         beq     _L5AA5
         jmp     L2A57
 
-_L5AA5  dec     L5A0F
+_L5AA5  dec     Var_HealthIncreaseTimer+2
         beq     _L5AAD
 _L5AAA  rts
 
@@ -5950,7 +5955,7 @@ _L5AAA  rts
         .byte   $ea
 
 _L5AAD  ldx     #$08
-        stx     L5A0F
+        stx     Var_HealthIncreaseTimer+2
         nop
         cmp     #$53
         bne     _L5ABF
@@ -6001,20 +6006,21 @@ _L5AE3  cmp     #$56
         .byte   $ea
         .byte   $ea
 
-L5B00   lda     L5A0D
-        beq     _L5B15
-        dec     L5A0E
+Sub_HealthBarUpdates
+        lda     Var_HealthIncreaseTimer ;This is increased when getting health back
+        beq     _L5B15     ;Branch if not getting health back
+        dec     Var_HealthIncreaseTimer+1
         bne     _L5B15
         lda     #$10
-        sta     L5A0E
-        dec     L5A0D
-        jsr     L59C3
-_L5B15  jmp     Sub_CheckForDamage
+        sta     Var_HealthIncreaseTimer+1
+        dec     Var_HealthIncreaseTimer
+        jsr     Sub_IncreaseHealthBlock
+_L5B15  jmp     Sub_CheckForDamage ;Jump to check for damage
 
-L5B18   stx     Var_DamageOccuring-1
-_L5B1B  dec     Var_DamageOccuring-1
+L5B18   stx     Var_HealthIncreaseTimer+3
+_L5B1B  dec     Var_HealthIncreaseTimer+3
         beq     _L5B28
-        inc     L5A0D
+        inc     Var_HealthIncreaseTimer
         beq     _L5B28
         jmp     _L5B1B
 
@@ -6027,10 +6033,10 @@ _L5B28  rts
 Sub_CheckForDamage
         lda     Var_DamageOccuring
         beq     Exit_CheckForDamage ;RTS if damage is not occuring
-        dec     Var_DamageOccuringLoop2
+        dec     Var_DamageOccuringLoop ;Decrease value of Var_DamageOccuringLoop
         bne     Exit_CheckForDamage ;RTS if DamageOccuring is not zero
         lda     #$12       ;A = #12
-        sta     Var_DamageOccuringLoop2 ;DamageOccuring+1 = #12
+        sta     Var_DamageOccuringLoop ;Var_DamageOccuringLoop = #12
         dec     Var_DamageOccuring ;Decrease DamageOccuring
         jsr     Sub_DamageRoutine
 Exit_CheckForDamage
@@ -6039,8 +6045,8 @@ Exit_CheckForDamage
         .byte   $ea
         .byte   $ea
 
-L5B44   stx     Var_DamageOccuringLoop2+1
-_L5B47  dec     Var_DamageOccuringLoop2+1
+L5B44   stx     Var_DamageOccuringLoop+1
+_L5B47  dec     Var_DamageOccuringLoop+1
         beq     _L5B54
         inc     Var_DamageOccuring
         beq     _L5B54
@@ -6089,10 +6095,10 @@ L5B95   cmp     #$66
         beq     _L5BA0
         jmp     L2A57
 
-_L5BA0  dec     Var_DamageOccuringLoop2+2
+_L5BA0  dec     Var_DamageOccuringLoop+2
         bne     L5B94
         lda     #$03
-        sta     Var_DamageOccuringLoop2+2
+        sta     Var_DamageOccuringLoop+2
         jmp     L2A57
 
 _L5BAD  jmp     L7673
@@ -6389,7 +6395,7 @@ L5DA9   lda     $02ff
         beq     L5DA9
         jsr     L61D2
         lda     #$00
-        sta     L5A0D
+        sta     Var_HealthIncreaseTimer
         sta     Var_DamageOccuring
         jmp     ThisRunsAfterDeath
 
@@ -11074,7 +11080,7 @@ Var_DamageLoopCounter
 
 Sub_DamageRoutine
         jsr     Sub_ReduceHealthBar ;Reduce health bar at the top of the screen
-        dec     Var_DamageLoopCounter ;Dont know why this is happening. Goes from #04 to #00
+        dec     Var_DamageLoopCounter ;Counter to time when border should flash
         bne     _L72DD     ;RTS if not #00
         lda     #$04       ;A = #04
         sta     Var_DamageLoopCounter ;72b9 = #04
@@ -11660,7 +11666,7 @@ _L75EC  rts
 
 L7600   iny
         lda     ($11),y
-        sta     Var_DamageOccuringLoop2+3
+        sta     Var_DamageOccuringLoop+3
         lda     #$03
         sta     SpriteEnableRegister
         rts
@@ -12536,7 +12542,7 @@ L7EF1   sta     L7EF0
         sta     SpriteXMSBRegister
         rts
 
-L7F00   dec     Var_DamageOccuringLoop2+3
+L7F00   dec     Var_DamageOccuringLoop+3
         beq     _L7F06
         rts
 

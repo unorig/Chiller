@@ -5583,16 +5583,16 @@ L5800   inc     Var_CurrentEnemyIndex+3
         lda     L5A00
         cmp     #$00
         beq     _L5818
-        lda     L5A01
-        sta     Var_LeftRightInput
-_L5818  lda     Var_JumpInput
-        cmp     #$00
-        bne     L5836
+        lda     L5A01      ;Never taken
+        sta     Var_LeftRightInput ;Never taken
+_L5818  lda     Var_JumpInput ;#01 jumping / #00 not jumping
+        cmp     #$00       ;Compare Var_JumpInput
+        bne     L5836      ;Branch if jumping
         lda     #$a9
-        sta     Sub_GetKeyboardInputs
+        sta     LC84D
         lda     #$ad
         sta     L5980
-        jsr     L58B3
+        jsr     Sub_CheckSlidingOnRope
 L582C   lda     #$e8
         sta     LC79B+1
 L5831   lda     #$ec
@@ -5634,7 +5634,7 @@ L5880   lda     #$00
         lda     Var_LeftRightInput ;Left = #ff / Right = #01
         sta     L5A01
         lda     #$60
-        sta     Sub_GetKeyboardInputs
+        sta     LC84D
         sta     L5980
         lda     SpritePointer0
         and     #$04
@@ -5651,30 +5651,32 @@ L58A8   lda     #$f0
         sta     LC7C5+1
         jmp     L5483
 
-L58B3   lda     Var_SlidingOnRope
-        bne     _L58BB
+Sub_CheckSlidingOnRope
+        lda     Var_SlidingOnRope
+        bne     _L58BB     ;Branch if not sliding down rope
         rts
 
         .byte   $ea
         .byte   $ea
 
-_L58BB  ldx     #$00
-        lda     InputPortA
-        and     #$10
-        bne     _L58C7
+_L58BB  ldx     #$00       ;X = #00
+        lda     InputPortA ;A = $dc00
+        and     #$10       ;Isolate 5th bit. (Port 2 joystick fire pressed)
+        bne     _L58C7     ;Branch if fire not received
         nop
-        ldx     #$01
-_L58C7  lda     Var_KeyboardInput
-        cmp     #$37
-        bne     _L58CF
-        ldx     #$01
-_L58CF  cpx     #$00
-        bne     _L58DB
-        lda     #$00
-        sta     Temp_SpiteXMSBReg-1
+        ldx     #$01       ;X = 01
+_L58C7  lda     Var_KeyboardInput ;A = $c5
+        cmp     #$37       ;Compare to #37 (Keyboard fire pressed).
+        bne     _L58CF     ;Branch if fire not received
+        ldx     #$01       ;X = 01
+_L58CF  cpx     #$00       ;Compare X to X = #01
+        bne     Sub_FireButtonEvent ;Branch if fire received
+        lda     #$00       ;A = #00
+        sta     Var_StartGame ;Reset Var_StartGame
         jmp     L5844
 
-_L58DB  lda     Temp_SpiteXMSBReg-1
+Sub_FireButtonEvent
+        lda     Var_StartGame
         beq     _L58E3
         jmp     L5844
 
@@ -5682,7 +5684,7 @@ _L58E3  jmp     L5768
 
 SetupSpritePositions
         lda     #$01       ;JSR from $5770
-        sta     Temp_SpiteXMSBReg-1 ;Store #01 to $5A06
+        sta     Var_StartGame ;Store #01 to $5A06
         ldx     Sprite0XPositionRegister ;Load X with Sprite0_X_Position
         lda     Sprite1XPositionRegister ;Load A with Sprite1_X_Position
         sta     Sprite0XPositionRegister ;Update Sprite0_X_Position with Sprite1_X_Position
@@ -5850,6 +5852,7 @@ L5A02   .byte   $70
 L5A03   .byte   $c1
         .byte   $ff
         .byte   $00
+Var_StartGame
         .byte   $00
 Temp_SpiteXMSBReg
         .byte   $20
@@ -22633,7 +22636,7 @@ _LC717  nop
 
 LC71B   lda     #$00       ;A = #00
         sta     Var_MovingLeftRight ;$cf06 = #00. This seems to go to #01 when moving left/right
-        jsr     Sub_GetKeyboardInputs
+        jsr     LC84D
         lda     Var_DownInput ;A = Var_DownInput. 01 = Down pressed / 00 = No input
         cmp     #$ff       ;Dont know if this would ever be true?
         bne     _LC74C
@@ -22778,8 +22781,7 @@ _LC83F  rts
         .byte   $c9
         .byte   $60
 
-Sub_GetKeyboardInputs
-        lda     #$00       ;A = #00
+LC84D   lda     #$00       ;A = #00
         sta     Var_UpInput ;Var_UpInput = #00
         lda     L4511      ;Cant see this ever being set
         cmp     #$01       ;Compare $4511 = #01

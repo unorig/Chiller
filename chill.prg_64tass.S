@@ -4734,7 +4734,8 @@ L534A   .byte   $e3
 L534B   .byte   $0c
 L534C   .byte   $03
         .byte   $ea
-L534E   .byte   $00
+Var_Falling
+        .byte   $00
         .byte   $ea
 
 L5350   lda     L45FF
@@ -4763,7 +4764,7 @@ _L535D  lda     L534B
         .byte   $ea
 
 _L537E  jsr     L54AC
-        inc     L534E
+        inc     Var_Falling
         lda     #$00
         sta     Var_RopeFall
         sta     Var_SlidingOnRope
@@ -4819,7 +4820,7 @@ _L53D8  lda     L544A,x
 _L53E2  lda     #$00
         sta     Var_JumpInput ;#01 jumping / #00 not jumping
         lda     #$18
-        sta     L534E
+        sta     Var_Falling
         rts
 
         .byte   $ea
@@ -4828,7 +4829,7 @@ _L53E2  lda     #$00
 L53EF   lda     #$01
         sta     Var_RopeFall
         sta     Var_SlidingOnRope
-        lda     L534E
+        lda     Var_Falling
         cmp     L457A
         bpl     _L53FF
 _L53FF  nop
@@ -4839,7 +4840,7 @@ _L53FF  nop
         nop
         nop
         lda     #$00
-        sta     L534E
+        sta     Var_Falling
         rts
 
         .byte   $ea
@@ -4855,10 +4856,10 @@ _L53FF  nop
         .byte   $ea
         .byte   $ea
 
-L5418   lda     L534E
+L5418   lda     Var_Falling
         bne     _L5425
-        lda     #$01
-        sta     Var_JumpInput ;#01 jumping / #00 not jumping
+        lda     #$01       ;A = #01
+        sta     Var_JumpInput ;Var_JumpInput = #01 (#01 jumping / #00 not jumping)
         jmp     LC1B4
 
 _L5425  jmp     LC819
@@ -5646,11 +5647,11 @@ L589A   lda     #$f0       ;A = #f0
         sta     SpritePointer0 ;SprintPointer0 = #f0
         jmp     L58A8
 
-L58A3   lda     #$f1
-        sta     SpritePointer0
-L58A8   lda     #$f0
-        sta     LC79B+1
-        sta     LC7C5+1
+L58A3   lda     #$f1       ;A = #f1
+        sta     SpritePointer0 ;SpritePointer0 = #f1
+L58A8   lda     #$f0       ;A = #f0
+        sta     LC79B+1    ;#c79b = #f0
+        sta     LC7C5+1    ;#c7c5 = #f0
         jmp     L5483
 
 Sub_CheckSlidingOnRope

@@ -4771,8 +4771,8 @@ _L537E  jsr     L54AC
 
         .byte   $ea
 
-L538E   inc     Var_CurrentEnemyIndex+3
-        lda     Var_JumpInput ;Seems to be related to jumping
+L538E   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
+        lda     Var_JumpInput ;#01 jumping / #00 not jumping
         beq     L5350      ;Branch if not jumping
         dec     L2A7F
         beq     _L539E
@@ -4782,7 +4782,7 @@ L538E   inc     Var_CurrentEnemyIndex+3
         .byte   $ea
 
 _L539E  jsr     Sub_GetBoyJumpPosTemps
-        bne     _L53C6     ;Branch if not jumping
+        bne     _L53C6     ;Branch if not jumping (#01 Not jumping / #00 Jumping)
         lda     #$00       ;A = #00
         jsr     L2A04
         jsr     L5437
@@ -4817,7 +4817,7 @@ _L53D8  lda     L544A,x
         .byte   $ea
 
 _L53E2  lda     #$00
-        sta     Var_JumpInput
+        sta     Var_JumpInput ;#01 jumping / #00 not jumping
         lda     #$18
         sta     L534E
         rts
@@ -4858,7 +4858,7 @@ _L53FF  nop
 L5418   lda     L534E
         bne     _L5425
         lda     #$01
-        sta     Var_JumpInput
+        sta     Var_JumpInput ;#01 jumping / #00 not jumping
         jmp     LC1B4
 
 _L5425  jmp     LC819
@@ -4922,7 +4922,7 @@ L5467   lda     Sprite0YPositionRegister
         rts
 
 _L547B  lda     #$00
-        sta     Var_JumpInput
+        sta     Var_JumpInput ;#01 jumping / #00 not jumping
         rts
 
         .byte   $ea
@@ -5575,15 +5575,15 @@ _L57BD  lda     #$00
 
         .fill   9,$ea
 
-L5800   inc     Var_CurrentEnemyIndex+3
+L5800   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
         jsr     Sub_RedHealthBarZone
         jsr     Sub_HealthBarUpdates
         nop
         nop
-        lda     L5A00
+        lda     Var_JumpDirection-1
         cmp     #$00
         beq     _L5818
-        lda     L5A01      ;Never taken
+        lda     Var_JumpDirection ;Never taken (Left = #ff / Right = #01 / Up = #00)
         sta     Var_LeftRightInput ;Never taken
 _L5818  lda     Var_JumpInput ;#01 jumping / #00 not jumping
         cmp     #$00       ;Compare Var_JumpInput
@@ -5608,41 +5608,42 @@ L584B   lda     #$f6       ;A = #f6
         sta     SpritePointer0 ;SpritePointer0 = #f6
 Sub_CheckXMovement
         ldx     Sprite0XPositionRegister ;Set X to Boy X position
-        lda     L5A02      ;Set A with previous X position
-        stx     L5A02      ;Update $5a02 with Boy x position
-        cmp     L5A02      ;Compare current position to previous position
+        lda     Var_JumpDirection+1 ;Set A with previous X position
+        stx     Var_JumpDirection+1 ;Update $5a02 with Boy x position
+        cmp     Var_JumpDirection+1 ;Compare current position to previous position
         beq     _L5864     ;Branch if no movement change
         lda     #$00       ;A = #00
-        sta     L5A03      ;Store #00 to $5a03
+        sta     Var_JumpDirection+2 ;Store #00 to $5a03
 _L5863  rts
 
-_L5864  inc     L5A03
-        lda     L5A03
-        cmp     #$90
-        bne     _L5863
-        lda     SpritePointer0
-        and     #$04
-        bne     L587A
-L5875   lda     #$f2
-        jmp     L587C
+_L5864  inc     Var_JumpDirection+2 ;Increment $5a03
+        lda     Var_JumpDirection+2 ;A = $5a03
+        cmp     #$90       ;Check if $5a03 = #90
+        bne     _L5863     ;Branch if A not equal #90 (RTS)
+        lda     SpritePointer0 ;A = SpritePointer0 (e6 right / e2 left)
+        and     #$04       ;Check if facing left or right (Right is #04 / Left is #00)
+        bne     L587A      ;Branch if facing right
+L5875   lda     #$f2       ;A = #f2
+        jmp     JMP_UpdateLRSprite
 
-L587A   lda     #$f6
-L587C   sta     SpritePointer0
+L587A   lda     #$f6       ;A = #f6
+JMP_UpdateLRSprite
+        sta     SpritePointer0 ;Update SpritePointer 0 (Right #f6 / Left #f2)
         rts
 
 L5880   lda     #$00
-        sta     L5A00
+        sta     Var_JumpDirection-1
         lda     Var_LeftRightInput ;Left = #ff / Right = #01
-        sta     L5A01
-        lda     #$60
-        sta     LC84D
-        sta     L5980
-        lda     SpritePointer0
-        and     #$04
-        bne     L58A3
-L589A   lda     #$f0
-        nop
-        sta     SpritePointer0
+        sta     Var_JumpDirection ;Left = #ff / Right = #01 / Up = #00
+        lda     #$60       ;A = #60
+        sta     LC84D      ;$c84d = #60
+        sta     L5980      ;$5980 = #60
+        lda     SpritePointer0 ;Load SpritePointer0
+        and     #$04       ;Isolate 4th bit
+        bne     L58A3      ;Branch if facing left
+L589A   lda     #$f0       ;A = #f0
+        nop                ;no operation
+        sta     SpritePointer0 ;SprintPointer0 = #f0
         jmp     L58A8
 
 L58A3   lda     #$f1
@@ -5832,13 +5833,13 @@ _L59D0  lda     #$0a
         .byte   $ea
         .byte   $ea
 
-L59E6   lda     Var_JumpInput
-        beq     _L59F9
-        dec     Var_BorderColour+1
-        bne     _L59F8
-        lda     #$00
-        sta     Var_BorderColour+1
-        jsr     Sub_ReduceHealthBar
+L59E6   lda     Var_JumpInput ;#01 jumping / #00 not jumping
+        beq     _L59F9     ;Branch if not jumping
+        dec     Var_JumpSkipDamage ;Var_JumpSkipDamage will be set to #00 in the loop
+        bne     _L59F8     ;Branch if not equal zero
+        lda     #$00       ;A = #00
+        sta     Var_JumpSkipDamage ;Var_JumpSomething = #00
+        jsr     Sub_ReduceHealthBar ;Reduce health while jumping
 _L59F8  rts
 
 _L59F9  jmp     L5A20
@@ -5847,10 +5848,11 @@ _L59F9  jmp     L5A20
         .byte   $ea
         .byte   $ea
         .byte   $ea
-L5A00   .byte   $00
-L5A01   .byte   $01
-L5A02   .byte   $70
-L5A03   .byte   $c1
+        .byte   $00
+Var_JumpDirection
+        .byte   $01        ;Left = #ff / Right = #01 / Up = #00
+        .byte   $70
+        .byte   $c1
         .byte   $ff
         .byte   $00
 Var_StartGame
@@ -5859,8 +5861,11 @@ Temp_SpiteXMSBReg
         .byte   $20
 Var_BorderColour
         .byte   $01
+Var_JumpSkipDamage
         .byte   $64
+Var_SomethingMovement1
         .byte   $96
+Var_SomethingMovement2
         .byte   $02
         .byte   $12
 Var_HealthIncreaseTimer
@@ -5880,14 +5885,14 @@ L5A16   .byte   $09
 
 L5A20   lda     Var_LeftRightInput ;Left = #ff / Right = #01
         beq     _L5A3C     ;Branch if no input
-        dec     Var_BorderColour+2
+        dec     Var_SomethingMovement1
         bne     _L5A3C
         lda     #$ff
-        sta     Var_BorderColour+2
-        dec     Var_BorderColour+3
+        sta     Var_SomethingMovement1
+        dec     Var_SomethingMovement2
         bne     _L5A3C
         lda     #$03
-        sta     Var_BorderColour+3
+        sta     Var_SomethingMovement2
         jsr     Sub_ReduceHealthBar
 _L5A3C  rts
 
@@ -11083,9 +11088,9 @@ Var_DamageLoopCounter
         .byte   $04
 
 Sub_DamageRoutine
-        jsr     Sub_ReduceHealthBar ;Reduce health bar at the top of the screen
+        jsr     Sub_ReduceHealthBar ;Subroutine to reduce health bar
         dec     Var_DamageLoopCounter ;Counter to time when border should flash
-        bne     _L72DD     ;RTS if not #00
+        bne     _L72DD     ;RTS if not #00. If #00 will flash border.
         lda     #$04       ;A = #04
         sta     Var_DamageLoopCounter ;72b9 = #04
 _loop   lda     CurrentRasterLine ;Get current raster line position
@@ -21598,14 +21603,14 @@ LC144   sta     Sprite0YPositionRegister
 Temp_NotJumping
         .byte   $01
 Var_JumpInput
-        .byte   $00
+        .byte   $00        ;#01 jumping / #00 not jumping
 
 LC19D   lda     L45FF
         bne     _LC1A8
         lda     SpriteEnableRegister
         jmp     LC7D4
 
-_LC1A8  lda     Var_JumpInput
+_LC1A8  lda     Var_JumpInput ;#01 jumping / #00 not jumping
         beq     _LC1B0
         jmp     LC819
 
@@ -23034,15 +23039,15 @@ LCA00   jsr     L75B0
         jsr     L5800
 LCA06   cmp     #$08
         bne     _LCA12
-        lda     #$00
-        sta     Var_CurrentEnemyIndex+3
+        lda     #$00       ;A = #00
+        sta     Var_SomethingRandom ;Var_SomethingRandom = #00
         jsr     LC700
-_LCA12  inc     LCF03
-        lda     LCF03
+_LCA12  inc     Var_SomethingElseRandom
+        lda     Var_SomethingElseRandom
 LCA18   cmp     #$20
         bne     _LCA24
         lda     #$00
-        sta     LCF03
+        sta     Var_SomethingElseRandom
         jsr     LC71B
 _LCA24  jmp     L2D4B
 
@@ -23782,8 +23787,10 @@ Var_CurrentEnemyIndex
         .byte   $05
         .byte   $00
         .byte   $ea
+Var_SomethingRandom
         .byte   $7f
-LCF03   .byte   $06
+Var_SomethingElseRandom
+        .byte   $06
         .byte   $00
         .byte   $06
 Var_MovingLeftRight

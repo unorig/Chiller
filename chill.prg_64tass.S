@@ -720,8 +720,7 @@ L2BF2   sta     SpriteEnableRegister
         sta     $d016
         rts
 
-        .byte   $ea
-        .byte   $1d
+        .byte   $ea,$1d
 
 L2C00   ldx     #$00
 _L2C02  lda     Var_SlidingOnRope+63,x
@@ -832,8 +831,7 @@ L2CF3   sta     L2E73+14
         sta     $ffff
 _L2CFD  rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 L2D00   ldx     #$00
 _L2D02  lda     Var_SlidingOnRope+228,x
@@ -934,10 +932,9 @@ Menu_FirePressed
         jsr     L7780
 _L2DD3  jmp     LC646
 
-        .fill   33,$00
-        .byte   $ea
-        .byte   $ea
-        .byte   $ea
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$ea,$ea,$ea
 
 L2DFA   jsr     L75A7
         jmp     L2CE4
@@ -1669,8 +1666,7 @@ L5350   lda     Var_SlidingOnRope+252
         beq     _L535D
 _L535A  rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 _L535D  lda     Var_SlidingOnRope+$e48
         sta     Var_SlidingOnRope+$e49
@@ -1684,9 +1680,7 @@ _L535D  lda     Var_SlidingOnRope+$e48
         bne     _L537E
         jmp     L54A0
 
-        .byte   $ea
-        .byte   $ea
-        .byte   $ea
+        .fill   3,$ea
 
 _L537E  jsr     L54AC
         inc     Var_Falling
@@ -1704,8 +1698,7 @@ L538E   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
         beq     _L539E
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 _L539E  jsr     Sub_GetBoyJumpPosTemps
         bne     _L53C6     ;Branch if not jumping (#01 Not jumping / #00 Jumping)
@@ -1725,8 +1718,7 @@ _L53BE  lda     #$01
         sta     Temp_NotJumping
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 _L53C6  lda     #$01
         jsr     L5467
@@ -1748,8 +1740,7 @@ _L53E2  lda     #$00
         sta     Var_Falling
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 L53EF   lda     #$01
         sta     Var_RopeFall
@@ -1768,18 +1759,7 @@ _L53FF  nop
         sta     Var_Falling
         rts
 
-        .byte   $ea
-        .byte   $a9
-        .byte   $00
-        .byte   $8d
-        .byte   $4e
-        .byte   $53
-        .byte   $20
-        .byte   $a7
-        .byte   $2f
-        .byte   $60
-        .byte   $ea
-        .byte   $ea
+        .byte   $ea,$a9,$00,$8d,$4e,$53,$20,$a7,$2f,$60,$ea,$ea
 
 L5418   lda     Var_Falling
         bne     _L5425     ;Branch if not falling (Falling = #00)
@@ -1789,8 +1769,7 @@ L5418   lda     Var_Falling
 
 _L5425  jmp     LC819
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 Temp_Sprite0YPos
         .byte   $e3
 
@@ -1800,8 +1779,7 @@ Sub_GetBoyJumpPosTemps
         lda     Temp_NotJumping ;#01 Not jumping / #00 Jumping
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 L5437   lda     Sprite0YPositionRegister
         cmp     Temp_Sprite0YPos
@@ -1827,8 +1805,7 @@ _L547B  lda     #$00
         sta     Var_JumpInput ;#01 jumping / #00 not jumping
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 L5483   lda     #$00
         sta     $d412
@@ -1862,13 +1839,12 @@ _L54B2  cmp     ($54,x)
         jsr     L5483
         jmp     _L54DC
 
-_L54BF  .byte   $73
-_L54C0  .byte   $80
+_L54BF  .byte   $73,$80
 
-_L54C1  lda     _L54C0
+_L54C1  lda     _L54BF+1
         sec
         sbc     #$80
-        sta     _L54C0
+        sta     _L54BF+1
         sta     $d40e
         bcs     _L54D2
         dec     _L54BF
@@ -1876,13 +1852,11 @@ _L54D2  lda     _L54BF
         sta     $d40f
         rts
 
-        .byte   $ea
-        .byte   $ea
-        .byte   $ea
+        .fill   3,$ea
 
 _L54DC  lda     #$80
         sta     _L54BF
-        sta     _L54C0
+        sta     _L54BF+1
         rts
 
 L54E5   .byte   $04,$05,$04,$08,$08
@@ -2182,8 +2156,7 @@ Sub_CheckSlidingOnRope
         bne     _L58BB     ;Branch if not sliding down rope
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 _L58BB  ldx     #$00       ;X = #00
         lda     InputPortA ;A = $dc00
@@ -2218,9 +2191,7 @@ SetupSpritePositions
         ldx     Sprite0YPositionRegister ;Load A with Sprite0_Y_Position
         jmp     ContSetupSpritePositions
 
-        .byte   $8d
-        .byte   $f8
-        .byte   $07
+        .byte   $8d,$f8,$07
 
 ResetGirl
         jsr     Sub_SetRandomVariables
@@ -2234,8 +2205,7 @@ ResetGirl
         sta     SpritePointer1 ;Update sprite pointer for girl
         rts                ;Return from subroutine
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 ContSetupSpritePositions
         lda     Sprite1YPositionRegister ;Load A with Sprite1_Y_Position
@@ -2326,8 +2296,7 @@ Sub_UpdateHealthBar
         sta     Scr_HealthBar,x ;Store #a8 to current health bar position
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 JMP_NoHealthLeft
         jmp     Sub_NoHealthLeft
@@ -2442,8 +2411,7 @@ L5A88   lda     #$02
         sta     LCA18+1
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 L5A9A   cmp     #$4d
         bmi     _L5AAA
@@ -2504,8 +2472,7 @@ _L5AE3  cmp     #$56
         sta     ($fb),y
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 Sub_HealthBarUpdates
         lda     Var_HealthIncreaseTimer ;This is increased when getting health back
@@ -2527,9 +2494,7 @@ _L5B1B  dec     Var_HealthIncreaseTimer+3
 
 _L5B28  rts
 
-        .byte   $ea
-        .byte   $ea
-        .byte   $ea
+        .fill   3,$ea
 
 Sub_CheckForDamage
         lda     Var_DamageOccuring
@@ -2543,8 +2508,7 @@ Sub_CheckForDamage
 Exit_CheckForDamage
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 L5B44   stx     Var_DamageOccuringLoop+1
 _L5B47  dec     Var_DamageOccuringLoop+1
@@ -3663,8 +3627,7 @@ _L762E  lda     ExtraBackgroundColor2
 _L7639  jsr     L60CA
         rts
 
-        .byte   $00
-        .byte   $00
+        .fill   2,$00
 
 L763F   lda     #$00       ;A = #00
         sta     $fb        ;$fb = #00
@@ -3693,8 +3656,7 @@ _L7666  lda     ($fb),y
         bne     _L7666
         rts
 
-        .byte   $00
-        .byte   $00
+        .fill   2,$00
 
 L7673   cmp     #$70
         bmi     _L767A
@@ -3960,10 +3922,7 @@ _L7F06  nop
         ldx     #$fe
 _L7F19  jmp     L7680
 
-        .byte   $70
-        .byte   $57
-        .byte   $60
-        .byte   $00
+        .byte   $70,$57,$60,$00
 
 L7F20   sta     Var_SlidingOnRope+19
         sta     Sprite0XPositionRegister
@@ -5246,13 +5205,12 @@ LC407   sta     SpriteXMSBRegister
         lda     Var_SlidingOnRope+13
         jmp     LCEF6
 
-LC410   .byte   $bb
-LC411   .byte   $a0
+LC410   .byte   $bb,$a0
 
 LC412   lda     $d828
         sta     LC410
         lda     $0428
-        sta     LC411
+        sta     LC410+1
         ldx     #$00
 _LC420  lda     $0429,x
         sta     $0428,x
@@ -5330,7 +5288,7 @@ _LC4A8  sta     $fb
         bne     _LC48F
 _LC4BE  lda     LC410
         sta     $d84f
-        lda     LC411
+        lda     LC410+1
         sta     $044f
         rts
 
@@ -5537,8 +5495,7 @@ LC700   lda     SpritePointer1
 _LC717  nop
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 LC71B   lda     #$00       ;A = #00
         sta     Var_MovingLeftRight ;$cf06 = #00. This seems to go to #01 when moving left/right
@@ -6082,8 +6039,7 @@ _LCC65  jsr     LC9F1
         sta     Var_4+13,x
         rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 _LCC81  tay
         ldx     LCC0E+3
@@ -6104,10 +6060,7 @@ _LCC81  tay
 
 _LCCA4  jmp     _LCC1F
 
-        .byte   $ea
-        .byte   $ea
-        .byte   $ea
-        .byte   $aa
+        .byte   $ea,$ea,$ea,$aa
 
 LCCAB   inc     Var_4+38,x
         lda     Var_4+38,x
@@ -6138,8 +6091,7 @@ _LCCBF  inc     Var_4+143,x
         sta     SpritePointers,x
 _LCCF2  rts
 
-        .byte   $ea
-        .byte   $ea
+        .fill   2,$ea
 
 LCCF5   lda     SpriteEnableRegister
         and     #$80

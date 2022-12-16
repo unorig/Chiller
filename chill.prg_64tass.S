@@ -18,8 +18,10 @@ SpriteXMSBRegister = $d010
 ScreenControlRegister = $d011
 CurrentRasterLine = $d012
 SpriteEnableRegister = $d015
-BorderColor =   $d020
-BackgroundColor = $d021
+Adr_ScreenControl = $d016
+Adr_MemorySetupRegister = $d018
+Adr_BorderColor = $d020
+Adr_BackgroundColor = $d021
 ExtraBackgroundColor1 = $d022
 ExtraBackgroundColor2 = $d023
 FilterCutoffFrequencyLow = $d415
@@ -714,10 +716,11 @@ Var_CharacterXPosLow
         .byte   $ff,$60,$a9,$00,$8d,$12,$d4,$a9,$00,$ea,$ea,$ea,$ea,$ea,$ea,$4c
         .byte   $ec,$2a,$60
 
-L2BF2   sta     SpriteEnableRegister
-        lda     $d016
+Sub_SetScreenControl
+        sta     SpriteEnableRegister
+        lda     Adr_ScreenControl
         ora     #$08
-        sta     $d016
+        sta     Adr_ScreenControl
         rts
 
         .byte   $ea,$1d
@@ -734,12 +737,12 @@ _L2C02  lda     Var_SlidingOnRope+63,x
         .fill   8,$ea
 
 L2C19   ldx     #$03
-_L2C1B  inc     Var_4+158,x
-        lda     Var_4+158,x
+_L2C1B  inc     LCFA6,x
+        lda     LCFA6,x
         cmp     #$ba
         bne     _L2C2F
         lda     #$b0
-        sta     Var_4+158,x
+        sta     LCFA6,x
         dex
         cpx     #$00
         bne     _L2C1B
@@ -755,7 +758,7 @@ _L2C4B  lda     $05ef,x
         sta     $0345,x
         lda     $d9ef,x
         sta     $034e,x
-        lda     Var_4+153,x
+        lda     LCFA1,x
         sta     $05ef,x
         lda     $d81a
         sta     $d9ef,x
@@ -763,7 +766,7 @@ _L2C4B  lda     $05ef,x
         cpx     #$09
         bne     _L2C4B
         lda     #$00
-        sta     Var_4+107
+        sta     LCF73
         lda     #$03
         sta     L2E00+7
         lda     #$04
@@ -777,7 +780,7 @@ _L2C79  lda     $a1
         lda     #$07
         sta     L2E00+33
         lda     #$00
-        sta     Var_4+108
+        sta     LCF74
         ldx     #$00
 _L2C90  lda     $0345,x
         sta     $05ef,x
@@ -790,32 +793,33 @@ _L2C90  lda     $0345,x
 
 Sub_SetRandomVariables
         lda     #$b0
-        sta     Var_4+159
-        sta     Var_4+160
+        sta     LCFA7
+        sta     LCFA8
         lda     #$b1
-        sta     Var_4+161
+        sta     LCFA9
         jmp     L2C00
 
-L2CB4   sei
-        lda     #$31
-        sta     IRQVectorLow
-        lda     #$ea
-        sta     IRQVectorHigh
-        cli
-        lda     #$00
-        sta     Var_4+119
-        lda     #$05
-        sta     BorderColor
-        lda     #$0f
-        sta     BackgroundColor
-        lda     #$15
-        sta     $d018
+Sub_SetInterruptsAndMem
+        sei                ;Set interrupt flags
+        lda     #$31       ;A = #31
+        sta     IRQVectorLow ;IRQVectorLow = #31
+        lda     #$ea       ;A = #ea
+        sta     IRQVectorHigh ;IRQVectorHigh = #ea
+        cli                ;Clear interrupt flag
+        lda     #$00       ;A = #00
+        sta     LCF7F      ;$cf7f = #00
+        lda     #$05       ;A = #05
+        sta     Adr_BorderColor ;BorderColor = #05 (Green)
+        lda     #$0f       ;A = #0f
+        sta     Adr_BackgroundColor ;BackgroundColor = #0f (Light grey)
+        lda     #$15       ;A = #15
+        sta     Adr_MemorySetupRegister ;Adr_MemorySetupRegister
         lda     #$93
         jsr     BSOUT
         lda     #$00
         sta     $c6
         sta     $ffff
-        jmp     L2BF2
+        jmp     Sub_SetScreenControl
 
         .byte   $ea
 
@@ -835,7 +839,7 @@ _L2CFD  rts
 
 L2D00   ldx     #$00
 _L2D02  lda     Var_SlidingOnRope+228,x
-        sta     Var_4+110,x
+        sta     LCF76,x
         inx
         cpx     #$05
         bne     _L2D02
@@ -856,7 +860,7 @@ _L2D02  lda     Var_SlidingOnRope+228,x
         .byte   $27,$d0,$e8,$e0,$05,$d0,$ed,$ad,$f4,$45,$4a,$4a,$8d,$1c,$d0,$60
 
 L2D4B   ldx     #$00
-L2D4D   lda     Var_4+110,x
+L2D4D   lda     LCF76,x
         beq     L2D5A
 L2D52   lda     Var_SlidingOnRope+244,x
         beq     L2D5D
@@ -866,7 +870,7 @@ L2D5A   jmp     L2EB7
 
 L2D5D   jmp     L2EC4
 
-L2D60   lda     BorderColor-1
+L2D60   lda     Adr_BorderColor-1
         sta     _L2D77+3
         and     #$02
         cmp     #$00
@@ -878,7 +882,7 @@ L2D60   lda     BorderColor-1
 
 _L2D77  .byte   $ea,$7b,$2d,$00
 
-_L2D7B  lda     Var_4+117
+_L2D7B  lda     LCF7D
         cmp     #$01
         beq     _L2D85
         jmp     L2EB3
@@ -910,15 +914,15 @@ ThisRunsAfterDeath
         sta     SpriteEnableRegister ;Disable all sprites
         lda     Var_SlidingOnRope+235
         jsr     L2CF3
-        lda     #$ff
-        sta     Var_4+93
-        sta     Var_4+94   ;Register for a loop. Not sure why though.
+        lda     #$ff       ;A = #ff
+        sta     LCF65      ;$cf65 = #ff
+        sta     LCF66      ;$cf66 = #ff
         jsr     TimeWastingLoop
 Menu_FireNotPressed
-        lda     Var_4+119  ;Load A with $cf7f
+        lda     LCF7F      ;Load A with $cf7f
         cmp     #$00       ;Compare cf7f with #00
         beq     ResetToMenuScreen ;Always #00
-        jmp     L2CB4      ;Cant see this ever being triggered
+        jmp     Sub_SetInterruptsAndMem ;Cant see this ever being triggered
 
 ResetToMenuScreen
         jsr     Sub_ResetToMenu
@@ -926,7 +930,7 @@ ResetToMenuScreen
         cmp     #$40       ;#40 = No keyboard input
         beq     MainMenuLoop ;Loop on main menu as no joystick or keyboard input received
 Menu_FirePressed
-        lda     BorderColor ;At menu screen is #f0
+        lda     Adr_BorderColor ;At menu screen is #f0
         and     #$0f       ;And on #f0 becomes #00
         beq     _L2DD3     ;Jump to $2dd3
         jsr     L7780
@@ -948,9 +952,9 @@ L2E00   .byte   $60,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea
         .byte   $ea,$ea
 
 L2E62   lda     Var_SlidingOnRope+234
-        sta     Var_4+116
+        sta     LCF7C
         lda     #$00
-        sta     Var_4+117
+        sta     LCF7D
         lda     Var_SlidingOnRope+11
         jmp     L2E8B
 
@@ -972,7 +976,7 @@ L2EB3   jmp     LCA27
 
         .byte   $ea
 
-L2EB7   lda     Var_4,x
+L2EB7   lda     Var_MovingLeftRight+2,x
         and     SpriteEnableRegister
         cmp     #$00
         beq     L2EC4
@@ -1015,11 +1019,11 @@ _L2F0A  lda     Var_SlidingOnRope+176,x
 L2F38   sta     $d029,x
         lda     L574A+20,x
         sta     $fb
-        lda     Var_4+28,x
+        lda     LCF24,x
         sta     $fc
         ldy     #$00
 L2F47   lda     ($fb),y
-        sta     Var_4+13,x
+        sta     LCF15,x
         rts
 
 L2F4D   jsr     L60CA
@@ -1034,8 +1038,8 @@ L2F4D   jsr     L60CA
         .byte   $2e
 
 Sub_StartEnemyUpdate
-        inc     Var_4+109  ;Increment $cfb2
-        lda     Var_4+109  ;A = $cfb2
+        inc     LCF75      ;Increment $cfb2
+        lda     LCF75      ;A = $cfb2
         cmp     #$ff       ;Check if $cfb2 is up to 255 loops
         beq     Sub_EnemyPositionLoop ;Branch if looped through 254 times
         rts                ;Return from subroutine (Back to $ca57)
@@ -1045,14 +1049,14 @@ Sub_StartEnemyUpdate
 ;***************************************
 Sub_EnemyPositionLoop
         lda     #$00
-        sta     Var_4+109
+        sta     LCF75
         ldx     #$00       ;Start loop value at #00
 Loop_NextEnemy
-        lda     Var_4,x    ;Isolate the enemy bit
+        lda     Var_MovingLeftRight+2,x ;Isolate the enemy bit
         and     SpriteEnableRegister ;Compare to the SpriteEnableRegister
         cmp     #$00       ;Check if enemy is visible
         bne     Branch_NextEnemy ;Branch if enemy is not visible
-        lda     Var_4+110,x
+        lda     LCF76,x
         cmp     #$00       ;Compare A to #00
         beq     Branch_NextEnemy ;Branch if equal to #00
         txa                ;Transfer X (Enemy index) to A
@@ -1066,11 +1070,11 @@ Loop_NextEnemy
         bpl     Branch_NextEnemy
         txa                ;A will be used for enemy index in later subroutines
         jsr     Sub_UpdateEnemySprites ;Will use A for the enemy index
-        dec     Var_4+110,x
+        dec     LCF76,x
         lda     #$01
-        sta     Var_4+33,x
+        sta     LCF29,x
         lda     #$00
-        sta     Var_4+18,x
+        sta     LCF1A,x
 Branch_NextEnemy
         inx                ;Increase loop
         cpx     #$05       ;Check if loop is at #05 which is max enemy index
@@ -1927,13 +1931,13 @@ Sub_VerticalMovingEnemies
         sta     Var_EnemyIndex
         tax
         lda     #$01
-        sta     Var_4+43,x
+        sta     LCF33,x
         txa
         rts
 
 L566D   ldx     #$00
 _L566F  lda     Var_SlidingOnRope+228,x
-        sta     Var_4+110,x
+        sta     LCF76,x
         inx
         cpx     #$05
         bne     _L566F
@@ -1943,15 +1947,15 @@ _L566F  lda     Var_SlidingOnRope+228,x
 
 L5681   ldx     #$00
 _L5683  lda     L3408+224,x
-        cmp     Var_4+148,x
+        cmp     Var_Sprite3Speed,x
         beq     _L56AC
         clc
-        lda     Var_4+148,x
+        lda     Var_Sprite3Speed,x
         lsr     a
-        sta     Var_4+148,x
+        sta     Var_Sprite3Speed,x
         bcc     _L569C
         lda     #$01
-        sta     Var_4+148,x
+        sta     Var_Sprite3Speed,x
         bcs     _L56AC
 
 _L569C  lda     L54E5,x
@@ -1966,7 +1970,7 @@ _L56AC  inx
         bne     _L5683
         rts
 
-L56B2   sta     Var_4+148,x
+L56B2   sta     Var_Sprite3Speed,x
         lda     Var_SlidingOnRope+69,x
         sta     L54E5,x
         rts
@@ -2044,7 +2048,7 @@ _L5783  lda     #$01
         lda     #$f0
         sta     L589A+1
         lda     #$0a
-        sta     BorderColor
+        sta     Adr_BorderColor
         jmp     L5844
 
 _L57BD  lda     #$00
@@ -2068,7 +2072,7 @@ _L57BD  lda     #$00
         lda     #$e0
         sta     L589A+1
         lda     #$06
-        sta     BorderColor
+        sta     Adr_BorderColor
         jmp     L5844
 
         .fill   9,$ea
@@ -2200,7 +2204,7 @@ ResetGirl
         sta     Sprite1YPositionRegister ;Set girl sprite position
         lda     #$06       ;Value will be used to set border to blue
         nop
-        sta     BorderColor ;Set border colour to blue
+        sta     Adr_BorderColor ;Set border colour to blue
         lda     #$ee
         sta     SpritePointer1 ;Update sprite pointer for girl
         rts                ;Return from subroutine
@@ -2311,11 +2315,11 @@ Sub_IncreaseHealthBlock
         .fill   2,$ea
 
 _L59D0  lda     #$0a
-        sta     Var_4+82
+        sta     LCF5A
         lda     #$00
-        sta     Var_4+83
+        sta     LCF5B
         lda     #$11
-        sta     Var_4+84
+        sta     LCF5C
         jsr     LCE42
         rts
 
@@ -2373,11 +2377,11 @@ L5A41   jsr     L7659
         lda     Var_BorderColour
         bne     _L5A4F
         lda     #$06
-        sta     BorderColor
+        sta     Adr_BorderColor
         rts
 
 _L5A4F  lda     #$0a
-        sta     BorderColor
+        sta     Adr_BorderColor
         rts
 
         .fill   11,$00
@@ -2392,7 +2396,7 @@ L5A60   lda     #$02
 
 Sub_NoHealthLeft
         lda     #$01       ;A = #01
-        sta     Var_4+117  ;Store #01 to $cf7d
+        sta     LCF7D      ;Store #01 to $cf7d
         lda     #$02       ;A = #02
         sta     Var_SlidingOnRope+9 ;Store #02 to $450c
         lda     #$00       ;A = #00
@@ -2462,11 +2466,11 @@ _L5AD5  cmp     #$55
 _L5AE3  cmp     #$56
         bne     L5B57
         lda     #$64
-        sta     Var_4+82
+        sta     LCF5A
         lda     #$00
-        sta     Var_4+83
+        sta     LCF5B
         lda     #$11
-        sta     Var_4+84
+        sta     LCF5C
         jsr     LCE42
         lda     #$a0
         sta     ($fb),y
@@ -2651,15 +2655,15 @@ L5C4F   jsr     L5CD8
         nop
         nop
         lda     #$00
-        sta     BorderColor
-        sta     BackgroundColor
+        sta     Adr_BorderColor
+        sta     Adr_BackgroundColor
         sta     L5BF4+9
         jsr     L5C00
-        lda     $d016
+        lda     Adr_ScreenControl
         ora     #$10
-        sta     $d016
+        sta     Adr_ScreenControl
         lda     #$1c
-        sta     $d018
+        sta     Adr_MemorySetupRegister
         ldx     #$00
 _L5C71  lda     L5CFE+2,x
         sta     $04d6,x
@@ -2787,9 +2791,9 @@ Sub_SetupSpritesEtc
         .byte   $00,$00,$00,$00,$00,$00,$00
 
 ScreenSetup
-        lda     $d016
+        lda     Adr_ScreenControl
         ora     #$10
-        sta     $d016
+        sta     Adr_ScreenControl
         lda     #$0b
         sta     ExtraBackgroundColor2
         lda     #$01
@@ -2897,49 +2901,49 @@ Sub_SetupBackground
         sta     SpritePointer1
         iny
         lda     ($11),y
-        sta     Var_4+96
+        sta     LCF68
         iny
         lda     ($11),y
-        sta     Var_4+97
+        sta     LCF69
         iny
         lda     ($11),y
-        sta     Var_4+98
+        sta     LCF6A
         iny
         lda     ($11),y
-        sta     Var_4+99
+        sta     LCF6B
         iny
         lda     ($11),y
-        sta     Var_4+100
+        sta     LCF6C
         iny
         lda     ($11),y
-        sta     Var_4+53
+        sta     LCF3D
         iny
         lda     ($11),y
-        sta     Var_4+54
+        sta     LCF3E
         iny
         lda     ($11),y
-        sta     Var_4+55
+        sta     LCF3F
         iny
         lda     ($11),y
-        sta     Var_4+56
+        sta     LCF40
         iny
         lda     ($11),y
-        sta     Var_4+57
+        sta     LCF41
         iny
         lda     ($11),y
-        sta     Var_4+48
+        sta     LCF38
         iny
         lda     ($11),y
-        sta     Var_4+49
+        sta     LCF39
         iny
         lda     ($11),y
-        sta     Var_4+50
+        sta     LCF3A
         iny
         lda     ($11),y
-        sta     Var_4+51
+        sta     LCF3B
         iny
         lda     ($11),y
-        sta     Var_4+52
+        sta     LCF3C
         iny
         lda     ($11),y
         sta     Var_SlidingOnRope+170
@@ -2957,19 +2961,19 @@ Sub_SetupBackground
         sta     Var_SlidingOnRope+174
         iny
         lda     ($11),y
-        sta     Var_4+148
+        sta     Var_Sprite3Speed
         iny
         lda     ($11),y
-        sta     Var_4+149
+        sta     Var_Sprite3Speed+1
         iny
         lda     ($11),y
-        sta     Var_4+150
+        sta     Var_Sprite3Speed+2
         iny
         lda     ($11),y
-        sta     Var_4+151
+        sta     Var_Sprite3Speed+3
         iny
         lda     ($11),y
-        sta     Var_4+152
+        sta     LCFA0
         iny
         lda     ($11),y
         sta     L54E5
@@ -3017,19 +3021,19 @@ Sub_SetupBackground
         sta     L574A+24
         iny
         lda     ($11),y
-        sta     Var_4+28
+        sta     LCF24
         iny
         lda     ($11),y
-        sta     Var_4+29
+        sta     LCF25
         iny
         lda     ($11),y
-        sta     Var_4+30
+        sta     LCF26
         iny
         lda     ($11),y
-        sta     Var_4+31
+        sta     LCF27
         iny
         lda     ($11),y
-        sta     Var_4+32
+        sta     LCF28
         ldx     #$00
 _L5FA1  iny
         lda     ($11),y
@@ -3585,11 +3589,11 @@ L75B0   lda     Var_DamageOccuring ;#00 No damage / #01 Damage
         lda     Var_BorderColour ;Load border colour
         bne     _L75C2     ;Branch if background colour not #00
         lda     #$06       ;A = $06 (blue)
-        sta     BorderColor ;Set background colour to blue
+        sta     Adr_BorderColor ;Set background colour to blue
         jmp     L7FAE
 
 _L75C2  lda     #$0a
-        sta     BorderColor
+        sta     Adr_BorderColor
 _L75C7  jmp     L7FAE
 
         .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -3687,11 +3691,11 @@ _L769A  ldx     L767B+4
         sta     SpritePointer1
         stx     SpritePointer0
         lda     #$0a
-        sta     BorderColor
+        sta     Adr_BorderColor
         jmp     _L76C0
 
 _L76BB  lda     #$06
-        sta     BorderColor
+        sta     Adr_BorderColor
 _L76C0  ldy     #$73
         lda     #$01
         sta     Temp_NotJumping
@@ -3717,7 +3721,7 @@ L76DB   .byte   $ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea
 L771F   rts                ;Exits to $2dc3
 
 Sub_ResetToMenu
-        lda     BorderColor ;Load border colour
+        lda     Adr_BorderColor ;Load border colour
         and     #$0f       ;Set Most Significant Byte to 0
         beq     _L776D     ;Branch if border colour is black
         dec     L76DB+65   ;Starts at #ff.
@@ -3740,8 +3744,8 @@ Sub_ResetToMenu
         sta     SpriteEnableRegister
         sta     ExtraBackgroundColor1
         sta     ExtraBackgroundColor2
-        sta     BorderColor
-        sta     BackgroundColor
+        sta     Adr_BorderColor
+        sta     Adr_BackgroundColor
         ldx     #$00
         ldy     #$7c
         jsr     L5C4F
@@ -5028,7 +5032,7 @@ L7FB5   .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-LC000   lda     Var_4+62,x
+LC000   lda     LCF46,x
         and     SpriteEnableRegister
         beq     _LC00E
         nop
@@ -5041,14 +5045,14 @@ _LC00E  jmp     LCD55
 LC011   lda     Var_SlidingOnRope+82 ;A = $4555
         cmp     #$ff       ;Compare A to #ff
         beq     _LC031     ;Branch if A = #ff
-        dec     Var_4+59
+        dec     LCF43
         jsr     LC525
         bne     _LC031
         lda     Var_SlidingOnRope+82
-        sta     Var_4+59
-        lda     $d016
+        sta     LCF43
+        lda     Adr_ScreenControl
         and     #$f7
-        sta     $d016
+        sta     Adr_ScreenControl
         jsr     LC46B
 _LC031  rts
 
@@ -5074,10 +5078,10 @@ Sub_UpdateEnemySprites
         jsr     Sub_HorizontalMovingEnemies
         lda     Var_EnemyIndex ;A = C0e3 (Alternates between #00-04)
         tax                ;Transfer A to X
-        lda     Var_4+62,x ;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
+        lda     LCF46,x    ;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
         ora     SpriteEnableRegister ;Enable/disable sprite in $d015
         sta     SpriteEnableRegister ;Update sprite register
-        lda     Var_4+96,x
+        lda     LCF68,x
         sta     SpritePointers,x
         jmp     LC6E0
 
@@ -5317,7 +5321,7 @@ _LC508  lda     SpritePointer1
 
 _LC524  rts
 
-LC525   lda     Var_4+59
+LC525   lda     LCF43
         and     #$07
         bne     _LC538
         ldx     #$01
@@ -5325,7 +5329,7 @@ LC525   lda     Var_4+59
         jsr     L2A04
         lda     #$02
         jsr     L2A04
-_LC538  lda     Var_4+59
+_LC538  lda     LCF43
         rts
 
 LC53C   .byte   $ea,$ea,$00,$00,$00,$00,$00,$00,$00,$00,$00,$29,$80,$a2,$00,$bd
@@ -5342,39 +5346,39 @@ LC53C   .byte   $ea,$ea,$00,$00,$00,$00,$00,$00,$00,$00,$00,$29,$80,$a2,$00,$bd
         .byte   $c5,$ad,$3e,$c5,$c9,$00,$f0,$02,$a9,$01,$0d,$46,$c5,$9d,$40,$3c
         .byte   $e8,$e0,$40,$f0,$03,$4c,$4b,$c5,$60,$8f,$00
 
-LC607   dec     Var_4+122,x
-        lda     Var_4+122,x
+LC607   dec     LCF82,x
+        lda     LCF82,x
         cmp     #$00
         bne     _LC645
         lda     #$0a
-        sta     Var_4+122,x
+        sta     LCF82,x
         nop
         nop
         nop
         nop
         nop
-        dec     Var_4+76,x
-        lda     Var_4+76,x
+        dec     LCF54,x
+        lda     LCF54,x
         cmp     #$00
         bne     _LC645
         inc     SpritePointers,x
         lda     SpritePointers,x
         cmp     #$fc
         bne     _LC63F
-        lda     Var_4+62,x
+        lda     LCF46,x
         eor     #$ff
         and     SpriteEnableRegister
         sta     SpriteEnableRegister
         lda     #$00
-        sta     Var_4+71,x
+        sta     LCF4F,x
 _LC63F  lda     Var_SlidingOnRope+88,x
-        sta     Var_4+76,x
+        sta     LCF54,x
 _LC645  rts
 
 LC646   jsr     ResetGirl
         jsr     Sub_SetupSpritesEtc
         lda     Var_SlidingOnRope+12 ;Value is usually #f0 (Light grey)
-        sta     BackgroundColor ;Set the background colour to light grey
+        sta     Adr_BackgroundColor ;Set the background colour to light grey
         lda     #$08
         jsr     BSOUT      ;Not sure why this exists
         nop
@@ -5439,7 +5443,7 @@ _LC69E  jsr     Sub_UpdateEnemySprites
         bne     _LC69E
 _LC6AC  jsr     LC032
         lda     #$1c
-        sta     $d018
+        sta     Adr_MemorySetupRegister
         lda     #$0f
         sta     $ffff
         lda     #$f8
@@ -5449,10 +5453,10 @@ _LC6AC  jsr     LC032
         ldx     #$00
         nop
         lda     #$00
-_LC6C9  sta     Var_4+18,x
-        sta     Var_4+33,x
-        sta     Var_4+38,x
-        sta     Var_4+71,x
+_LC6C9  sta     LCF1A,x
+        sta     LCF29,x
+        sta     LCF2E,x
+        sta     LCF4F,x
         inx
         cpx     #$05
         bne     _LC6C9
@@ -5469,11 +5473,11 @@ TimeWastingLoop
         pha
         txa
         pha
-_LC6EB  lda     Var_4+93
-        sta     Var_4+95
-_LC6F1  dec     Var_4+95
+_LC6EB  lda     LCF65
+        sta     LCF67
+_LC6F1  dec     LCF67
         bne     _LC6F1
-        dec     Var_4+94
+        dec     LCF66
         bne     _LC6EB
         pla
         tax
@@ -5798,8 +5802,8 @@ _LC9DB  lda     InputPortA ;Load port A inputs
 LC9DF   .byte   $ea,$ea,$fe,$fd,$fb,$f7,$ef,$df,$bf,$7f,$01,$02,$04,$08,$10,$20
         .byte   $40,$80
 
-LC9F1   inc     Var_4+12
-        ldx     Var_4+12
+LC9F1   inc     LCF14
+        ldx     LCF14
         lda     LC000,x
         eor     $a2
         tay
@@ -5832,19 +5836,19 @@ _LCA2C  lda     Var_CurrentEnemyIndex
         bne     _LCA2C
         jsr     LCCF5
         jsr     LCE87
-        lda     Var_4+121
+        lda     LCF81
         cmp     #$01
         bne     _LCA51
         lda     #$00
-        sta     Var_4+121
+        sta     LCF81
         jmp     LC694
 
 _LCA51  jsr     LC011      ;Not sure what this does as it never goes into subroutine
         jsr     Sub_StartEnemyUpdate
-        lda     Var_4+119
+        lda     LCF7F
         cmp     #$ff
         bne     _LCA61
-        jmp     L2CB4      ;Never seems to go into here
+        jmp     Sub_SetInterruptsAndMem ;Never seems to go into here
 
 _LCA61  jmp     LCA00
 
@@ -5854,7 +5858,7 @@ LCA64   lda     Var_MovingLeftRight,x
         jsr     LC37A
 _LCA6F  rts
 
-LCA70   lda     Var_4+71,x
+LCA70   lda     LCF4F,x
         cmp     #$01
         beq     _LCA7D
         lda     Var_SlidingOnRope+75,x
@@ -5870,7 +5874,7 @@ _LCA7D  jmp     LCD55
         .byte   $f0,$06,$ee,$60,$cf,$4c,$a7,$ca,$ad,$f8,$07,$c9,$ff,$f0,$06,$ee
         .byte   $f8,$07,$4c,$a2,$ca,$ac,$88,$45,$88,$4c,$f9,$ca,$60
 
-LCAED   dec     Var_4+116
+LCAED   dec     LCF7C
         lda     #$01
         sta     SpriteEnableRegister
         jsr     L56BC
@@ -5885,14 +5889,14 @@ Sub_HorizontalMovingEnemies
         tax                ;Transfer A to X
         asl     a          ;Multiply A by 2
         tay                ;Transfer A to Y
-        lda     Var_4+5,x  ;A = cf0d,x (X is the enemy number)
+        lda     LCF0D,x    ;A = cf0d,x (X is the enemy number)
         tax                ;Transfer A to X
         lda     Var_SlidingOnRope+22,x
         sta     SpriteXPositionRegister,y
         lda     Var_SlidingOnRope+23,x
         sta     SpriteYPositionRegister,y
         ldy     Sub_HorizontalMovingEnemies-1
-        lda     Var_4,y
+        lda     Var_MovingLeftRight+2,y
         eor     #$ff
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
@@ -5905,44 +5909,44 @@ Sub_HorizontalMovingEnemies
         beq     _LCBBB
         jsr     LC9F1
 _LCB5C  lda     #$00
-        sta     Var_4+10
+        sta     LCF12
 _LCB61  ldx     Sub_HorizontalMovingEnemies-1
-        lda     Var_4+5,x
+        lda     LCF0D,x
         tax
-        lda     Var_4+10
+        lda     LCF12
         cmp     Var_SlidingOnRope+25,x
         beq     _LCB8B
         dey
         cpy     #$00
         beq     _LCBBB
-        inc     Var_4+10
+        inc     LCF12
         lda     #$03
-        sty     Var_4+11
+        sty     LCF13
         ldx     Sub_HorizontalMovingEnemies-1
         inx
         inx
         jsr     LC900
-        ldy     Var_4+11
+        ldy     LCF13
         jmp     _LCB61
 
 _LCB8B  lda     Sub_HorizontalMovingEnemies-1
         tax
         asl     a
-        sty     Var_4+11
+        sty     LCF13
         tay
-        lda     Var_4+5,x
+        lda     LCF0D,x
         tax
         lda     Var_SlidingOnRope+22,x
         sta     SpriteXPositionRegister,y
         ldy     Sub_HorizontalMovingEnemies-1
-        lda     Var_4,y
+        lda     Var_MovingLeftRight+2,y
         eor     #$ff
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
         lda     Var_SlidingOnRope+24,x
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-        ldy     Var_4+11
+        ldy     LCF13
         jmp     _LCB5C
 
 _LCBBB  lda     Var_SlidingOnRope+26,x
@@ -5950,36 +5954,36 @@ _LCBBB  lda     Var_SlidingOnRope+26,x
         beq     _LCC0D
         jsr     LC9F1
 _LCBC5  lda     #$00
-        sta     Var_4+10
+        sta     LCF12
 _LCBCA  ldx     Sub_HorizontalMovingEnemies-1
-        lda     Var_4+5,x
+        lda     LCF0D,x
         tax
-        lda     Var_4+10
+        lda     LCF12
         cmp     Var_SlidingOnRope+26,x
         beq     _LCBF4
         dey
         cpy     #$00
         beq     _LCC0D
-        inc     Var_4+10
+        inc     LCF12
         lda     #$01
-        sty     Var_4+11
+        sty     LCF13
         ldx     Sub_HorizontalMovingEnemies-1
         inx
         inx
         jsr     LC900
-        ldy     Var_4+11
+        ldy     LCF13
         jmp     _LCBCA
 
 _LCBF4  lda     Sub_HorizontalMovingEnemies-1
         tax
         asl     a
-        sty     Var_4+11
+        sty     LCF13
         tay
-        lda     Var_4+5,x
+        lda     LCF0D,x
         tax
         lda     Var_SlidingOnRope+23,x
         sta     SpriteYPositionRegister,y
-        ldy     Var_4+11
+        ldy     LCF13
         jmp     _LCBC5
 
 _LCC0D  rts
@@ -5988,19 +5992,19 @@ LCC0E   .byte   $ea,$ea,$ea,$03
 
 LCC12   sta     LCC0E+3
         tax
-        lda     Var_4+13,x
+        lda     LCF15,x
         ldx     LCC0E+3
         jmp     _LCC81
 
 _LCC1F  ldx     LCC0E+3
-        inc     Var_4+18,x
-        lda     Var_4+18,x
+        inc     LCF1A,x
+        lda     LCF1A,x
         cmp     #$08
         beq     _LCC2D
         rts
 
 _LCC2D  lda     #$00
-        sta     Var_4+18,x
+        sta     LCF1A,x
         lda     Var_SlidingOnRope+58,x
         cmp     #$00
         beq     _LCC3C
@@ -6008,11 +6012,11 @@ _LCC2D  lda     #$00
 
 _LCC3C  lda     L574A+20,x
         sta     $fb
-        lda     Var_4+28,x
+        lda     LCF24,x
         sta     $fc
-        lda     Var_4+33,x
+        lda     LCF29,x
         tay
-        inc     Var_4+33,x
+        inc     LCF29,x
         lda     ($fb),y
         nop
         nop
@@ -6020,10 +6024,10 @@ _LCC3C  lda     L574A+20,x
         bne     _LCC61
         lda     #$01
         ldx     LCC0E+3
-        sta     Var_4+33,x
+        sta     LCF29,x
         ldy     #$00
         lda     ($fb),y
-_LCC61  sta     Var_4+13,x
+_LCC61  sta     LCF15,x
         rts
 
 _LCC65  jsr     LC9F1
@@ -6033,10 +6037,10 @@ _LCC65  jsr     LC9F1
         ldx     LCC0E+3
         lda     L574A+20,x
         sta     $fb
-        lda     Var_4+28,x
+        lda     LCF24,x
         sta     $fc
         lda     ($fb),y
-        sta     Var_4+13,x
+        sta     LCF15,x
         rts
 
         .fill   2,$ea
@@ -6062,32 +6066,32 @@ _LCCA4  jmp     _LCC1F
 
         .byte   $ea,$ea,$ea,$aa
 
-LCCAB   inc     Var_4+38,x
-        lda     Var_4+38,x
-        cmp     Var_4+148,x
+LCCAB   inc     LCF2E,x
+        lda     LCF2E,x
+        cmp     Var_Sprite3Speed,x
         bne     _LCCBF
         lda     #$00
-        sta     Var_4+38,x
+        sta     LCF2E,x
         txa
         jsr     LCC12
-_LCCBF  inc     Var_4+143,x
-        lda     Var_4+143,x
+_LCCBF  inc     LCF97,x
+        lda     LCF97,x
         cmp     #$10
         bne     _LCCF2
         lda     #$00
-        sta     Var_4+143,x
+        sta     LCF97,x
         ldx     Var_CurrentEnemyIndex
-        inc     Var_4+43,x
-        lda     Var_4+43,x
+        inc     LCF33,x
+        lda     LCF33,x
         cmp     L54E5,x
         bne     _LCCF2
         lda     #$00
-        sta     Var_4+43,x
+        sta     LCF33,x
         lda     SpritePointers,x
         inc     SpritePointers,x
-        cmp     Var_4+48,x
+        cmp     LCF38,x
         bne     _LCCF2
-        lda     Var_4+53,x
+        lda     LCF3D,x
         sta     SpritePointers,x
 _LCCF2  rts
 
@@ -6112,7 +6116,7 @@ _LCD09  jsr     LC9F1
 
 LCD17   cmp     #$04
         beq     LCD55
-        sta     Var_4+60
+        sta     LCF44
         lda     SpriteEnableRegister
         ora     #$80
         sta     SpriteEnableRegister
@@ -6131,19 +6135,19 @@ LCD17   cmp     #$04
         lda     #$7f
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-        and     Var_4+62,x
+        and     LCF46,x
         cmp     #$00
         beq     LCD55
         lda     #$80
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-LCD55   inc     Var_4+61
-        lda     Var_4+61
+LCD55   inc     LCF45
+        lda     LCF45
         cmp     Var_SlidingOnRope+81
         bne     _LCD79
         lda     #$00
-        sta     Var_4+61
-        lda     Var_4+60
+        sta     LCF45
+        lda     LCF44
         ldx     #$07
         jsr     LC900
         cpy     #$ff
@@ -6158,7 +6162,7 @@ _LCD79  rts
 LCD7B   jsr     LC9F1
         tya
         and     #$7f
-        sta     Var_4+68
+        sta     LCF4C
         jsr     LC9F1
         tya
         and     #$7f
@@ -6167,7 +6171,7 @@ LCD7B   jsr     LC9F1
         ldy     #$7f
         jmp     LCD96
 
-_LCD93  ldy     Var_4+68
+_LCD93  ldy     LCF4C
 LCD96   rts
 
         .byte   $ea,$ea,$ea,$4c,$87,$ce
@@ -6179,7 +6183,7 @@ LCD9D   lda     $fd
 
 _LCDA6  ldx     #$00
         ldy     #$00
-_LCDAA  lda     Var_4+62,x
+_LCDAA  lda     LCF46,x
         and     $fd
         beq     _LCDB2
         iny
@@ -6199,7 +6203,7 @@ _LCDBE  ldx     #$02
         .byte   $01,$4c,$02,$ce,$60
 
 LCDE9   tax
-        lda     Var_4+71,x
+        lda     LCF4F,x
         cmp     #$01
         beq     _LCDF4
         jmp     LCCAB
@@ -6224,21 +6228,21 @@ _LCE27  rts
         .byte   $a2,$06,$de,$05,$04,$bd,$05,$04,$c9,$af,$d0,$0d,$a9,$b9,$9d,$05
         .byte   $04,$ca,$e0,$00,$d0,$ec,$20,$11,$ce,$60
 
-LCE42   lda     Var_4+84
+LCE42   lda     LCF5C
         sta     _LCE52+1
-_LCE48  lda     Var_4+82
+_LCE48  lda     LCF5A
         cmp     #$00
         beq     _LCE58
-        dec     Var_4+82
+        dec     LCF5A
 _LCE52  jsr     LCE11
         jmp     _LCE48
 
-_LCE58  lda     Var_4+83
+_LCE58  lda     LCF5B
         cmp     #$00
         beq     _LCE6A
-        dec     Var_4+83
+        dec     LCF5B
         lda     #$ff
-        sta     Var_4+82
+        sta     LCF5A
         jmp     _LCE52
 
 _LCE6A  rts
@@ -6259,7 +6263,7 @@ _LCE93  lda     $fd
 
 _LCE9A  ldx     #$00
         ldy     #$00
-_LCE9E  lda     Var_4+62,x
+_LCE9E  lda     LCF46,x
         and     $fd
         beq     _LCEA6
         iny
@@ -6272,7 +6276,7 @@ _LCEA6  inx
 
 _LCEB0  lda     $fd
         and     #$fc
-        sta     Var_4+86
+        sta     LCF5E
         ldx     #$00
 _LCEB9  cmp     #$04
         beq     _LCEC2
@@ -6280,7 +6284,7 @@ _LCEB9  cmp     #$04
         lsr     a
         jmp     _LCEB9
 
-_LCEC2  stx     Var_4+87
+_LCEC2  stx     LCF5F
         ldx     #$02
         jsr     L5B44
         jmp     LCD9D
@@ -6289,8 +6293,8 @@ _LCEC2  stx     Var_4+87
         .byte   $ce,$1a,$04,$ad,$1a,$04,$c9,$b0,$f0,$01,$60,$a9,$01,$8d,$7d,$cf
         .byte   $60
 
-LCEEE   inc     Var_4+110,x
-        lda     Var_4,x
+LCEEE   inc     LCF76,x
+        lda     Var_MovingLeftRight+2,x
         rts
 
         .byte   $ea
@@ -6307,28 +6311,201 @@ Var_SomethingElseRandom
         .byte   $06,$00,$06
 Var_MovingLeftRight
         .fill   2,$00
-Var_4   .byte   $04,$08,$10,$20,$40,$00,$05,$0a,$0f,$14,$0f,$01,$a9,$03,$00,$03
-        .byte   $03,$02,$07,$02,$04,$00,$06,$ea,$ea,$ea,$20,$11,$4a,$4a,$4a,$4a
-        .byte   $4a,$01,$01,$01,$01,$01,$1c,$01,$09,$01,$09,$03,$03,$01,$01,$00
-        .byte   $a3,$a7,$97,$93,$3b,$a0,$a4,$94,$90,$38,$0d,$3c,$02,$2f,$04,$08
-        .byte   $10,$20,$40,$80,$49,$10,$02,$00,$00,$00,$00,$00,$40,$08,$04,$08
-        .byte   $04,$0a,$00,$00,$11,$48,$20,$03,$0b,$00,$ea,$04,$ea,$ff,$00,$00
-        .byte   $a0,$a4,$94,$90,$38,$ba,$c1,$c8,$cf,$d6,$ea,$00,$00,$c1,$c6,$c6
-        .byte   $14,$00,$c6,$40,$b3,$00,$02,$00,$ea,$00,$0a,$0a,$0a,$0a,$0a,$0f
-        .byte   $00,$01,$00,$00,$00,$01,$00,$00,$01,$00,$01,$00,$00,$00,$00,$02
-        .byte   $01,$05,$04,$08,$20,$20,$20,$20,$20,$8c,$85,$96,$85,$8c,$a0,$b0
-        .byte   $b0,$b1,$87,$81,$8d,$85,$a0,$8f,$96,$85,$92,$ec,$ec,$ec,$ed,$ec
-        .byte   $ec,$ec,$ed,$ec,$ed,$ed,$ed,$ed
+        .byte   $04
+        .byte   $08
+        .byte   $10
+        .byte   $20
+        .byte   $40
+LCF0D   .byte   $00
+        .byte   $05
+        .byte   $0a
+        .byte   $0f
+        .byte   $14
+LCF12   .byte   $0f
+LCF13   .byte   $01
+LCF14   .byte   $a9
+LCF15   .byte   $03
+        .byte   $00
+        .byte   $03
+        .byte   $03
+        .byte   $02
+LCF1A   .byte   $07
+        .byte   $02
+        .byte   $04
+        .byte   $00
+        .byte   $06
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $20
+        .byte   $11
+LCF24   .byte   $4a
+LCF25   .byte   $4a
+LCF26   .byte   $4a
+LCF27   .byte   $4a
+LCF28   .byte   $4a
+LCF29   .byte   $01
+        .byte   $01
+        .byte   $01
+        .byte   $01
+        .byte   $01
+LCF2E   .byte   $1c
+        .byte   $01
+        .byte   $09
+        .byte   $01
+        .byte   $09
+LCF33   .byte   $03
+        .byte   $03
+        .byte   $01
+        .byte   $01
+        .byte   $00
+LCF38   .byte   $a3
+LCF39   .byte   $a7
+LCF3A   .byte   $97
+LCF3B   .byte   $93
+LCF3C   .byte   $3b
+LCF3D   .byte   $a0
+LCF3E   .byte   $a4
+LCF3F   .byte   $94
+LCF40   .byte   $90
+LCF41   .byte   $38
+        .byte   $0d
+LCF43   .byte   $3c
+LCF44   .byte   $02
+LCF45   .byte   $2f
+LCF46   .byte   $04
+        .byte   $08
+        .byte   $10
+        .byte   $20
+        .byte   $40
+        .byte   $80
+LCF4C   .byte   $49
+        .byte   $10
+        .byte   $02
+LCF4F   .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+LCF54   .byte   $40
+        .byte   $08
+        .byte   $04
+        .byte   $08
+        .byte   $04
+        .byte   $0a
+LCF5A   .byte   $00
+LCF5B   .byte   $00
+LCF5C   .byte   $11
+        .byte   $48
+LCF5E   .byte   $20
+LCF5F   .byte   $03
+        .byte   $0b
+        .byte   $00
+        .byte   $ea
+        .byte   $04
+        .byte   $ea
+LCF65   .byte   $ff
+LCF66   .byte   $00
+LCF67   .byte   $00
+LCF68   .byte   $a0
+LCF69   .byte   $a4
+LCF6A   .byte   $94
+LCF6B   .byte   $90
+LCF6C   .byte   $38
+        .byte   $ba
+        .byte   $c1
+        .byte   $c8
+        .byte   $cf
+        .byte   $d6
+        .byte   $ea
+LCF73   .byte   $00
+LCF74   .byte   $00
+LCF75   .byte   $c1
+LCF76   .byte   $c6
+        .byte   $c6
+        .byte   $14
+        .byte   $00
+        .byte   $c6
+        .byte   $40
+LCF7C   .byte   $b3
+LCF7D   .byte   $00
+        .byte   $02
+LCF7F   .byte   $00
+        .byte   $ea
+LCF81   .byte   $00
+LCF82   .byte   $0a
+        .byte   $0a
+        .byte   $0a
+        .byte   $0a
+        .byte   $0a
+        .byte   $0f
+        .byte   $00
+        .byte   $01
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $01
+        .byte   $00
+        .byte   $00
+        .byte   $01
+        .byte   $00
+        .byte   $01
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+LCF97   .byte   $02
+        .byte   $01
+        .byte   $05
+        .byte   $04
+        .byte   $08
+Var_Sprite3Speed
+        .byte   $20
+        .byte   $20
+        .byte   $20
+        .byte   $20
+LCFA0   .byte   $20
+LCFA1   .byte   $8c
+        .byte   $85
+        .byte   $96
+        .byte   $85
+        .byte   $8c
+LCFA6   .byte   $a0
+LCFA7   .byte   $b0
+LCFA8   .byte   $b0
+LCFA9   .byte   $b1
+LCFAA   .byte   $87
+        .byte   $81
+        .byte   $8d
+        .byte   $85
+        .byte   $a0
+        .byte   $8f
+        .byte   $96
+        .byte   $85
+        .byte   $92
+        .byte   $ec
+        .byte   $ec
+        .byte   $ec
+        .byte   $ed
+        .byte   $ec
+        .byte   $ec
+        .byte   $ec
+        .byte   $ed
+        .byte   $ec
+        .byte   $ed
+        .byte   $ed
+        .byte   $ed
+        .byte   $ed
 
 LCFC0   jsr     L5733
         ldx     #$00
-_LCFC5  lda     Var_4+153,x
+_LCFC5  lda     LCFA1,x
         lda     $0617,x
         lda     $d81a
         lda     #$01
         nop
         sta     $d838,x
-        lda     Var_4+162,x
+        lda     LCFAA,x
         sta     $0438,x
         inx
         cpx     #$09

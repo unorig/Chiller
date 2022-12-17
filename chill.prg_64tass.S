@@ -2459,15 +2459,15 @@ L5AC7   cmp     #$54       ;Check if character is health mushroom
         sta     ($fb),y    ;Remove mushroom
         rts
 
-_L5AD5  cmp     #$55
+_L5AD5  cmp     #$55       ;Check if character is poison red flower
         bne     _L5AE3
         ldx     #$19
         jsr     L5B44
-        lda     #$a0
-        sta     ($fb),y
+        lda     #$a0       ;A = #a0 (Blank sprite)
+        sta     ($fb),y    ;Remove flower
         rts
 
-_L5AE3  cmp     #$56
+_L5AE3  cmp     #$56       ;Check if character is basket
         bne     L5B57
         lda     #$64
         sta     LCF5A
@@ -2476,8 +2476,8 @@ _L5AE3  cmp     #$56
         lda     #$11
         sta     LCF5C
         jsr     LCE42
-        lda     #$a0
-        sta     ($fb),y
+        lda     #$a0       ;A = #a0 (Blank sprite)
+        sta     ($fb),y    ;Remove basket
         rts
 
         .fill   2,$ea

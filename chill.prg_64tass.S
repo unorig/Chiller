@@ -2351,8 +2351,12 @@ Var_SomethingMovement1
         .byte   $96
 Var_SomethingMovement2
         .byte   $02,$12
-Var_HealthIncreaseTimer
-        .byte   $00,$10,$01,$00
+Counter_HealthIncLoop2
+        .byte   $00
+        .byte   $10
+        .byte   $01
+Counter_HealthIncLoop
+        .byte   $00
 Var_DamageOccuring
         .fill   1,$00
 Var_DamageOccuringLoop
@@ -2423,14 +2427,14 @@ L5A9A   cmp     #$4d
         beq     _L5AA5
         jmp     L2A57
 
-_L5AA5  dec     Var_HealthIncreaseTimer+2
+_L5AA5  dec     Counter_HealthIncLoop2+2
         beq     _L5AAD
 _L5AAA  rts
 
         .fill   2,$ea
 
 _L5AAD  ldx     #$08
-        stx     Var_HealthIncreaseTimer+2
+        stx     Counter_HealthIncLoop2+2
         nop
         cmp     #$53
         bne     _L5ABF
@@ -2447,12 +2451,12 @@ _L5ABF  lda     ($fb),y
         sta     ($fb),y
         rts
 
-L5AC7   cmp     #$54
-        bne     _L5AD5
-        ldx     #$18
-        jsr     L5B18
-        lda     #$a0
-        sta     ($fb),y
+L5AC7   cmp     #$54       ;Check if character is health mushroom
+        bne     _L5AD5     ;Branch if not health mushroom
+        ldx     #$18       ;X = #18
+        jsr     Sub_IncHealthIdx
+        lda     #$a0       ;A = #a0 (Blank sprite)
+        sta     ($fb),y    ;Remove mushroom
         rts
 
 _L5AD5  cmp     #$55
@@ -2479,24 +2483,27 @@ _L5AE3  cmp     #$56
         .fill   2,$ea
 
 Sub_HealthBarUpdates
-        lda     Var_HealthIncreaseTimer ;This is increased when getting health back
+        lda     Counter_HealthIncLoop2 ;This is increased when getting health back
         beq     _L5B15     ;Branch if not getting health back
-        dec     Var_HealthIncreaseTimer+1
+        dec     Counter_HealthIncLoop2+1
         bne     _L5B15
         lda     #$10
-        sta     Var_HealthIncreaseTimer+1
-        dec     Var_HealthIncreaseTimer
+        sta     Counter_HealthIncLoop2+1
+        dec     Counter_HealthIncLoop2
         jsr     Sub_IncreaseHealthBlock
 _L5B15  jmp     Sub_CheckForDamage ;Jump to check for damage
 
-L5B18   stx     Var_HealthIncreaseTimer+3
-_L5B1B  dec     Var_HealthIncreaseTimer+3
-        beq     _L5B28
-        inc     Var_HealthIncreaseTimer
-        beq     _L5B28
-        jmp     _L5B1B
+Sub_IncHealthIdx
+        stx     Counter_HealthIncLoop ;Counter_HealthIncLoop = #18
+Loop_IncreaseHealth
+        dec     Counter_HealthIncLoop ;Decrease Counter_HealthIncLoop
+        beq     Exit_IncreaseHealth ;Branch if Counter_HealthIncLoop = #00
+        inc     Counter_HealthIncLoop2
+        beq     Exit_IncreaseHealth
+        jmp     Loop_IncreaseHealth
 
-_L5B28  rts
+Exit_IncreaseHealth
+        rts
 
         .fill   3,$ea
 
@@ -2816,7 +2823,7 @@ L5DA9   lda     $02ff
         beq     L5DA9
         jsr     L61D2
         lda     #$00
-        sta     Var_HealthIncreaseTimer
+        sta     Counter_HealthIncLoop2
         sta     Var_DamageOccuring
         jmp     ThisRunsAfterDeath
 

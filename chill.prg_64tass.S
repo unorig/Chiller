@@ -2436,20 +2436,21 @@ _L5AAA  rts
 _L5AAD  ldx     #$08
         stx     Counter_HealthIncLoop2+2
         nop
-        cmp     #$53
-        bne     _L5ABF
-        lda     #$a0
-        sta     ($fb),y
+        cmp     #$53       ;Check if bridge block is #53
+        bne     Sub_ErrodeBridge ;Branch if not #53 (Gap)
+        lda     #$a0       ;If bridge block is #53 then set to blank space
+        sta     ($fb),y    ;Update bridge block
         rts
 
         .byte   $ea,$ea,$60
 
-_L5ABF  lda     ($fb),y
-        tax
-        inx
-        txa
-        sta     ($fb),y
-        rts
+Sub_ErrodeBridge
+        lda     ($fb),y    ;Load current value of bridge
+        tax                ;Transfer A to X
+        inx                ;Increase X
+        txa                ;Transfer X to A
+        sta     ($fb),y    ;Store updated value of bridge
+        rts                ;Return
 
 L5AC7   cmp     #$54       ;Check if character is health mushroom
         bne     _L5AD5     ;Branch if not health mushroom
@@ -2532,8 +2533,8 @@ _L5B54  rts
 
         .fill   2,$ea
 
-L5B57   cmp     #$57
-        bne     L5B89
+L5B57   cmp     #$57       ;Check if character is cross
+        bne     L5B89      ;Branch if character is not cross
         jmp     L7F50
 
 L5B5E   nop
@@ -3971,8 +3972,8 @@ _L7F6C  lda     $fc
         sec
         sbc     #$d4
         sta     $fc
-        lda     #$a0
-        sta     ($fb),y
+        lda     #$a0       ;A = #a0 (Blank sprite)
+        sta     ($fb),y    ;Remove cross
         jmp     L5B5E
 
         .fill   6,$ea

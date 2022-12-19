@@ -4,6 +4,8 @@
 Var_KeyboardInput = $c5    ;This is for the keyboard player inputs
 IRQVectorLow =  $0314
 IRQVectorHigh = $0315
+Adr_MagicCrossesNum1 = $041c
+Adr_MagicCrossesNum2 = $041d
 Scr_HealthBar = $042e
 SpritePointer0 = $07f8
 SpritePointer1 = $07f9
@@ -2543,23 +2545,23 @@ L5B57   cmp     #$57       ;Check if character is cross
         jmp     L7F50
 
 L5B5E   nop
-        lda     $041d
+        lda     Adr_MagicCrossesNum2
         cmp     #$b9
         beq     _L5B6C
-        inc     $041d
+        inc     Adr_MagicCrossesNum2
         jmp     _L5B86
 
-_L5B6C  lda     $041c
+_L5B6C  lda     Adr_MagicCrossesNum1
         cmp     #$b9
         bne     _L5B7E
         lda     #$b0
-        sta     $041d
-        sta     $041c
+        sta     Adr_MagicCrossesNum2
+        sta     Adr_MagicCrossesNum1
         jmp     _L5B86
 
-_L5B7E  lda     #$b0
-        sta     $041d
-        inc     $041c
+_L5B7E  lda     #$b0       ;A = #b0
+        sta     Adr_MagicCrossesNum2
+        inc     Adr_MagicCrossesNum1
 _L5B86  jmp     L7F00
 
 L5B89   cmp     #$62
@@ -3955,10 +3957,10 @@ L7F2E   sta     Var_SlidingOnRope+21
 
         .fill   27,$00
 
-L7F50   lda     $fc
-        nop
-        clc
-        adc     #$d4
+L7F50   lda     $fc        ;A = #fc
+        nop                ;No operation
+        clc                ;Clear carry
+        adc     #$d4       ;Add 
         sta     $fc
         lda     ($fb),y
         and     #$04
@@ -6226,17 +6228,20 @@ _LCDF4  jmp     LC607
 LCDF7   .byte   $ea,$ea,$ea,$bd,$4f,$cf,$c9,$01,$d0,$dd,$60,$9d,$4f,$cf,$a9,$fd
         .byte   $2d,$15,$d0,$8d,$15,$d0,$4c,$6b,$ce,$60
 
-LCE11   ldx     #$06
-_LCE13  inc     $0405,x
-        lda     $0405,x
-        cmp     #$ba
-        bne     _LCE27
-        lda     #$b0
-        sta     $0405,x
-        dex
-        cpx     #$00
-        bne     _LCE13
-_LCE27  rts
+Sub_UpdateScore
+        ldx     #$06       ;X = #06
+Loop_UpdateScore
+        inc     $0405,x    ;Update score character
+        lda     $0405,x    ;A = updated score character value
+        cmp     #$ba       ;Check if character is 0
+        bne     Exit_UpdateScore ;Exit if not zero
+        lda     #$b0       ;A = #b0
+        sta     $0405,x    ;Update character to 0
+        dex                ;Decrease X (Go to next character in score)
+        cpx     #$00       ;Check if character is 0
+        bne     Loop_UpdateScore ;Branch if not equal 0
+Exit_UpdateScore
+        rts
 
         .byte   $a2,$06,$de,$05,$04,$bd,$05,$04,$c9,$af,$d0,$0d,$a9,$b9,$9d,$05
         .byte   $04,$ca,$e0,$00,$d0,$ec,$20,$11,$ce,$60
@@ -6247,7 +6252,7 @@ _LCE48  lda     LCF5A
         cmp     #$00
         beq     _LCE58
         dec     LCF5A
-_LCE52  jsr     LCE11
+_LCE52  jsr     Sub_UpdateScore
         jmp     _LCE48
 
 _LCE58  lda     LCF5B

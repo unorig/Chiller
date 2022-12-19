@@ -640,22 +640,22 @@ _L2A43  lda     $fc
         lda     Var_SlidingOnRope+$c42,x
         tay
         lda     ($fb),y
-        cmp     #$a0
-        bne     L2A60
+        cmp     #$a0       ;Check if current character is blank
+        bne     L2A60      ;Branch if not a blank space
 L2A57   ldx     #$00
         lda     Var_CharacterXPosHigh
         jsr     LC900
         rts
 
-L2A60   cmp     #$2a
-        bpl     _L2A67
+L2A60   cmp     #$2a       ;Check if current character is a platform
+        bpl     _L2A67     ;Branch if not a platform (e.g. mushroom)
         jmp     L2A57
 
-_L2A67  cmp     #$54
-        bpl     _L2A6E
+_L2A67  cmp     #$54       ;Check if current character is mushroom
+        bpl     _L2A6E     ;Branch if current character is mushroom
         jmp     L5A9A
 
-_L2A6E  jmp     L5AC7
+_L2A6E  jmp     Sub_GetMushroom
 
         .byte   $60
 
@@ -2421,19 +2421,21 @@ L5A88   lda     #$02
 
         .fill   2,$ea
 
-L5A9A   cmp     #$4d
-        bmi     _L5AAA
+L5A9A   cmp     #$4d       ;Check if current character is complete bridge
+        bmi     Exit_BridgeRoutine
         cpy     #$50
         beq     _L5AA5
         jmp     L2A57
 
 _L5AA5  dec     Counter_HealthIncLoop2+2
-        beq     _L5AAD
-_L5AAA  rts
+        beq     Sub_UpdateBridge
+Exit_BridgeRoutine
+        rts
 
         .fill   2,$ea
 
-_L5AAD  ldx     #$08
+Sub_UpdateBridge
+        ldx     #$08
         stx     Counter_HealthIncLoop2+2
         nop
         cmp     #$53       ;Check if bridge block is #53
@@ -2452,23 +2454,26 @@ Sub_ErrodeBridge
         sta     ($fb),y    ;Store updated value of bridge
         rts                ;Return
 
-L5AC7   cmp     #$54       ;Check if character is health mushroom
-        bne     _L5AD5     ;Branch if not health mushroom
+Sub_GetMushroom
+        cmp     #$54       ;Check if character is health mushroom
+        bne     Sub_GetRedFlower ;Branch if not health mushroom
         ldx     #$18       ;X = #18
         jsr     Sub_IncHealthIdx
         lda     #$a0       ;A = #a0 (Blank sprite)
         sta     ($fb),y    ;Remove mushroom
         rts
 
-_L5AD5  cmp     #$55       ;Check if character is poison red flower
-        bne     _L5AE3
+Sub_GetRedFlower
+        cmp     #$55       ;Check if character is poison red flower
+        bne     Sub_GetBasket
         ldx     #$19
         jsr     L5B44
         lda     #$a0       ;A = #a0 (Blank sprite)
         sta     ($fb),y    ;Remove flower
         rts
 
-_L5AE3  cmp     #$56       ;Check if character is basket
+Sub_GetBasket
+        cmp     #$56       ;Check if character is basket
         bne     L5B57
         lda     #$64
         sta     LCF5A

@@ -55,6 +55,40 @@
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
 
+"Adr_MagicCrossesNum1":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Adr_MagicCrossesNum1",
+"Value":1052,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Adr_MagicCrossesNum2":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Adr_MagicCrossesNum2",
+"Value":1053,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
 "Adr_MemorySetupRegister":{
 "DataDescriptor":{
 "Length":1,
@@ -857,6 +891,7 @@
 "21285":"Decrease DamageOccuring",
 "21313":"Check if character is cross",
 "21315":"Branch if character is not cross",
+"21352":"A = #b0",
 "21402":"JSR from $576b",
 "21405":"Check if rasterline is #10",
 "21407":"Loop back two instructions if raster not #10",
@@ -950,6 +985,10 @@
 "28431":"Branch if border colour is black",
 "28433":"Starts at #ff.",
 "28436":"Branch if not #00. Will RTS. Since above will be #fe it will RTS.",
+"30522":"A = #fc",
+"30524":"No operation",
+"30525":"Clear carry",
+"30526":"Add ",
 "30557":"A = #a0 (Blank sprite)",
 "30559":"Remove cross",
 "47099":"A = $4555",
@@ -1057,7 +1096,17 @@
 "49938":"Multiply A by 2",
 "49939":"Transfer A to Y",
 "49940":"A = cf0d,x (X is the enemy number)",
-"49943":"Transfer A to X"},
+"49943":"Transfer A to X",
+"50683":"X = #06",
+"50685":"Update score character",
+"50688":"A = updated score character value",
+"50691":"Check if character is 0",
+"50693":"Exit if not zero",
+"50695":"A = #b0",
+"50697":"Update character to 0",
+"50700":"Decrease X (Go to next character in score)",
+"50701":"Check if character is 0",
+"50703":"Branch if not equal 0"},
 
 "LongComments":{
 "-2147483647":{
@@ -1791,6 +1840,27 @@
 "21140":{
 "Label":"Exit_BridgeRoutine",
 "Value":23210,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50683":{
+"Label":"Sub_UpdateScore",
+"Value":52753,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50685":{
+"Label":"Loop_UpdateScore",
+"Value":52755,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50705":{
+"Label":"Exit_UpdateScore",
+"Value":52775,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

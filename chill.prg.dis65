@@ -587,6 +587,12 @@
 "8726":"Transfer Y to A. Y = (Y Pos - #2c) / 8 ",
 "8727":"Multiply by 2",
 "8728":"Transfer A to Y",
+"8765":"Check if current character is blank",
+"8767":"Branch if not a blank space",
+"8778":"Check if current character is a platform",
+"8780":"Branch if not a platform (e.g. mushroom)",
+"8785":"Check if current character is mushroom",
+"8787":"Branch if current character is mushroom",
 "8810":"$fb = #bf",
 "8812":"$fc = #5b",
 "8814":"Y = #00",
@@ -815,6 +821,7 @@
 "21097":"A = #20",
 "21099":"Store #20 to $ca19",
 "21102":"Return from subroutine ($72bd)",
+"21124":"Check if current character is complete bridge",
 "21149":"Check if bridge block is #53",
 "21151":"Branch if not #53 (Gap)",
 "21153":"If bridge block is #53 then set to blank space",
@@ -1749,6 +1756,41 @@
 "21161":{
 "Label":"Sub_ErrodeBridge",
 "Value":23231,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21169":{
+"Label":"Sub_GetMushroom",
+"Value":23239,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21183":{
+"Label":"Sub_GetRedFlower",
+"Value":23253,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21197":{
+"Label":"Sub_GetBasket",
+"Value":23267,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21143":{
+"Label":"Sub_UpdateBridge",
+"Value":23213,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21140":{
+"Label":"Exit_BridgeRoutine",
+"Value":23210,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

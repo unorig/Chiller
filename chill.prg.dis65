@@ -899,15 +899,15 @@
 "21315":"Branch if character is not cross",
 "21320":"No operation",
 "21321":"A = Adr_MagicCrossNum1 (Score number)",
-"21324":"Check if Adr_MagicCrossNum1 is 9",
-"21326":"Branch if Adr_MagicCrossNum1 is 9",
-"21328":"Increase Adr_MagicCrossNum1",
-"21334":"A = Adr_MagicCrossNum2 (Score number)",
-"21337":"Check if Adr_MagicCrossNum2 is 9",
-"21339":"Branch if Adr_MagicCrossNum2 not 9",
+"21324":"Check if Adr_MagicCrossNumRight is 9",
+"21326":"Branch if Adr_MagicCrossNumRight is 9",
+"21328":"Increase Adr_MagicCrossNumRight",
+"21334":"A = Adr_MagicCrossNumLeft (Score number)",
+"21337":"Check if Adr_MagicCrossNumLeft is 9",
+"21339":"Branch if Adr_MagicCrossNumLeft not 9",
 "21341":"A = #b0",
-"21343":"Adr_MagicCrossNum1 = 0",
-"21346":"Adr_MagicCrossNum2 = 0",
+"21343":"Adr_MagicCrossNumRight = 0",
+"21346":"Adr_MagicCrossNumLeft = 0",
 "21352":"A = #b0",
 "21354":"Adr_MagicCrossNumRight = #b0 (Zero)",
 "21357":"Increase Adr_MagicCrossNumLeft",
@@ -1384,9 +1384,9 @@
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
-"20988":{
-"Label":"Var_DamageOccuringLoop",
-"Value":23058,
+"20991":{
+"Label":"Var_MagicCrossesLeft",
+"Value":23061,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
@@ -1924,15 +1924,29 @@
 "LabelAnno":"None"},
 
 "21320":{
-"Label":"Sub_IncMagicCrossNum1",
+"Label":"JMP_IncMagicCrossNumRight",
 "Value":23390,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "21352":{
-"Label":"Sub_IncMagicCrossNumLeft",
+"Label":"IncMagicCrossNumLeft",
 "Value":23422,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21334":{
+"Label":"ResetMagicCrossNums",
+"Value":23404,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"30448":{
+"Label":"AllCrossesCollected",
+"Value":32518,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},
@@ -2335,8 +2349,86 @@
 "SymbolRef":null},
 
 "20988":{
-"Length":14,
-"Format":"Uninit",
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20989":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20990":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20991":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20992":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20993":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20994":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20995":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20996":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20997":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20998":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"20999":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"21000":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"21001":{
+"Length":1,
+"Format":"NumericLE",
 "SubFormat":"None",
 "SymbolRef":null},
 

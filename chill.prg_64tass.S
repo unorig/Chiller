@@ -4,8 +4,8 @@
 Var_KeyboardInput = $c5    ;This is for the keyboard player inputs
 IRQVectorLow =  $0314
 IRQVectorHigh = $0315
-Adr_MagicCrossesNum1 = $041c
-Adr_MagicCrossesNum2 = $041d
+Adr_MagicCrossNumLeft = $041c
+Adr_MagicCrossNumRight = $041d
 Scr_HealthBar = $042e
 SpritePointer0 = $07f8
 SpritePointer1 = $07f9
@@ -2316,12 +2316,12 @@ Sub_IncreaseHealthBlock
 
         .fill   2,$ea
 
-_L59D0  lda     #$0a
-        sta     LCF5A
-        lda     #$00
-        sta     LCF5B
-        lda     #$11
-        sta     LCF5C
+_L59D0  lda     #$0a       ;A = #0a
+        sta     Counter_ScoreUpdate1 ;$cf5a = #0a
+        lda     #$00       ;A = #00
+        sta     Counter_ScoreUpdate2 ;$cf5b = #00
+        lda     #$11       ;A = #11
+        sta     Counter_ScoreUpdate3 ;$cf5c = #11
         jsr     LCE42
         rts
 
@@ -2478,11 +2478,11 @@ Sub_GetBasket
         cmp     #$56       ;Check if character is basket
         bne     L5B57
         lda     #$64
-        sta     LCF5A
+        sta     Counter_ScoreUpdate1
         lda     #$00
-        sta     LCF5B
+        sta     Counter_ScoreUpdate2
         lda     #$11
-        sta     LCF5C
+        sta     Counter_ScoreUpdate3
         jsr     LCE42
         lda     #$a0       ;A = #a0 (Blank sprite)
         sta     ($fb),y    ;Remove basket
@@ -2544,25 +2544,27 @@ L5B57   cmp     #$57       ;Check if character is cross
         bne     L5B89      ;Branch if character is not cross
         jmp     L7F50
 
-L5B5E   nop
-        lda     Adr_MagicCrossesNum2
-        cmp     #$b9
-        beq     _L5B6C
-        inc     Adr_MagicCrossesNum2
-        jmp     _L5B86
+Sub_IncMagicCrossNum1
+        nop                ;No operation
+        lda     Adr_MagicCrossNumRight ;A = Adr_MagicCrossNum1 (Score number)
+        cmp     #$b9       ;Check if Adr_MagicCrossNum1 is 9
+        beq     _L5B6C     ;Branch if Adr_MagicCrossNum1 is 9
+        inc     Adr_MagicCrossNumRight ;Increase Adr_MagicCrossNum1
+        jmp     L5B86
 
-_L5B6C  lda     Adr_MagicCrossesNum1
-        cmp     #$b9
-        bne     _L5B7E
-        lda     #$b0
-        sta     Adr_MagicCrossesNum2
-        sta     Adr_MagicCrossesNum1
-        jmp     _L5B86
+_L5B6C  lda     Adr_MagicCrossNumLeft ;A = Adr_MagicCrossNum2 (Score number)
+        cmp     #$b9       ;Check if Adr_MagicCrossNum2 is 9
+        bne     Sub_IncMagicCrossNumLeft ;Branch if Adr_MagicCrossNum2 not 9
+        lda     #$b0       ;A = #b0
+        sta     Adr_MagicCrossNumRight ;Adr_MagicCrossNum1 = 0
+        sta     Adr_MagicCrossNumLeft ;Adr_MagicCrossNum2 = 0
+        jmp     L5B86
 
-_L5B7E  lda     #$b0       ;A = #b0
-        sta     Adr_MagicCrossesNum2
-        inc     Adr_MagicCrossesNum1
-_L5B86  jmp     L7F00
+Sub_IncMagicCrossNumLeft
+        lda     #$b0       ;A = #b0
+        sta     Adr_MagicCrossNumRight ;Adr_MagicCrossNumRight = #b0 (Zero)
+        inc     Adr_MagicCrossNumLeft ;Increase Adr_MagicCrossNumLeft
+L5B86   jmp     L7F00
 
 L5B89   cmp     #$62
         bpl     L5B95
@@ -3975,13 +3977,13 @@ _L7F67  cpx     #$04
         beq     _L7F6C
         rts
 
-_L7F6C  lda     $fc
+_L7F6C  lda     $fc        ;A = $fc (Low byte of screen address)
         sec
         sbc     #$d4
         sta     $fc
         lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     ($fb),y    ;Remove cross
-        jmp     L5B5E
+        sta     ($fb),y    ;Remove cross from ($fb),y which is screen address
+        jmp     Sub_IncMagicCrossNum1
 
         .fill   6,$ea
 
@@ -6233,8 +6235,8 @@ Sub_UpdateScore
 Loop_UpdateScore
         inc     $0405,x    ;Update score character
         lda     $0405,x    ;A = updated score character value
-        cmp     #$ba       ;Check if character is 0
-        bne     Exit_UpdateScore ;Exit if not zero
+        cmp     #$ba       ;Check if character is over 9
+        bne     Exit_UpdateScore ;Exit if not over 9
         lda     #$b0       ;A = #b0
         sta     $0405,x    ;Update character to 0
         dex                ;Decrease X (Go to next character in score)
@@ -6246,22 +6248,24 @@ Exit_UpdateScore
         .byte   $a2,$06,$de,$05,$04,$bd,$05,$04,$c9,$af,$d0,$0d,$a9,$b9,$9d,$05
         .byte   $04,$ca,$e0,$00,$d0,$ec,$20,$11,$ce,$60
 
-LCE42   lda     LCF5C
-        sta     _LCE52+1
-_LCE48  lda     LCF5A
+LCE42   lda     Counter_ScoreUpdate3 ;A = $cf5c
+        sta     Temp_Something1+1 ;$ce53 = $cf5c (#11)
+Loop_ScoreUpdate
+        lda     Counter_ScoreUpdate1 ;A = $cf5a
         cmp     #$00
-        beq     _LCE58
-        dec     LCF5A
-_LCE52  jsr     Sub_UpdateScore
-        jmp     _LCE48
+        beq     LCE58
+        dec     Counter_ScoreUpdate1
+Temp_Something1
+        jsr     Sub_UpdateScore
+        jmp     Loop_ScoreUpdate
 
-_LCE58  lda     LCF5B
+LCE58   lda     Counter_ScoreUpdate2
         cmp     #$00
         beq     _LCE6A
-        dec     LCF5B
+        dec     Counter_ScoreUpdate2
         lda     #$ff
-        sta     LCF5A
-        jmp     _LCE52
+        sta     Counter_ScoreUpdate1
+        jmp     Temp_Something1
 
 _LCE6A  rts
 
@@ -6294,7 +6298,7 @@ _LCEA6  inx
 
 _LCEB0  lda     $fd
         and     #$fc
-        sta     LCF5E
+        sta     Counter_ScoreUpdate3+2
         ldx     #$00
 _LCEB9  cmp     #$04
         beq     _LCEC2
@@ -6302,7 +6306,7 @@ _LCEB9  cmp     #$04
         lsr     a
         jmp     _LCEB9
 
-_LCEC2  stx     LCF5F
+_LCEC2  stx     Counter_ScoreUpdate3+3
         ldx     #$02
         jsr     L5B44
         jmp     LCD9D
@@ -6411,12 +6415,15 @@ LCF54   .byte   $40
         .byte   $08
         .byte   $04
         .byte   $0a
-LCF5A   .byte   $00
-LCF5B   .byte   $00
-LCF5C   .byte   $11
+Counter_ScoreUpdate1
+        .byte   $00
+Counter_ScoreUpdate2
+        .byte   $00
+Counter_ScoreUpdate3
+        .byte   $11
         .byte   $48
-LCF5E   .byte   $20
-LCF5F   .byte   $03
+        .byte   $20
+        .byte   $03
         .byte   $0b
         .byte   $00
         .byte   $ea

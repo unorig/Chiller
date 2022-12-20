@@ -3945,10 +3945,10 @@ L7F00   dec     Var_MagicCrossesLeft
         rts
 
 AllCrossesCollected
-        nop
-        nop
-        nop
-        lda     #$03
+        nop                ;No operation
+        nop                ;No operation
+        nop                ;No operation
+        lda     #$03       ;A = #03
         sta     SpriteEnableRegister
         ldy     #$73
         lda     ($11),y

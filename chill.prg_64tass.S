@@ -2361,8 +2361,21 @@ Counter_HealthIncLoop
         .byte   $00
 Var_DamageOccuring
         .fill   1,$00
-Var_DamageOccuringLoop
-        .byte   $12,$00,$01,$0a,$09,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+        .byte   $12
+        .byte   $00
+        .byte   $01
+Var_MagicCrossesLeft
+        .byte   $0a
+        .byte   $09
+        .byte   $ff
+        .byte   $ff
+        .byte   $ff
+        .byte   $ff
+        .byte   $ff
+        .byte   $ff
+        .byte   $ff
+        .byte   $ff
+        .byte   $ff
 
 L5A20   lda     Var_LeftRightInput ;Left = #ff / Right = #01
         beq     _L5A3C     ;Branch if no input
@@ -2518,10 +2531,10 @@ Exit_IncreaseHealth
 Sub_CheckForDamage
         lda     Var_DamageOccuring
         beq     Exit_CheckForDamage ;RTS if damage is not occuring
-        dec     Var_DamageOccuringLoop ;Decrease value of Var_DamageOccuringLoop
+        dec     Var_DamageOccuring+1 ;Decrease value of Var_DamageOccuringLoop
         bne     Exit_CheckForDamage ;RTS if DamageOccuring is not zero
         lda     #$12       ;A = #12
-        sta     Var_DamageOccuringLoop ;Var_DamageOccuringLoop = #12
+        sta     Var_DamageOccuring+1 ;Var_DamageOccuringLoop = #12
         dec     Var_DamageOccuring ;Decrease DamageOccuring
         jsr     Sub_DamageRoutine
 Exit_CheckForDamage
@@ -2529,8 +2542,8 @@ Exit_CheckForDamage
 
         .fill   2,$ea
 
-L5B44   stx     Var_DamageOccuringLoop+1
-_L5B47  dec     Var_DamageOccuringLoop+1
+L5B44   stx     Var_DamageOccuring+2
+_L5B47  dec     Var_DamageOccuring+2
         beq     _L5B54
         inc     Var_DamageOccuring
         beq     _L5B54
@@ -2544,23 +2557,24 @@ L5B57   cmp     #$57       ;Check if character is cross
         bne     L5B89      ;Branch if character is not cross
         jmp     L7F50
 
-Sub_IncMagicCrossNum1
+JMP_IncMagicCrossNumRight
         nop                ;No operation
         lda     Adr_MagicCrossNumRight ;A = Adr_MagicCrossNum1 (Score number)
-        cmp     #$b9       ;Check if Adr_MagicCrossNum1 is 9
-        beq     _L5B6C     ;Branch if Adr_MagicCrossNum1 is 9
-        inc     Adr_MagicCrossNumRight ;Increase Adr_MagicCrossNum1
+        cmp     #$b9       ;Check if Adr_MagicCrossNumRight is 9
+        beq     ResetMagicCrossNums ;Branch if Adr_MagicCrossNumRight is 9
+        inc     Adr_MagicCrossNumRight ;Increase Adr_MagicCrossNumRight
         jmp     L5B86
 
-_L5B6C  lda     Adr_MagicCrossNumLeft ;A = Adr_MagicCrossNum2 (Score number)
-        cmp     #$b9       ;Check if Adr_MagicCrossNum2 is 9
-        bne     Sub_IncMagicCrossNumLeft ;Branch if Adr_MagicCrossNum2 not 9
+ResetMagicCrossNums
+        lda     Adr_MagicCrossNumLeft ;A = Adr_MagicCrossNumLeft (Score number)
+        cmp     #$b9       ;Check if Adr_MagicCrossNumLeft is 9
+        bne     IncMagicCrossNumLeft ;Branch if Adr_MagicCrossNumLeft not 9
         lda     #$b0       ;A = #b0
-        sta     Adr_MagicCrossNumRight ;Adr_MagicCrossNum1 = 0
-        sta     Adr_MagicCrossNumLeft ;Adr_MagicCrossNum2 = 0
+        sta     Adr_MagicCrossNumRight ;Adr_MagicCrossNumRight = 0
+        sta     Adr_MagicCrossNumLeft ;Adr_MagicCrossNumLeft = 0
         jmp     L5B86
 
-Sub_IncMagicCrossNumLeft
+IncMagicCrossNumLeft
         lda     #$b0       ;A = #b0
         sta     Adr_MagicCrossNumRight ;Adr_MagicCrossNumRight = #b0 (Zero)
         inc     Adr_MagicCrossNumLeft ;Increase Adr_MagicCrossNumLeft
@@ -2580,10 +2594,10 @@ L5B95   cmp     #$66
         beq     _L5BA0
         jmp     L2A57
 
-_L5BA0  dec     Var_DamageOccuringLoop+2
+_L5BA0  dec     Var_DamageOccuring+3
         bne     L5B94
         lda     #$03
-        sta     Var_DamageOccuringLoop+2
+        sta     Var_DamageOccuring+3
         jmp     L2A57
 
 _L5BAD  jmp     L7673
@@ -3620,7 +3634,7 @@ _L75C7  jmp     L7FAE
 
 L7600   iny
         lda     ($11),y
-        sta     Var_DamageOccuringLoop+3
+        sta     Var_MagicCrossesLeft
         lda     #$03
         sta     SpriteEnableRegister
         rts
@@ -3926,11 +3940,12 @@ L7EF1   sta     L77B3+$73d
         sta     SpriteXMSBRegister
         rts
 
-L7F00   dec     Var_DamageOccuringLoop+3
-        beq     _L7F06
+L7F00   dec     Var_MagicCrossesLeft
+        beq     AllCrossesCollected
         rts
 
-_L7F06  nop
+AllCrossesCollected
+        nop
         nop
         nop
         lda     #$03
@@ -3983,14 +3998,14 @@ _L7F6C  lda     $fc        ;A = $fc (Low byte of screen address)
         sta     $fc
         lda     #$a0       ;A = #a0 (Blank sprite)
         sta     ($fb),y    ;Remove cross from ($fb),y which is screen address
-        jmp     Sub_IncMagicCrossNum1
+        jmp     JMP_IncMagicCrossNumRight
 
         .fill   6,$ea
 
-L7F80   dec     Var_DamageOccuringLoop+4
+L7F80   dec     Var_MagicCrossesLeft+1
         bne     _L7FAD
         lda     #$28
-        sta     Var_DamageOccuringLoop+4
+        sta     Var_MagicCrossesLeft+1
         ldy     #$5d
         ldx     #$00
 _L7F8E  iny

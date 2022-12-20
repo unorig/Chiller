@@ -55,7 +55,7 @@
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
 
-"Adr_MagicCrossesNum1":{
+"Adr_MagicCrossNumLeft":{
 "DataDescriptor":{
 "Length":1,
 "Format":"NumericLE",
@@ -66,13 +66,13 @@
 "HasWidth":false,
 "Direction":"ReadWrite",
 "MultiMask":null,
-"Label":"Adr_MagicCrossesNum1",
+"Label":"Adr_MagicCrossNumLeft",
 "Value":1052,
 "Source":"Project",
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
 
-"Adr_MagicCrossesNum2":{
+"Adr_MagicCrossNumRight":{
 "DataDescriptor":{
 "Length":1,
 "Format":"NumericLE",
@@ -83,7 +83,7 @@
 "HasWidth":false,
 "Direction":"ReadWrite",
 "MultiMask":null,
-"Label":"Adr_MagicCrossesNum2",
+"Label":"Adr_MagicCrossNumRight",
 "Value":1053,
 "Source":"Project",
 "Type":"ExternalAddr",
@@ -836,6 +836,12 @@
 "20912":"Check if at maximum health block",
 "20914":"Branch if already full health",
 "20916":"Increase health bar block (a1 - a9)",
+"20922":"A = #0a",
+"20924":"$cf5a = #0a",
+"20927":"A = #00",
+"20929":"$cf5b = #00",
+"20932":"A = #11",
+"20934":"$cf5c = #11",
 "20944":"#01 jumping / #00 not jumping",
 "20947":"Branch if not jumping",
 "20949":"Var_JumpSkipDamage will be set to #00 in the loop",
@@ -891,7 +897,20 @@
 "21285":"Decrease DamageOccuring",
 "21313":"Check if character is cross",
 "21315":"Branch if character is not cross",
+"21320":"No operation",
+"21321":"A = Adr_MagicCrossNum1 (Score number)",
+"21324":"Check if Adr_MagicCrossNum1 is 9",
+"21326":"Branch if Adr_MagicCrossNum1 is 9",
+"21328":"Increase Adr_MagicCrossNum1",
+"21334":"A = Adr_MagicCrossNum2 (Score number)",
+"21337":"Check if Adr_MagicCrossNum2 is 9",
+"21339":"Branch if Adr_MagicCrossNum2 not 9",
+"21341":"A = #b0",
+"21343":"Adr_MagicCrossNum1 = 0",
+"21346":"Adr_MagicCrossNum2 = 0",
 "21352":"A = #b0",
+"21354":"Adr_MagicCrossNumRight = #b0 (Zero)",
+"21357":"Increase Adr_MagicCrossNumLeft",
 "21402":"JSR from $576b",
 "21405":"Check if rasterline is #10",
 "21407":"Loop back two instructions if raster not #10",
@@ -989,8 +1008,9 @@
 "30524":"No operation",
 "30525":"Clear carry",
 "30526":"Add ",
+"30550":"A = $fc (Low byte of screen address)",
 "30557":"A = #a0 (Blank sprite)",
-"30559":"Remove cross",
+"30559":"Remove cross from ($fb),y which is screen address",
 "47099":"A = $4555",
 "47102":"Compare A to #ff",
 "47104":"Branch if A = #ff",
@@ -1100,13 +1120,16 @@
 "50683":"X = #06",
 "50685":"Update score character",
 "50688":"A = updated score character value",
-"50691":"Check if character is 0",
-"50693":"Exit if not zero",
+"50691":"Check if character is over 9",
+"50693":"Exit if not over 9",
 "50695":"A = #b0",
 "50697":"Update character to 0",
 "50700":"Decrease X (Go to next character in score)",
 "50701":"Check if character is 0",
-"50703":"Branch if not equal 0"},
+"50703":"Branch if not equal 0",
+"50732":"A = $cf5c",
+"50735":"$ce53 = $cf5c (#11)",
+"50738":"A = $cf5a"},
 
 "LongComments":{
 "-2147483647":{
@@ -1861,6 +1884,55 @@
 "50705":{
 "Label":"Exit_UpdateScore",
 "Value":52775,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"51012":{
+"Label":"Counter_ScoreUpdate1",
+"Value":53082,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50738":{
+"Label":"Loop_ScoreUpdate",
+"Value":52808,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"51014":{
+"Label":"Counter_ScoreUpdate3",
+"Value":53084,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50748":{
+"Label":"Temp_Something1",
+"Value":52818,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"51013":{
+"Label":"Counter_ScoreUpdate2",
+"Value":53083,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21320":{
+"Label":"Sub_IncMagicCrossNum1",
+"Value":23390,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21352":{
+"Label":"Sub_IncMagicCrossNumLeft",
+"Value":23422,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

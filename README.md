@@ -1,4 +1,4 @@
-![Chiller](https://www.mobygames.com/images/covers/l/91455-chiller-commodore-64-front-cover.jpg)
+![Chiller](https://pbs.twimg.com/media/FgLOuFbWAAA0FHE?format=jpg&name=4096x4096)
 # Chiller (Commodore64) source code
 This is the decompiled source code for Chiller for the Commodore 64. 
 

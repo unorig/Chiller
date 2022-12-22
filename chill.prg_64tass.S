@@ -1,6 +1,8 @@
 ; Target assembler: 64tass v1.56.2625 [--ascii --case-sensitive -Wall]
 ; 6502bench SourceGen v1.8.3
         .cpu    "6502"
+Adr_MapLow =    $11
+Adr_MapHigh =   $12
 Var_KeyboardInput = $c5    ;This is for the keyboard player inputs
 IRQVectorLow =  $0314
 IRQVectorHigh = $0315
@@ -1931,10 +1933,10 @@ _L565E  jmp     L5716
 
 Sub_VerticalMovingEnemies
         sta     Var_EnemyIndex
-        tax
-        lda     #$01
-        sta     LCF33,x
-        txa
+        tax                ;Transfer A to X (Enemy index)
+        lda     #$01       ;A = #01
+        sta     LCF33,x    ;$cf33,x = #01 ($cf33, enemy index)
+        txa                ;Transfer X to A
         rts
 
 L566D   ldx     #$00
@@ -2366,6 +2368,7 @@ Var_DamageOccuring
         .byte   $01
 Var_MagicCrossesLeft
         .byte   $0a
+Var_5a16
         .byte   $09
         .byte   $ff
         .byte   $ff
@@ -2622,10 +2625,10 @@ L5BC7   ldx     #$bf
         sta     ExtraBackgroundColor1 ;Extra Background Color 1 = Black
         sta     ExtraBackgroundColor2 ;Extra Background Color 2 = Black
         ldy     #$74       ;Y = #74
-        lda     ($11),y    ;A = 00
+        lda     (Adr_MapLow),y ;A = 00
         tax                ;Transfer A to X
         iny                ;Increase Y
-        lda     ($11),y    ;A = #41
+        lda     (Adr_MapLow),y ;A = #41
         tay                ;Transfer A to Y
         jsr     L5C4F
         sei                ;Set interrupts
@@ -2868,206 +2871,206 @@ L5E0A   lda     $01
         .byte   $00
         .byte   $00
 
-Sub_SetupBackground
-        lda     L61F2+$109e,x
-        sta     $11
+Sub_SetupScreen
+        lda     Adr_7290,x
+        sta     Adr_MapLow
         lda     L61F2+$109f,x
-        sta     $12
+        sta     Adr_MapHigh
         nop
         nop
         jsr     L5A41
         nop
         nop
-        ldx     $11
-        ldy     $12
+        ldx     Adr_MapLow
+        ldy     Adr_MapHigh
         jsr     L61F2+$10b2
-        lda     $11
+        lda     Adr_MapLow
         clc
         adc     #$06
         tax
-        ldy     $12
+        ldy     Adr_MapHigh
         jsr     L2A80
         ldy     #$0c
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L5D20+1
         iny
         tya
         pha
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L5D22+1
         jsr     L5D20
         pla
         tay
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     ExtraBackgroundColor1
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     ExtraBackgroundColor2
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         jsr     L7F20
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         jsr     L7F27
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         jsr     L7F2E
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     SpritePointer0
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Sprite1XPositionRegister
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Sprite1YPositionRegister
         iny
         lda     Var_SlidingOnRope+21
         and     #$fd
-        ora     ($11),y
+        ora     (Adr_MapLow),y
         sta     SpriteXMSBRegister
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     SpritePointer1
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF68
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF69
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF6A
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF6B
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF6C
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF3D
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF3E
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF3F
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF40
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF41
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF38
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF39
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF3A
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF3B
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF3C
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+170
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+171
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+172
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+173
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+174
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_Sprite3Speed
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_Sprite3Speed+1
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_Sprite3Speed+2
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_Sprite3Speed+3
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCFA0
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L54E5
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L54E5+1
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L54E5+2
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L54E5+3
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L54E5+4
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+223
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+224
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+225
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+226
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+227
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L574A+20
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L574A+21
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L574A+22
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L574A+23
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     L574A+24
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF24
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF25
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF26
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF27
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     LCF28
         ldx     #$00
 _L5FA1  iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_SlidingOnRope+22,x
         inx
         cpx     #$19
@@ -3084,10 +3087,10 @@ _L5FA1  iny
 
 _L5FC0  ldx     #$00
 _L5FC2  iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     $fb
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     $fc
         tya
         pha
@@ -3633,7 +3636,7 @@ _L75C7  jmp     L7FAE
         .byte   $00,$00,$00,$00,$00,$00
 
 L7600   iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         sta     Var_MagicCrossesLeft
         lda     #$03
         sta     SpriteEnableRegister
@@ -3714,7 +3717,7 @@ L7680   stx     L767B+4
 _L769A  ldx     L767B+4
         inx
         inx
-        jsr     Sub_SetupBackground
+        jsr     Sub_SetupScreen
         lda     Var_BorderColour
         beq     _L76BB
         lda     SpritePointer0
@@ -3730,7 +3733,7 @@ _L76BB  lda     #$06
 _L76C0  ldy     #$73
         lda     #$01
         sta     Temp_NotJumping
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         cmp     #$0a
         bmi     _L76D5
         lda     #$03
@@ -3949,9 +3952,9 @@ AllCrossesCollected
         nop                ;No operation
         nop                ;No operation
         lda     #$03       ;A = #03
-        sta     SpriteEnableRegister
-        ldy     #$73
-        lda     ($11),y
+        sta     SpriteEnableRegister ;Turn off all sprites other than boy and girl
+        ldy     #$73       ;Y = #73
+        lda     (Adr_MapLow),y ;A = ($11),y - which is ($11),73
         tax
         cpx     #$12
         bne     _L7F19
@@ -4002,17 +4005,17 @@ _L7F6C  lda     $fc        ;A = $fc (Low byte of screen address)
 
         .fill   6,$ea
 
-L7F80   dec     Var_MagicCrossesLeft+1
-        bne     _L7FAD
-        lda     #$28
-        sta     Var_MagicCrossesLeft+1
-        ldy     #$5d
-        ldx     #$00
-_L7F8E  iny
-        lda     ($11),y
+L7F80   dec     Var_5a16   ;Decrease $5a16
+        bne     _L7FAD     ;Branch if $5a16 not zero
+        lda     #$28       ;A = #28
+        sta     Var_5a16   ;Var_5a16 = #28
+        ldy     #$5d       ;Y = #5d
+        ldx     #$00       ;X = #00
+_L7F8E  iny                ;Increase Y
+        lda     (Adr_MapLow),y
         sta     $fb
         iny
-        lda     ($11),y
+        lda     (Adr_MapLow),y
         clc
         adc     #$d4
         sta     $fc
@@ -5353,7 +5356,7 @@ _LC508  lda     SpritePointer1
 
 _LC524  rts
 
-LC525   lda     LCF43
+LC525   lda     LCF43      ;A = $cf43
         and     #$07
         bne     _LC538
         ldx     #$01
@@ -5420,7 +5423,7 @@ LC646   jsr     ResetGirl
         nop
         nop
         ldx     #$00       ;X = #00
-        jsr     Sub_SetupBackground
+        jsr     Sub_SetupScreen
         nop
         nop
         nop
@@ -5834,12 +5837,12 @@ _LC9DB  lda     InputPortA ;Load port A inputs
 LC9DF   .byte   $ea,$ea,$fe,$fd,$fb,$f7,$ef,$df,$bf,$7f,$01,$02,$04,$08,$10,$20
         .byte   $40,$80
 
-LC9F1   inc     LCF14
-        ldx     LCF14
-        lda     LC000,x
+LC9F1   inc     LCF14      ;Increase $cf14
+        ldx     LCF14      ;X = $cf14
+        lda     LC000,x    ;A = $c000,x
         eor     $a2
-        tay
-        ldx     #$20
+        tay                ;Transfer A to Y
+        ldx     #$20       ;X = #20
         rts
 
 LCA00   jsr     L75B0
@@ -5914,10 +5917,12 @@ LCAED   dec     LCF7C
 
         .byte   $8c,$ff,$ff,$4c,$da,$ce,$ea,$60,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea
         .byte   $ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea
-        .byte   $ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$60,$01
+        .byte   $ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$60
+Counter_Enemy
+        .byte   $01
 
 Sub_HorizontalMovingEnemies
-        sta     Sub_HorizontalMovingEnemies-1 ;Rotates between #00-04
+        sta     Counter_Enemy ;Rotates between #00-04
         tax                ;Transfer A to X
         asl     a          ;Multiply A by 2
         tay                ;Transfer A to Y
@@ -5927,7 +5932,7 @@ Sub_HorizontalMovingEnemies
         sta     SpriteXPositionRegister,y
         lda     Var_SlidingOnRope+23,x
         sta     SpriteYPositionRegister,y
-        ldy     Sub_HorizontalMovingEnemies-1
+        ldy     Counter_Enemy
         lda     Var_MovingLeftRight+2,y
         eor     #$ff
         and     SpriteXMSBRegister
@@ -5942,7 +5947,7 @@ Sub_HorizontalMovingEnemies
         jsr     LC9F1
 _LCB5C  lda     #$00
         sta     LCF12
-_LCB61  ldx     Sub_HorizontalMovingEnemies-1
+_LCB61  ldx     Counter_Enemy
         lda     LCF0D,x
         tax
         lda     LCF12
@@ -5954,14 +5959,14 @@ _LCB61  ldx     Sub_HorizontalMovingEnemies-1
         inc     LCF12
         lda     #$03
         sty     LCF13
-        ldx     Sub_HorizontalMovingEnemies-1
+        ldx     Counter_Enemy
         inx
         inx
         jsr     LC900
         ldy     LCF13
         jmp     _LCB61
 
-_LCB8B  lda     Sub_HorizontalMovingEnemies-1
+_LCB8B  lda     Counter_Enemy
         tax
         asl     a
         sty     LCF13
@@ -5970,7 +5975,7 @@ _LCB8B  lda     Sub_HorizontalMovingEnemies-1
         tax
         lda     Var_SlidingOnRope+22,x
         sta     SpriteXPositionRegister,y
-        ldy     Sub_HorizontalMovingEnemies-1
+        ldy     Counter_Enemy
         lda     Var_MovingLeftRight+2,y
         eor     #$ff
         and     SpriteXMSBRegister
@@ -5987,7 +5992,7 @@ _LCBBB  lda     Var_SlidingOnRope+26,x
         jsr     LC9F1
 _LCBC5  lda     #$00
         sta     LCF12
-_LCBCA  ldx     Sub_HorizontalMovingEnemies-1
+_LCBCA  ldx     Counter_Enemy
         lda     LCF0D,x
         tax
         lda     LCF12
@@ -5999,14 +6004,14 @@ _LCBCA  ldx     Sub_HorizontalMovingEnemies-1
         inc     LCF12
         lda     #$01
         sty     LCF13
-        ldx     Sub_HorizontalMovingEnemies-1
+        ldx     Counter_Enemy
         inx
         inx
         jsr     LC900
         ldy     LCF13
         jmp     _LCBCA
 
-_LCBF4  lda     Sub_HorizontalMovingEnemies-1
+_LCBF4  lda     Counter_Enemy
         tax
         asl     a
         sty     LCF13

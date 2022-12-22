@@ -747,6 +747,10 @@
 "19465":"Var_JumpInput = #01 (#01 jumping / #00 not jumping)",
 "19483":"#01 Not jumping / #00 Jumping",
 "19559":"#01 jumping / #00 not jumping",
+"20047":"Transfer A to X (Enemy index)",
+"20048":"A = #01",
+"20050":"$cf33,x = #01 ($cf33, enemy index)",
+"20053":"Transfer X to A",
 "20309":"JSR from $5d65",
 "20328":"Have not seen this executed yet.",
 "20458":"Increase Var_SomethingRandom",
@@ -1052,6 +1056,13 @@
 "30550":"A = $fc (Low byte of screen address)",
 "30557":"A = #a0 (Blank sprite)",
 "30559":"Remove cross from ($fb),y which is screen address",
+"30570":"Decrease $5a16",
+"30573":"Branch if $5a16 not zero",
+"30575":"A = #28",
+"30577":"Var_5a16 = #28",
+"30580":"Y = #5d",
+"30582":"X = #00",
+"30584":"Increase Y",
 "47099":"A = $4555",
 "47102":"Compare A to #ff",
 "47104":"Branch if A = #ff",
@@ -1062,6 +1073,7 @@
 "47326":"Update sprite register",
 "47494":"#01 jumping / #00 not jumping",
 "47506":"#01 jumping / #00 not jumping",
+"48399":"A = $cf43",
 "48694":"Value is usually #f0 (Light grey)",
 "48697":"Set the background colour to light grey",
 "48702":"Not sure why this exists",
@@ -1148,6 +1160,11 @@
 "49599":"Reset down input",
 "49602":"Reset left/right input",
 "49605":"Load port A inputs",
+"49627":"Increase $cf14",
+"49630":"X = $cf14",
+"49633":"A = $c000,x",
+"49638":"Transfer A to Y",
+"49639":"X = #20",
 "49652":"A = #00",
 "49654":"Var_SomethingRandom = #00",
 "49723":"Not sure what this does as it never goes into subroutine",
@@ -1990,6 +2007,27 @@
 "Value":32518,
 "Source":"User",
 "Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20992":{
+"Label":"Var_5a16",
+"Value":23062,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"27258":{
+"Label":"Adr_7290",
+"Value":29328,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"49933":{
+"Label":"Counter_Enemy",
+"Value":52003,
+"Source":"User",
+"Type":"GlobalAddr",
 "LabelAnno":"None"}},
 
 "OperandFormats":{
@@ -2822,8 +2860,14 @@
 "SymbolRef":null},
 
 "49891":{
-"Length":43,
+"Length":42,
 "Format":"Uninit",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49933":{
+"Length":1,
+"Format":"NumericLE",
 "SubFormat":"None",
 "SymbolRef":null},
 

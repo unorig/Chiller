@@ -985,6 +985,11 @@
 "21280":"A = #12",
 "21282":"Var_DamageOccuringLoop = #12",
 "21285":"Decrease DamageOccuring",
+"21294":"Unknown = 2",
+"21297":"Decrease Unknown",
+"21300":"Return from subroutine",
+"21302":"Increase Var_DamageOccuring",
+"21305":"Return from subroutine",
 "21313":"Check if character is cross",
 "21315":"Branch if character is not cross",
 "21320":"No operation",
@@ -1287,10 +1292,22 @@
 "50824":"Will increase through each enemy (#04, #08, #10, #20, #40)",
 "50827":"Check if selected sprite caused collision",
 "50829":"Branch if select enemy caused collision",
-"50831":"Increase Y",
+"50831":"Increase Y. Used to confirm enemy found.",
 "50832":"Increase X",
 "50833":"Compare X to #06 (As there are only 5 enemies)",
-"50835":"Loop as not at final enemy"},
+"50835":"Loop as not at final enemy",
+"50837":"Compare Y to #01 (Check if enemy found).",
+"50839":"Branch if enemy found.",
+"50842":"A = Var_SpriteCollision",
+"50844":"Isolate enemy sprites only",
+"50846":"A = Temp_EnemyThatCollided",
+"50849":"X = #00",
+"50851":"Check enemy number",
+"50853":"Branch if enemy selected",
+"50855":"Increase X (Enemy number)",
+"50856":"Divide by 2",
+"50860":"Temp_EnemyCollidedInt = X",
+"50863":"X = #02"},
 
 "LongComments":{
 "-2147483647":{
@@ -2182,6 +2199,69 @@
 "50171":{
 "Label":"Temp_CurrentEnemy",
 "Value":52241,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50820":{
+"Label":"Br_CheckEnemyCollide",
+"Value":52890,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50824":{
+"Label":"Loop_CheckEnemyCollide",
+"Value":52894,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50832":{
+"Label":"NotEnemy",
+"Value":52902,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"51016":{
+"Label":"Temp_EnemyCollidedBin",
+"Value":53086,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"51017":{
+"Label":"Temp_EnemyCollidedInt",
+"Value":53087,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"20989":{
+"Label":"Unknown",
+"Value":23059,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21294":{
+"Label":"Update_DamageOccuring",
+"Value":23364,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21297":{
+"Label":"Loop_Update_DamageOccuring",
+"Value":23367,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"21310":{
+"Label":"RTS_Update_DamageOccuring",
+"Value":23380,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

@@ -5799,7 +5799,7 @@ Counter_HealthIncLoop
 Var_DamageOccuring
         .fill   1,$00
         .byte   $12
-        .byte   $00
+Unknown .byte   $00
         .byte   $01
 Var_MagicCrossesLeft
         .byte   $0a
@@ -5920,7 +5920,7 @@ Sub_GetRedFlower
         cmp     #$55       ;Check if character is poison red flower
         bne     Sub_GetBasket
         ldx     #$19
-        jsr     L5B44
+        jsr     Update_DamageOccuring
         lda     #$a0       ;A = #a0 (Blank sprite)
         sta     ($fb),y    ;Remove flower
         rts
@@ -5980,14 +5980,17 @@ Exit_CheckForDamage
 
         .fill   2,$ea
 
-L5B44   stx     Var_DamageOccuring+2
-_L5B47  dec     Var_DamageOccuring+2
-        beq     _L5B54
-        inc     Var_DamageOccuring
-        beq     _L5B54
-        jmp     _L5B47
+Update_DamageOccuring
+        stx     Unknown    ;Unknown = 2
+Loop_Update_DamageOccuring
+        dec     Unknown    ;Decrease Unknown
+        beq     RTS_Update_DamageOccuring ;Return from subroutine
+        inc     Var_DamageOccuring ;Increase Var_DamageOccuring
+        beq     RTS_Update_DamageOccuring ;Return from subroutine
+        jmp     Loop_Update_DamageOccuring
 
-_L5B54  rts
+RTS_Update_DamageOccuring
+        rts
 
         .fill   2,$ea
 
@@ -6032,10 +6035,10 @@ L5B95   cmp     #$66
         beq     _L5BA0
         jmp     L2A57
 
-_L5BA0  dec     Var_DamageOccuring+3
+_L5BA0  dec     Unknown+1
         bne     L5B94
         lda     #$03
-        sta     Var_DamageOccuring+3
+        sta     Unknown+1
         jmp     L2A57
 
 _L5BAD  jmp     L7673
@@ -9671,7 +9674,7 @@ _LCDB2  inx
         jmp     LCD96
 
 _LCDBE  ldx     #$02
-        jsr     L5B44
+        jsr     Update_DamageOccuring
         rts
 
         .byte   $da,$da,$da,$ad,$4d,$cf,$c9,$04,$f0,$05,$e8,$4a,$4c,$ca,$cd,$8e
@@ -9739,35 +9742,38 @@ LCE87   lda     Adr_SpriteCollision ;A = Adr_SpriteCollision
 
 _LCE93  lda     Var_SpriteCollision ;A = Var_SpriteCollision
         and     #$02       ;Isolate girl
-        beq     _LCE9A     ;Branch if girl does not have collision
+        beq     Br_CheckEnemyCollide ;Branch if girl does not have collision
         rts                ;Return from subroutine
 
-_LCE9A  ldx     #$00       ;X = #00
+Br_CheckEnemyCollide
+        ldx     #$00       ;X = #00
         ldy     #$00       ;Y = #00
-_LCE9E  lda     LCF46,x    ;Will increase through each enemy (#04, #08, #10, #20, #40)
+Loop_CheckEnemyCollide
+        lda     LCF46,x    ;Will increase through each enemy (#04, #08, #10, #20, #40)
         and     Var_SpriteCollision ;Check if selected sprite caused collision
-        beq     _LCEA6     ;Branch if select enemy caused collision
-        iny                ;Increase Y
-_LCEA6  inx                ;Increase X
+        beq     NotEnemy   ;Branch if select enemy caused collision
+        iny                ;Increase Y. Used to confirm enemy found.
+NotEnemy
+        inx                ;Increase X
         cpx     #$06       ;Compare X to #06 (As there are only 5 enemies)
-        bne     _LCE9E     ;Loop as not at final enemy
-        cpy     #$01
-        beq     _LCEB0
+        bne     Loop_CheckEnemyCollide ;Loop as not at final enemy
+        cpy     #$01       ;Compare Y to #01 (Check if enemy found).
+        beq     _LCEB0     ;Branch if enemy found.
         rts
 
-_LCEB0  lda     Var_SpriteCollision
-        and     #$fc
-        sta     Counter_ScoreUpdate3+2
-        ldx     #$00
-_LCEB9  cmp     #$04
-        beq     _LCEC2
-        inx
-        lsr     a
+_LCEB0  lda     Var_SpriteCollision ;A = Var_SpriteCollision
+        and     #$fc       ;Isolate enemy sprites only
+        sta     Temp_EnemyCollidedBin ;A = Temp_EnemyThatCollided
+        ldx     #$00       ;X = #00
+_LCEB9  cmp     #$04       ;Check enemy number
+        beq     _LCEC2     ;Branch if enemy selected
+        inx                ;Increase X (Enemy number)
+        lsr     a          ;Divide by 2
         jmp     _LCEB9
 
-_LCEC2  stx     Counter_ScoreUpdate3+3
-        ldx     #$02
-        jsr     L5B44
+_LCEC2  stx     Temp_EnemyCollidedInt ;Temp_EnemyCollidedInt = X
+        ldx     #$02       ;X = #02
+        jsr     Update_DamageOccuring
         jmp     LCD9D
 
         .byte   $6f,$45,$29,$01,$d0,$04,$60,$4c,$7b,$2f,$4c,$a7,$2f,$20,$ed,$ca
@@ -9881,7 +9887,9 @@ Counter_ScoreUpdate2
 Counter_ScoreUpdate3
         .byte   $11
         .byte   $48
+Temp_EnemyCollidedBin
         .byte   $20
+Temp_EnemyCollidedInt
         .byte   $03
         .byte   $0b
         .byte   $00

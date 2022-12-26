@@ -5438,17 +5438,18 @@ L5716   jsr     L2F47
         .byte   $a2,$00,$a9,$00,$9d,$00,$30,$9d,$00,$31,$9d,$00,$32,$9d,$00,$33
         .byte   $e8,$d0,$f1,$60
 
-L5733   nop
+Sub_5733
+        nop
         nop
         nop
         ldx     #$00
-_L5738  lda     L574A,x
+If_5738 lda     L574A,x
         lda     $07ca,x
         lda     $d805
         lda     $dbca,x
         inx
         cpx     #$13
-        bne     _L5738
+        bne     If_5738
         rts
 
 L574A   .byte   $90,$92,$85,$93,$93,$a0,$83,$94,$92,$8c,$a0,$86,$8f,$92,$a0,$8d
@@ -5464,10 +5465,10 @@ L576B   jsr     Sub_WaitForCurrentRaster ;JSR from $5d65
         ora     #$03
         sta     SpriteEnableRegister
         lda     Var_BorderColour
-        beq     _L5783     ;Have not seen this executed yet.
-        jmp     _L57BD
+        beq     If_5783    ;Have not seen this executed yet.
+        jmp     Jump_57BD
 
-_L5783  lda     #$01
+If_5783 lda     #$01
         sta     Var_BorderColour
         lda     #$e8
         sta     L582C+1
@@ -5491,7 +5492,8 @@ _L5783  lda     #$01
         sta     Adr_BorderColor
         jmp     Jump_5844
 
-_L57BD  lda     #$00
+Jump_57BD
+        lda     #$00
         sta     Var_BorderColour
         lda     #$d8
         sta     L582C+1
@@ -5524,22 +5526,22 @@ L5800   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
         nop
         lda     Var_5a00
         cmp     #$00
-        beq     _L5818
+        beq     If_5818
         lda     Var_JumpDirection ;Never taken (Left = #ff / Right = #01 / Up = #00)
         sta     Var_LeftRightInput ;Never taken
-_L5818  lda     Var_JumpInput ;#01 jumping / #00 not jumping
+If_5818 lda     Var_JumpInput ;#01 jumping / #00 not jumping
         cmp     #$00       ;Compare Var_JumpInput
-        bne     L5836      ;Branch if jumping
+        bne     If_5836    ;Branch if jumping
         lda     #$a9
         sta     Sub_GetKeyboardInputs
         lda     #$ad
-        sta     L5980
+        sta     Jump_5980
         jsr     Sub_CheckSlidingOnRope
 L582C   lda     #$e8
         sta     LC79B+1
 L5831   lda     #$ec
         sta     LC7C5+1
-L5836   jmp     L59E6
+If_5836 jmp     L59E6
 
         .fill   11,$ea
 
@@ -5554,13 +5556,13 @@ Sub_CheckXMovement
         lda     Var_JumpDirection+1 ;Set A with previous X position
         stx     Var_JumpDirection+1 ;Update $5a02 with Boy x position
         cmp     Var_JumpDirection+1 ;Compare current position to previous position
-        beq     L5864      ;Branch if no movement change
+        beq     If_5864    ;Branch if no movement change
         lda     #$00       ;A = #00
         sta     Var_JumpDirection+2 ;Store #00 to $5a03
 RTS_5863
         rts
 
-L5864   inc     Var_JumpDirection+2 ;Increment $5a03
+If_5864 inc     Var_JumpDirection+2 ;Increment $5a03
         lda     Var_JumpDirection+2 ;A = $5a03
         cmp     #$90       ;Check if $5a03 = #90
         bne     RTS_5863   ;Branch if A not equal #90 (RTS)
@@ -5582,7 +5584,7 @@ Sub_5880
         sta     Var_JumpDirection ;Left = #ff / Right = #01 / Up = #00
         lda     #$60       ;A = #60
         sta     Sub_GetKeyboardInputs ;$c84d = #60
-        sta     L5980      ;$5980 = #60
+        sta     Jump_5980  ;$5980 = #60
         lda     SpritePointer0 ;Load SpritePointer0
         and     #$04       ;Isolate 4th bit
         bne     If_58a3    ;Branch if facing left
@@ -5707,17 +5709,19 @@ If_GoingSlow
 
         .fill   2,$ea
 
-L5980   lda     SpritePointer0 ;A = SpritePointer0
+Jump_5980
+        lda     SpritePointer0 ;A = SpritePointer0
         and     #$03       ;Isolate third bit
         cmp     #$03
-        beq     _L598F
+        beq     If_598F
         inc     SpritePointer0
-        jmp     _L5997
+        jmp     RTS_5997
 
-_L598F  lda     SpritePointer0
+If_598F lda     SpritePointer0
         and     #$fc
         sta     SpritePointer0
-_L5997  rts
+RTS_5997
+        rts
 
 Sub_GetCurrentHealthBar
         ldx     #$ff       ;X = #ff
@@ -5753,13 +5757,13 @@ JMP_NoHealthLeft
 Sub_IncreaseHealthBlock
         jsr     Sub_GetCurrentHealthBar ;Get current health bar block
         cpx     #$21       ;Check if at maximum health block
-        beq     _L59D0     ;Branch if already full health
+        beq     If_59D0    ;Branch if already full health
         inc     Scr_HealthBar,x ;Increase health bar block (a1 - a9)
         rts
 
         .fill   2,$ea
 
-_L59D0  lda     #$0a       ;A = #0a
+If_59D0 lda     #$0a       ;A = #0a
         sta     Counter_ScoreUpdate1 ;$cf5a = #0a
         lda     #$00       ;A = #00
         sta     Counter_ScoreUpdate2 ;$cf5b = #00
@@ -5771,15 +5775,15 @@ _L59D0  lda     #$0a       ;A = #0a
         .fill   3,$ea
 
 L59E6   lda     Var_JumpInput ;#01 jumping / #00 not jumping
-        beq     _L59F9     ;Branch if not jumping
+        beq     If_59F9    ;Branch if not jumping
         dec     Var_JumpSkipDamage ;Var_JumpSkipDamage will be set to #00 in the loop
-        bne     _L59F8     ;Branch if not equal zero
+        bne     If_59F8    ;Branch if not equal zero
         lda     #$00       ;A = #00
         sta     Var_JumpSkipDamage ;Var_JumpSomething = #00
         jsr     Sub_ReduceHealthBar ;Reduce health while jumping
-_L59F8  rts
+If_59F8 rts
 
-_L59F9  jmp     L5A20
+If_59F9 jmp     Jump_5A20
 
         .byte   $ea
         .byte   $ea
@@ -5826,18 +5830,20 @@ Var_5a16
         .byte   $ff
         .byte   $ff
 
-L5A20   lda     Var_LeftRightInput ;Left = #ff / Right = #01
-        beq     _L5A3C     ;Branch if no input
+Jump_5A20
+        lda     Var_LeftRightInput ;Left = #ff / Right = #01
+        beq     RTS_5A3C   ;Branch if no input
         dec     Var_SomethingMovement1
-        bne     _L5A3C
+        bne     RTS_5A3C
         lda     #$ff
         sta     Var_SomethingMovement1
         dec     Var_SomethingMovement2
-        bne     _L5A3C
+        bne     RTS_5A3C
         lda     #$03
         sta     Var_SomethingMovement2
         jsr     Sub_ReduceHealthBar
-_L5A3C  rts
+RTS_5A3C
+        rts
 
         .byte   $ff,$ff,$ff,$f6
 
@@ -6151,7 +6157,7 @@ L5C4F   jsr     L5CD8
         lda     #$1c
         sta     Adr_MemorySetupRegister
         ldx     #$00
-_L5C71  lda     L5CFE+2,x
+_L5C71  lda     RTS_5CFD+3,x
         sta     $04d6,x
         lda     #$02
         sta     $d8d6,x
@@ -6221,14 +6227,15 @@ L5CD8   lda     #$93
         ldy     #$02
 _L5CF0  lda     ($fb),y
         cmp     #$01
-        beq     _L5CFD
+        beq     RTS_5CFD
         iny
         jsr     BSOUT
         jmp     _L5CF0
 
-_L5CFD  rts
+RTS_5CFD
+        rts
 
-L5CFE   .byte   $ea,$ea,$8d,$81,$93,$94,$85,$92,$94,$92,$8f,$8e,$89,$83,$a0,$93
+        .byte   $ea,$ea,$8d,$81,$93,$94,$85,$92,$94,$92,$8f,$8e,$89,$83,$a0,$93
         .byte   $0f,$12,$1c,$8e,$08,$54,$48,$45,$20,$46,$4f,$52,$45,$53,$54,$01
         .byte   $00,$00
 
@@ -6288,7 +6295,7 @@ ScreenSetup
         jsr     L5E0A
         jmp     L5651
 
-L5D98   jsr     LCFC0
+L5D98   jsr     Sub_CFC0
         lda     #$10
         sta     $b7
         sta     $b9
@@ -7145,26 +7152,27 @@ L7659   jsr     Sub_CopyTopRowStartScreen
         lda     #$02
         sta     $fc
         ldy     #$00
-_L7666  lda     ($fb),y
+If_7666 lda     ($fb),y
         sta     $0400,y
         iny
         cpy     #$50
-        bne     _L7666
+        bne     If_7666
         rts
 
         .fill   2,$00
 
 L7673   cmp     #$70
-        bmi     _L767A
+        bmi     RTS_767A
         jmp     L5B8D
 
-_L767A  rts
+RTS_767A
+        rts
 
 L767B   .byte   $00,$00,$00,$00,$08
 
 L7680   stx     L767B+4
         cpx     #$0a
-        bpl     _L769A
+        bpl     If_769A
         lda     L7FB5+51,x
         sta     L7FB5+47
         lda     L7FB5+52,x
@@ -7172,23 +7180,23 @@ L7680   stx     L767B+4
         ldx     #$e0
         ldy     #$7f
         jsr     L2A80
-_L769A  ldx     L767B+4
+If_769A ldx     L767B+4
         inx
         inx
         jsr     Sub_SetupScreen
         lda     Var_BorderColour
-        beq     _L76BB
+        beq     If_76BB
         lda     SpritePointer0
         ldx     SpritePointer1
         sta     SpritePointer1
         stx     SpritePointer0
         lda     #$0a
         sta     Adr_BorderColor
-        jmp     _L76C0
+        jmp     L76C0
 
-_L76BB  lda     #$06
+If_76BB lda     #$06
         sta     Adr_BorderColor
-_L76C0  ldy     #$73
+L76C0   ldy     #$73
         lda     #$01
         sta     Temp_NotJumping
         lda     (Adr_MapLow),y
@@ -9286,7 +9294,7 @@ _LC827  inc     Var_RegisteredMovingLeftRight ;Increase Var_RegisteredMovingLeft
         bne     RTS_WhatEverThisIs ;RTS
         lda     #$00       ;A = #00
         sta     Var_RegisteredMovingLeftRight ;Reset Var_RegisteredMovingLeftRight
-        jmp     L5980
+        jmp     Jump_5980
 
         .byte   $29,$03,$aa,$e8,$8a
 
@@ -10182,7 +10190,8 @@ LCFAA   .byte   $87
         .byte   $ed
         .byte   $ed
 
-LCFC0   jsr     L5733
+Sub_CFC0
+        jsr     Sub_5733
         ldx     #$00
 _LCFC5  lda     LCFA1,x
         lda     $0617,x

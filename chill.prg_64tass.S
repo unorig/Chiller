@@ -601,9 +601,10 @@ _L0837  .byte   $41,$4e,$54,$49,$53,$4f,$46,$54,$41,$4e,$54,$49,$53,$4f,$46,$54
 
 L2A00   lsr     a
         clc                ;Clear carry
-        bcc     L2A29
+        bcc     If_2A29
 
-L2A04   sta     Var_SpriteFrame ;$2afe = A
+Sub_2A04
+        sta     Var_SpriteFrame ;$2afe = A
         lda     SpriteMSBXPosition ;A = SpriteMSBYPosition
         sec                ;Set carry
 L2A0B   sbc     #$2c       ;Subtract with carry #2c (44)
@@ -619,10 +620,10 @@ L2A0B   sbc     #$2c       ;Subtract with carry #2c (44)
         sta     Var_CharacterXPosLow ;Update Var_CharacterXPosLow
         lda     SpriteXMSBRegister
         and     #$01       ;Isolate the first bit
-        beq     _L2A26
+        beq     If_2A26
         lda     #$80
-_L2A26  ora     Var_CharacterXPosLow
-L2A29   lsr     a          ;Divide by 2
+If_2A26 ora     Var_CharacterXPosLow
+If_2A29 lsr     a          ;Divide by 2
         lsr     a          ;Divide by 2
         tax                ;Transfer A to X
         tya                ;Transfer Y to A. Y = (Y Pos - #2c) / 8 
@@ -636,9 +637,9 @@ L2A29   lsr     a          ;Divide by 2
         clc
         adc     $fb
         sta     $fb
-        bcc     _L2A43
+        bcc     If_2A43
         inc     $fc
-_L2A43  lda     $fc
+If_2A43 lda     $fc
         clc
         adc     #$04
         sta     $fc
@@ -647,37 +648,40 @@ _L2A43  lda     $fc
         tay                ;Transfer A to Y
         lda     ($fb),y    ;($fb),y = Get character below current position of player
         cmp     #$a0       ;Check if current character is blank
-        bne     L2A60      ;Branch if not a blank space
-L2A57   ldx     #$00       ;X = #00
+        bne     Sub_2A60   ;Branch if not a blank space
+Jump_2A57
+        ldx     #$00       ;X = #00
         lda     Var_SpriteFrame ;A = Var_SpriteFrame
-        jsr     LC900
+        jsr     Sub_C900
         rts
 
-L2A60   cmp     #$2a       ;Check if current character is a platform
-        bpl     _L2A67     ;Branch if not a platform (e.g. mushroom)
-        jmp     L2A57
+Sub_2A60
+        cmp     #$2a       ;Check if current character is a platform
+        bpl     If_2A67    ;Branch if not a platform (e.g. mushroom)
+        jmp     Jump_2A57
 
-_L2A67  cmp     #$54       ;Check if current character is mushroom
-        bpl     _L2A6E     ;Branch if current character is mushroom
+If_2A67 cmp     #$54       ;Check if current character is mushroom
+        bpl     If_2A6E    ;Branch if current character is mushroom
         jmp     L5A9A
 
-_L2A6E  jmp     Sub_GetMushroom
+If_2A6E jmp     Sub_GetMushroom
 
         .byte   $60
 
 L2A72   sta     Temp_NotJumping
         lda     L5448+2
-        sta     L2A7F
+        sta     Sub_2A80-1
         jmp     Sub_5880
 
 L2A7E   .byte   $07
-L2A7F   .byte   $09
+        .byte   $09
 
-L2A80   stx     $fb        ;X = $fb (From $2a80. Passed with X = #bf)
+Sub_2A80
+        stx     $fb        ;X = $fb (From $2a80. Passed with X = #bf)
         sty     $fc        ;Y = $fc (From $2a80. Passed with Y = #5b)
         ldy     #$00       ;Y = #00
         lda     ($fb),y    ;A = 5bbf,00. Start of the index set.
-        sta     LC29D+1    ;$C29E = #00
+        sta     Sub_C29D+1 ;$C29E = #00
         iny                ;Increase Y
         lda     ($fb),y    ;A = #b2
         sta     LC2A1+1    ;$C2A2 = #b2
@@ -693,7 +697,7 @@ L2A80   stx     $fb        ;X = $fb (From $2a80. Passed with X = #bf)
         iny                ;Increase Y
         lda     ($fb),y    ;A = #30
         sta     LC2A9+1    ;C2AA = #30
-        jsr     LC29D
+        jsr     Sub_C29D
         rts                ;Return from subroutine
 
         .byte   $dc,$9d,$bd,$a0,$2a,$20,$80,$2a,$a2,$c3,$a0,$2a,$20,$80,$2a,$60
@@ -732,35 +736,36 @@ Sub_SetScreenControl
         .byte   $ea,$1d
 
 L2C00   ldx     #$00
-_L2C02  lda     L4542,x
+If_2C02 lda     L4542,x
         jsr     L56B2
         inx
         cpx     #$05
-        bne     _L2C02
+        bne     If_2C02
         jsr     L2E62
         rts
 
         .fill   8,$ea
 
 L2C19   ldx     #$03
-_L2C1B  inc     LCFA6,x
+If_2C1B inc     LCFA6,x
         lda     LCFA6,x
         cmp     #$ba
-        bne     _L2C2F
+        bne     If_2C2F
         lda     #$b0
         sta     LCFA6,x
         dex
         cpx     #$00
-        bne     _L2C1B
-_L2C2F  jsr     L5681
-        jmp     _L2C44
+        bne     If_2C1B
+If_2C2F jsr     L5681
+        jmp     Jump_2C44
 
         .byte   $a9,$60,$8d,$fc,$ca,$20,$86,$ca,$a9,$4c,$8d,$fc,$ca,$60,$ea
 
-_L2C44  lda     #$01
+Jump_2C44
+        lda     #$01
         sta     SpriteEnableRegister
         ldx     #$00
-_L2C4B  lda     $05ef,x
+If_2C4B lda     $05ef,x
         sta     $0345,x
         lda     $d9ef,x
         sta     $034e,x
@@ -770,7 +775,7 @@ _L2C4B  lda     $05ef,x
         sta     $d9ef,x
         inx
         cpx     #$09
-        bne     _L2C4B
+        bne     If_2C4B
         lda     #$00
         sta     LCF73
         lda     #$03
@@ -778,9 +783,9 @@ _L2C4B  lda     $05ef,x
         lda     #$04
         sta     L2E00+33
         sta     $a1
-_L2C79  lda     $a1
+If_2C79 lda     $a1
         cmp     #$06
-        bne     _L2C79
+        bne     If_2C79
         lda     #$05
         sta     L2E00+7
         lda     #$07
@@ -788,13 +793,13 @@ _L2C79  lda     $a1
         lda     #$00
         sta     LCF74
         ldx     #$00
-_L2C90  lda     $0345,x
+If_2C90 lda     $0345,x
         sta     $05ef,x
         lda     $034e,x
         sta     $d9ef,x
         inx
         cpx     #$09
-        bne     _L2C90
+        bne     If_2C90
         jmp     LC694
 
 Sub_SetRandomVariables
@@ -836,19 +841,19 @@ L2CE4   lda     L45FC
         jmp     L2EE3
 
 L2CF3   sta     L2E73+14
-        beq     _L2CFD
+        beq     If_2CFD
         lda     #$00
         sta     $ffff
-_L2CFD  rts
+If_2CFD rts
 
         .fill   2,$ea
 
 L2D00   ldx     #$00
-_L2D02  lda     L45E7,x
+If_2D02 lda     L45E7,x
         sta     LCF76,x
         inx
         cpx     #$05
-        bne     _L2D02
+        bne     If_2D02
         lda     L45F5
         sta     $d025
         lda     L45F6
@@ -867,16 +872,17 @@ _L2D02  lda     L45E7,x
 
 L2D4B   ldx     #$00
 L2D4D   lda     LCF76,x
-        beq     L2D5A
+        beq     If_2D5A
 L2D52   lda     L45F7,x
-        beq     L2D5D
-        jmp     L2D60
+        beq     If_2D5D
+        jmp     Jump_2D60
 
-L2D5A   jmp     L2EB7
+If_2D5A jmp     L2EB7
 
-L2D5D   jmp     L2EC4
+If_2D5D jmp     L2EC4
 
-L2D60   lda     Adr_BorderColor-1
+Jump_2D60
+        lda     Adr_BorderColor-1
         sta     _L2D77+3
         and     #$02
         cmp     #$00
@@ -893,8 +899,8 @@ _L2D7B  lda     LCF7D
         beq     _L2D85
         jmp     L2EB3
 
-_L2D85  jsr     L5D98
-        jmp     L5DA9
+_L2D85  jsr     Sub_5D98
+        jmp     If_5DA9
 
         .byte   $ea
         .byte   $ea
@@ -939,7 +945,7 @@ Menu_FirePressed
         lda     Adr_BorderColor ;At menu screen is #f0
         and     #$0f       ;And on #f0 becomes #00
         beq     _L2DD3     ;Jump to $2dd3
-        jsr     L7780
+        jsr     Sub_7780
 _L2DD3  jmp     LC646
 
         .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -1007,15 +1013,16 @@ L2EE3   lda     L45FE
         .byte   $a9,$60,$8d,$94,$c6,$20,$cd,$c4,$a9,$ad,$8d,$94,$c6,$a9,$1c,$8d
         .byte   $18,$d0,$60,$ea
 
-L2F00   sta     SpriteXMSBRegister
+Sub_2F00
+        sta     SpriteXMSBRegister
         lda     #$00
         sta     $d412
         ldx     #$00
-_L2F0A  lda     L45B3,x
+If_2F0A lda     L45B3,x
         sta     $d40e,x
         inx
         cpx     #$07
-        bne     _L2F0A
+        bne     If_2F0A
         rts
 
         .byte   $9d,$fa,$07,$a9,$00,$8d,$ff,$ff,$8a,$48,$bd,$6d,$cf,$85,$fb,$a9
@@ -1028,7 +1035,8 @@ L2F38   sta     $d029,x
         lda     LCF24,x
         sta     $fc
         ldy     #$00
-L2F47   lda     ($fb),y
+Sub_2F47
+        lda     ($fb),y
         sta     LCF15,x
         rts
 
@@ -5105,28 +5113,29 @@ Var_Falling
         .byte   $00,$ea
 
 L5350   lda     L45FF      ;A = $45ff (Always seems to be #01)
-        beq     _L535A     ;Branch if equal zero
+        beq     RTS_535A   ;Branch if equal zero
         dec     Temp_534c  ;Decrease #534c
-        beq     _L535D     ;Branch if equal zero
-_L535A  rts
+        beq     If_535D    ;Branch if equal zero
+RTS_535A
+        rts
 
         .fill   2,$ea
 
-_L535D  lda     Temp_0c    ;A = $534b (Always seems to be #0c)
+If_535D lda     Temp_0c    ;A = $534b (Always seems to be #0c)
         sta     Temp_534c  ;$534c = $53cb
         lda     SpriteMSBXPosition ;A = SpriteMSBYPosition
         sta     Temp_SpriteMSBYPosition ;Temp_SpriteMSBYPosition = SpriteMSBYPosition
         lda     #$01       ;A = #01
         ldx     #$00       ;X = #00
-        jsr     L2A04
+        jsr     Sub_2A04
         lda     SpriteMSBXPosition
         cmp     Temp_SpriteMSBYPosition
-        bne     _L537E
+        bne     If_537E
         jmp     L54A0
 
         .fill   3,$ea
 
-_L537E  jsr     L54AC
+If_537E jsr     L54AC
         inc     Var_Falling
         lda     #$00
         sta     Var_RopeFall
@@ -5138,47 +5147,49 @@ _L537E  jsr     L54AC
 L538E   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
         lda     Var_JumpInput ;#01 jumping / #00 not jumping
         beq     L5350      ;Branch if not jumping
-        dec     L2A7F
-        beq     _L539E
+        dec     Sub_2A80-1
+        beq     If_539E
         rts
 
         .fill   2,$ea
 
-_L539E  jsr     Sub_GetBoyJumpPosTemps
-        bne     _L53C6     ;Branch if not jumping (#01 Not jumping / #00 Jumping)
+If_539E jsr     Sub_GetBoyJumpPosTemps
+        bne     L53C6      ;Branch if not jumping (#01 Not jumping / #00 Jumping)
         lda     #$00       ;A = #00
-        jsr     L2A04
+        jsr     Sub_2A04
         jsr     L5437
         ldx     L2A7E
         cpx     #$18
-        bne     _L53B5
-        jmp     _L53BE
+        bne     If_53B5
+        jmp     Jump_53BE
 
-_L53B5  lda     L5448+2,x
-        sta     L2A7F
+If_53B5 lda     L5448+2,x
+        sta     Sub_2A80-1
         jmp     L54FC
 
-_L53BE  lda     #$01
+Jump_53BE
+        lda     #$01
         sta     Temp_NotJumping
         rts
 
         .fill   2,$ea
 
-_L53C6  lda     #$01
+L53C6   lda     #$01
         jsr     L5467
         dec     L2A7E
         ldx     L2A7E
         cpx     #$00
-        bne     _L53D8
-        jmp     _L53E2
+        bne     If_53D8
+        jmp     Jump_53E2
 
-_L53D8  lda     L5448+2,x
-        sta     L2A7F
+If_53D8 lda     L5448+2,x
+        sta     Sub_2A80-1
         jmp     L5518
 
         .byte   $ea
 
-_L53E2  lda     #$00
+Jump_53E2
+        lda     #$00
         sta     Var_JumpInput ;#01 jumping / #00 not jumping
         lda     #$18
         sta     Var_Falling
@@ -5191,8 +5202,8 @@ L53EF   lda     #$01
         sta     Var_SlidingOnRope
         lda     Var_Falling
         cmp     L457A
-        bpl     _L53FF
-_L53FF  nop
+        bpl     If_53FF
+If_53FF nop
         nop
         nop
         nop
@@ -5206,12 +5217,12 @@ _L53FF  nop
         .byte   $ea,$a9,$00,$8d,$4e,$53,$20,$a7,$2f,$60,$ea,$ea
 
 L5418   lda     Var_Falling
-        bne     _L5425     ;Branch if not falling (Falling = #00)
+        bne     If_5425    ;Branch if not falling (Falling = #00)
         lda     #$01       ;A = #01
         sta     Var_JumpInput ;Var_JumpInput = #01 (#01 jumping / #00 not jumping)
         jmp     LC1B4
 
-_L5425  jmp     LC819
+If_5425 jmp     LC819
 
         .fill   2,$ea
 Temp_Sprite0YPos
@@ -5227,10 +5238,10 @@ Sub_GetBoyJumpPosTemps
 
 L5437   lda     SpriteMSBXPosition
         cmp     Temp_Sprite0YPos
-        bne     _L5444
+        bne     If_5444
         lda     #$01
         sta     Temp_NotJumping
-_L5444  inc     L2A7E
+If_5444 inc     L2A7E
         rts
 
 L5448   .byte   $ea,$ea,$05,$05,$06,$06,$07,$08,$09,$09,$0a,$0b,$0c,$0e,$0f,$10
@@ -5239,13 +5250,13 @@ L5448   .byte   $ea,$ea,$05,$05,$06,$06,$07,$08,$09,$09,$0a,$0b,$0c,$0e,$0f,$10
 L5467   lda     SpriteMSBXPosition
         sta     L5448+30
         lda     #$01
-        jsr     L2A04
+        jsr     Sub_2A04
         lda     L5448+30
         cmp     SpriteMSBXPosition
-        beq     _L547B
+        beq     If_547B
         rts
 
-_L547B  lda     #$00
+If_547B lda     #$00
         sta     Var_JumpInput ;#01 jumping / #00 not jumping
         rts
 
@@ -5274,33 +5285,33 @@ L54A0   lda     #$00
         .byte   $ea
 
 L54AC   lda     L549F
-        beq     _L54B2
+        beq     If_54B2
         .byte   $4c
 
-_L54B2  cmp     ($54,x)
+If_54B2 cmp     ($54,x)
         lda     #$01
         sta     L549F
         jsr     L5483
-        jmp     _L54DC
+        jmp     L54DC
 
-_L54BF  .byte   $73,$80
+L54BF   .byte   $73,$80
 
-_L54C1  lda     _L54BF+1
+L54C1   lda     L54BF+1
         sec
         sbc     #$80
-        sta     _L54BF+1
+        sta     L54BF+1
         sta     $d40e
-        bcs     _L54D2
-        dec     _L54BF
-_L54D2  lda     _L54BF
+        bcs     If_54D2
+        dec     L54BF
+If_54D2 lda     L54BF
         sta     $d40f
         rts
 
         .fill   3,$ea
 
-_L54DC  lda     #$80
-        sta     _L54BF
-        sta     _L54BF+1
+L54DC   lda     #$80
+        sta     L54BF
+        sta     L54BF+1
         rts
 
 L54E5   .byte   $04,$05,$04,$08,$08
@@ -5318,9 +5329,9 @@ L54FC   lda     L54F7+2
         sbc     #$05
         sta     L54F7+2
         sta     $d40e
-        bcc     _L550D
+        bcc     If_550D
         inc     L54F7+3
-_L550D  lda     L54F7+3
+If_550D lda     L54F7+3
         sta     $d40f
         rts
 
@@ -5331,8 +5342,8 @@ L5518   lda     L54F7+2
         adc     #$05
         sta     L54F7+2
         sta     $d40e
-        bcs     _L5526
-_L5526  dec     L54F7+3
+        bcs     If_5526
+If_5526 dec     L54F7+3
         lda     L54F7+3
         sta     $d40f
         rts
@@ -5358,12 +5369,12 @@ _L5526  dec     L54F7+3
         .byte   $69
 
 L5651   lda     L45FF
-        beq     _L565E
+        beq     If_565E
         lda     #$00
         sta     L4000+$500
         jmp     L570A
 
-_L565E  jmp     L5716
+If_565E jmp     Jump_5716
 
         .byte   $60
 
@@ -5376,38 +5387,38 @@ Sub_VerticalMovingEnemies
         rts
 
 L566D   ldx     #$00
-_L566F  lda     L45E7,x
+If_566F lda     L45E7,x
         sta     LCF76,x
         inx
         cpx     #$05
-        bne     _L566F
+        bne     If_566F
         lda     L45EC
         sta     SpritePointer0
         rts
 
 L5681   ldx     #$00
-_L5683  lda     L3408+224,x
+L5683   lda     L3408+224,x
         cmp     Var_Sprite3Speed,x
-        beq     _L56AC
+        beq     If_56AC
         clc
         lda     Var_Sprite3Speed,x
         lsr     a
         sta     Var_Sprite3Speed,x
-        bcc     _L569C
+        bcc     If_569C
         lda     #$01
         sta     Var_Sprite3Speed,x
-        bcs     _L56AC
+        bcs     If_56AC
 
-_L569C  lda     L54E5,x
+If_569C lda     L54E5,x
         lsr     a
         sta     L54E5,x
         cmp     #$01
-        bne     _L56AC
+        bne     If_56AC
         lda     #$02
         sta     L54E5,x
-_L56AC  inx
+If_56AC inx
         cpx     #$05
-        bne     _L5683
+        bne     L5683
         rts
 
 L56B2   sta     Var_Sprite3Speed,x
@@ -5415,7 +5426,8 @@ L56B2   sta     Var_Sprite3Speed,x
         sta     L54E5,x
         rts
 
-L56BC   jsr     L566D
+Sub_56BC
+        jsr     L566D
         rts
 
         .byte   $00,$84,$50,$84,$00,$04,$60,$60,$60,$60,$60,$60,$60,$60,$28,$46
@@ -5427,10 +5439,11 @@ L56BC   jsr     L566D
 L570A   sta     Var_RopeFall-1
         lda     #$2c
         sta     L2A0B+1
-        jsr     L2F47
+        jsr     Sub_2F47
         rts
 
-L5716   jsr     L2F47
+Jump_5716
+        jsr     Sub_2F47
         lda     #$30
         sta     L2A0B+1
         rts
@@ -5671,11 +5684,11 @@ ContSetupSpritePositions
         and     #$fc       ;Get remaining bits (Exlcuding 1 and 2)
         sta     Temp_SpiteXMSBReg ;Store enemy X-MSB values
         cpy     #$00       ;Compare girl X-MSB values to #00
-        beq     CheckGirlMSBX ;Branch if girl X-MSB flag not set
+        beq     If_CheckGirlMSBX ;Branch if girl X-MSB flag not set
         lda     #$01       ;Load A with #01
         ora     Temp_SpiteXMSBReg ;Turn on first byte for MSB-X register
         sta     Temp_SpiteXMSBReg ;Store girl into SpriteXMSBReg
-CheckGirlMSBX
+If_CheckGirlMSBX
         cpx     #$00       ;Branch if girl X-MSB flag not set
         beq     If_594E
         lda     #$02       ;Load A with #01
@@ -5743,7 +5756,7 @@ Sub_ReduceHealthBar
 
 Sub_UpdateHealthBar
         cpx     #$00       ;Check if at the last health block
-        beq     JMP_NoHealthLeft ;Branch if at last healthbar block
+        beq     Jump_NoHealthLeft ;Branch if at last healthbar block
         dex                ;Decrease X
         lda     #$a8       ;A = #a8
         sta     Scr_HealthBar,x ;Store #a8 to current health bar position
@@ -5751,7 +5764,7 @@ Sub_UpdateHealthBar
 
         .fill   2,$ea
 
-JMP_NoHealthLeft
+Jump_NoHealthLeft
         jmp     Sub_NoHealthLeft
 
 Sub_IncreaseHealthBlock
@@ -5849,12 +5862,12 @@ RTS_5A3C
 
 L5A41   jsr     L7659
         lda     Var_BorderColour
-        bne     _L5A4F
+        bne     If_5A4F
         lda     #$06
         sta     Adr_BorderColor
         rts
 
-_L5A4F  lda     #$0a
+If_5A4F lda     #$0a
         sta     Adr_BorderColor
         rts
 
@@ -5864,7 +5877,7 @@ L5A60   lda     #$02
         sta     Var_GoSlowRedZone
         lda     #$00
         sta     Var_RegisteredMovingLeftRight
-        jmp     ScreenSetup
+        jmp     Jump_ScreenSetup
 
         .fill   3,$00
 
@@ -5893,14 +5906,14 @@ Jump_5A88
         .fill   2,$ea
 
 L5A9A   cmp     #$4d       ;Check if current character is complete bridge
-        bmi     Exit_BridgeRoutine
+        bmi     RTS_BridgeRoutine
         cpy     #$50
         beq     If_5AA5
-        jmp     L2A57
+        jmp     Jump_2A57
 
 If_5AA5 dec     Counter_HealthIncLoop2+2
         beq     If_UpdateBridge
-Exit_BridgeRoutine
+RTS_BridgeRoutine
         rts
 
         .fill   2,$ea
@@ -5961,14 +5974,14 @@ Sub_GetBasket
 
 Sub_HealthBarUpdates
         lda     Counter_HealthIncLoop2 ;This is increased when getting health back
-        beq     _L5B15     ;Branch if not getting health back
+        beq     If_5B15    ;Branch if not getting health back
         dec     Counter_HealthIncLoop2+1
-        bne     _L5B15
+        bne     If_5B15
         lda     #$10
         sta     Counter_HealthIncLoop2+1
         dec     Counter_HealthIncLoop2
         jsr     Sub_IncreaseHealthBlock
-_L5B15  jmp     If_CheckForDamage ;Jump to check for damage
+If_5B15 jmp     If_CheckForDamage ;Jump to check for damage
 
 Sub_IncHealthIdx
         stx     Counter_HealthIncLoop ;Counter_HealthIncLoop = #18
@@ -6044,7 +6057,7 @@ If_5B89 cmp     #$62
         bpl     If_5B95
 L5B8D   cpy     #$50
         beq     If_5B94
-        jmp     L2A57
+        jmp     Jump_2A57
 
 If_5B94 rts
 
@@ -6052,13 +6065,13 @@ If_5B95 cmp     #$66
         bpl     If_5BAD
         cpy     #$50
         beq     If_5BA0
-        jmp     L2A57
+        jmp     Jump_2A57
 
 If_5BA0 dec     Unknown+1
         bne     If_5B94
         lda     #$03
         sta     Unknown+1
-        jmp     L2A57
+        jmp     Jump_2A57
 
 If_5BAD jmp     L7673
 
@@ -6075,7 +6088,7 @@ Sub_WaitForCurrentRaster
 
 L5BC7   ldx     #$bf
         ldy     #$5b
-        jsr     L2A80      ;JSR $2a80 with Y = #5b / X = #bf
+        jsr     Sub_2A80   ;JSR $2a80 with Y = #5b / X = #bf
         lda     #$00       ;A = #00
         sta     SpriteEnableRegister ;Disable all sprites
         lda     #$00       ;A = #00
@@ -6143,7 +6156,7 @@ _L5C4B  jmp     Jump_5C1B
 
         .byte   $60
 
-L5C4F   jsr     L5CD8
+L5C4F   jsr     Sub_5CD8
         nop
         nop
         lda     #$00
@@ -6157,13 +6170,13 @@ L5C4F   jsr     L5CD8
         lda     #$1c
         sta     Adr_MemorySetupRegister
         ldx     #$00
-_L5C71  lda     RTS_5CFD+3,x
+If_5C71 lda     RTS_5CFD+3,x
         sta     $04d6,x
         lda     #$02
         sta     $d8d6,x
         inx
         cpx     #$0e
-        bne     _L5C71
+        bne     If_5C71
         jsr     loop+25
         rts
 
@@ -6174,7 +6187,7 @@ Sub_5C87
         inc     L5BF4+9
         lda     L5BF4+9
         cmp     #$06
-        bne     _L5CA0
+        bne     If_5CA0
         lda     #$01
         sta     L5BF4+9
         lda     L5BF4+11
@@ -6183,7 +6196,7 @@ Sub_5C87
         sta     L5BF4+11
         rts
 
-_L5CA0  lda     L5BF4+11
+If_5CA0 lda     L5BF4+11
         clc
         adc     #$19
         sta     L5BF4+11
@@ -6192,11 +6205,11 @@ _L5CA0  lda     L5BF4+11
 L5CAA   inc     L5BF4+7
         lda     L5BF4+7
         cmp     #$6a
-        beq     _L5CBA
+        beq     If_5CBA
         lda     L5BF4+11
         jmp     L5C21
 
-_L5CBA  ldy     #$31
+If_5CBA ldy     #$31
         lda     #$32
         sta     ($fb),y
         lda     #$0a
@@ -6212,7 +6225,8 @@ L5CC5   lda     #$00
 
         .fill   4,$00
 
-L5CD8   lda     #$93
+Sub_5CD8
+        lda     #$93
         jsr     BSOUT
         stx     $fb
         sty     $fc
@@ -6225,12 +6239,13 @@ L5CD8   lda     #$93
         clc
         jsr     PLOT
         ldy     #$02
-_L5CF0  lda     ($fb),y
+Jump_5CF0
+        lda     ($fb),y
         cmp     #$01
         beq     RTS_5CFD
         iny
         jsr     BSOUT
-        jmp     _L5CF0
+        jmp     Jump_5CF0
 
 RTS_5CFD
         rts
@@ -6239,7 +6254,8 @@ RTS_5CFD
         .byte   $0f,$12,$1c,$8e,$08,$54,$48,$45,$20,$46,$4f,$52,$45,$53,$54,$01
         .byte   $00,$00
 
-L5D20   ldx     #$00
+Sub_5D20
+        ldx     #$00
 L5D22   ldy     #$b0
         stx     $fb
         sty     $fc
@@ -6247,7 +6263,7 @@ L5D22   ldy     #$b0
         sta     Var_SpriteCollision
         lda     #$d8
         sta     $fe
-_L5D30  ldy     #$00
+If_5D30 ldy     #$00
         lda     ($fb),y
         sta     (Var_SpriteCollision),y
         iny
@@ -6257,20 +6273,20 @@ _L5D30  ldy     #$00
         lsr     a
         sta     (Var_SpriteCollision),y
         inc     $fb
-        bne     _L5D43
+        bne     If_5D43
         inc     $fc
-_L5D43  inc     Var_SpriteCollision
-        bne     _L5D49
+If_5D43 inc     Var_SpriteCollision
+        bne     If_5D49
         inc     $fe
-_L5D49  inc     Var_SpriteCollision
-        bne     _L5D4F
+If_5D49 inc     Var_SpriteCollision
+        bne     If_5D4F
         inc     $fe
-_L5D4F  lda     $fe
+If_5D4F lda     $fe
         cmp     #$db
-        bne     _L5D30
+        bne     If_5D30
         lda     Var_SpriteCollision
         cmp     #$f0
-        bne     _L5D30
+        bne     If_5D30
         rts
 
         .fill   4,$00
@@ -6284,7 +6300,7 @@ Sub_SetupSpritesEtc
         .byte   $ea,$ea,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00
 
-ScreenSetup
+Jump_ScreenSetup
         lda     Adr_ScreenControl
         ora     #$10
         sta     Adr_ScreenControl
@@ -6292,10 +6308,11 @@ ScreenSetup
         sta     ExtraBackgroundColor2
         lda     #$01
         sta     $d024
-        jsr     L5E0A
+        jsr     If_5E0A
         jmp     L5651
 
-L5D98   jsr     Sub_CFC0
+Sub_5D98
+        jsr     Sub_CFC0
         lda     #$10
         sta     $b7
         sta     $b9
@@ -6306,8 +6323,8 @@ L5D98   jsr     Sub_CFC0
 
         .byte   $00
 
-L5DA9   lda     $02ff
-        beq     L5DA9
+If_5DA9 lda     $02ff
+        beq     If_5DA9
         jsr     L61D2
         lda     #$00
         sta     Counter_HealthIncLoop2
@@ -6320,12 +6337,12 @@ L5DA9   lda     $02ff
         .byte   $c0,$20,$d8,$ff,$60,$00,$00,$00,$00,$01,$45,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$a2,$0d,$a0,$5d,$20,$4f,$5c,$60,$00,$00
 
-L5E0A   lda     $01
+If_5E0A lda     $01
         and     #$fe
         sta     $01
         lda     $01
         and     #$01
-        bne     L5E0A
+        bne     If_5E0A
         rts
 
         .byte   $00
@@ -6349,16 +6366,16 @@ Sub_SetupScreen
         adc     #$06
         tax
         ldy     Adr_MapHigh
-        jsr     L2A80
+        jsr     Sub_2A80
         ldy     #$0c
         lda     (Adr_MapLow),y
-        sta     L5D20+1
+        sta     Sub_5D20+1
         iny
         tya
         pha
         lda     (Adr_MapLow),y
         sta     L5D22+1
-        jsr     L5D20
+        jsr     Sub_5D20
         pla
         tay
         iny
@@ -6536,17 +6553,18 @@ _L5FA1  iny
         cpx     #$19
         bne     _L5FA1
         lda     #$0e
-        sta     _L5FDB+1
-        jsr     _L5FC0
+        sta     SelfMod_5FDB+1
+        jsr     Sub_5FC0
         lda     #$0a
-        sta     _L5FDB+1
-        jsr     _L5FC0
+        sta     SelfMod_5FDB+1
+        jsr     Sub_5FC0
         jmp     L7600
 
         .byte   $ea
 
-_L5FC0  ldx     #$00
-_L5FC2  iny
+Sub_5FC0
+        ldx     #$00
+If_5FC2 iny
         lda     (Adr_MapLow),y
         sta     $fb
         iny
@@ -6561,13 +6579,14 @@ _L5FC2  iny
         clc
         adc     #$d4
         sta     $fc
-_L5FDB  lda     #$0a
+SelfMod_5FDB
+        lda     #$0a
         sta     ($fb),y
         pla
         tay
         inx
         cpx     #$05
-        bne     _L5FC2
+        bne     If_5FC2
         rts
 
         .byte   $ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$00,$70,$80,$70,$00,$71,$80
@@ -6596,13 +6615,13 @@ SoundConfig
 
 L60B5   lda     #$03
         cmp     $02
-        bne     _L60C7
+        bne     If_60C7
         ldx     $02ac
         dex
         stx     $d404
         lda     #$50
         sta     $d40b
-_L60C7  jmp     $ea31
+If_60C7 jmp     $ea31
 
 L60CA   lda     #$00       ;A = 00
         sta     $02        ;$02 = 00
@@ -6628,16 +6647,17 @@ _loop   sta     $d400,x    ;Store A (00) to $d400,x
 
         ldy     #$00
         cmp     $02
-        beq     _L6100
+        beq     If_6100
         dec     $02
         jmp     L60B5
 
-_L6100  inc     $b7
-        bne     _L6106
+If_6100 inc     $b7
+        bne     If_6106
         inc     $b8
-_L6106  lda     ($b7),y
-        sta     _L610B+1
-_L610B  jmp     _L6174
+If_6106 lda     ($b7),y
+        sta     SelfMod_610B+1
+SelfMod_610B
+        jmp     _L6174
 
         jsr     L61E9
         sta     $d401
@@ -6646,7 +6666,7 @@ _L610B  jmp     _L6174
         lda     $02ac
         sty     $d404
         sta     $d404
-        jmp     _L6100
+        jmp     If_6100
 
         jsr     L61E9
         sta     $d408
@@ -6655,7 +6675,7 @@ _L610B  jmp     _L6174
         lda     $02ad
         sty     $d40b
         sta     $d40b
-        jmp     _L6100
+        jmp     If_6100
 
         jsr     L61E9
         sta     $d401
@@ -6671,7 +6691,7 @@ _L610B  jmp     _L6174
         sta     $d404
         lda     $02ad
         sta     $d40b
-        jmp     _L6100
+        jmp     If_6100
 
         jsr     L61E9
         sta     $02aa
@@ -6688,7 +6708,7 @@ _L6174  lda     $02aa
         sta     $02ac
         jsr     L61E9
         sta     $02ad
-        jmp     _L6100
+        jmp     If_6100
 
         jsr     L61E9
         sta     $d405
@@ -6698,7 +6718,7 @@ _L6174  lda     $02aa
         sta     $d406
         jsr     L61E9
         sta     $d40d
-        jmp     _L6100
+        jmp     If_6100
 
         jsr     L61E9
         sta     $d402
@@ -6708,7 +6728,7 @@ _L6174  lda     $02aa
         sta     $d409
         jsr     L61E9
         sta     $d40a
-        jmp     _L6100
+        jmp     If_6100
 
         lda     $b9
         sta     $b7
@@ -7179,7 +7199,7 @@ L7680   stx     L767B+4
         sta     L7FB5+48
         ldx     #$e0
         ldy     #$7f
-        jsr     L2A80
+        jsr     Sub_2A80
 If_769A ldx     L767B+4
         inx
         inx
@@ -7192,31 +7212,96 @@ If_769A ldx     L767B+4
         stx     SpritePointer0
         lda     #$0a
         sta     Adr_BorderColor
-        jmp     L76C0
+        jmp     Jump_76C0
 
 If_76BB lda     #$06
         sta     Adr_BorderColor
-L76C0   ldy     #$73
+Jump_76C0
+        ldy     #$73
         lda     #$01
         sta     Temp_NotJumping
         lda     (Adr_MapLow),y
         cmp     #$0a
-        bmi     _L76D5
+        bmi     If_76D5
         lda     #$03
         sta     SpriteEnableRegister
         rts
 
         .fill   2,$ea
 
-_L76D5  lda     #$01
+If_76D5 lda     #$01
         sta     SpriteEnableRegister
         rts
 
-L76DB   .byte   $ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea
-        .byte   $ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea
-        .byte   $ea,$ea,$ea,$ea,$ea,$ea,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$ff,$ff,$0a
+Var_76DB
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+        .byte   $00
+L771C   .byte   $ff
+L771D   .byte   $ff
+L771E   .byte   $0a
 
 L771F   rts                ;Exits to $2dc3
 
@@ -7224,22 +7309,22 @@ Sub_ResetToMenu
         lda     Adr_BorderColor ;Load border colour
         and     #$0f       ;Set Most Significant Byte to 0
         beq     _L776D     ;Branch if border colour is black
-        dec     L76DB+65   ;Starts at #ff.
+        dec     L771C      ;Starts at #ff.
         bne     L771F      ;Branch if not #00. Will RTS. Since above will be #fe it will RTS.
         lda     #$ff
-        sta     L76DB+65
-        dec     L76DB+66
+        sta     L771C
+        dec     L771D
         bne     L771F
         lda     #$ff
-        sta     L76DB+66
-        dec     L76DB+67
+        sta     L771D
+        dec     L771E
         bne     L771F
         lda     #$0a
-        sta     L76DB+67
-        jsr     L7780
+        sta     L771E
+        jsr     Sub_7780
         ldx     #$bf
         ldy     #$5b
-        jsr     L2A80
+        jsr     Sub_2A80
         lda     #$00
         sta     SpriteEnableRegister
         sta     ExtraBackgroundColor1
@@ -7259,7 +7344,8 @@ _L776D  jsr     L7580
 
         .fill   15,$00
 
-L7780   lda     $0406,x
+Sub_7780
+        lda     $0406,x
         cmp     L7FB5+$46d,x
         bmi     _L7792
         beq     _L778D
@@ -7267,7 +7353,7 @@ L7780   lda     $0406,x
 
 _L778D  inx
         cpx     #$06
-        bne     L7780
+        bne     Sub_7780
 _L7792  jmp     _L77A5
 
 _L7795  ldx     #$00
@@ -7279,10 +7365,10 @@ _L7797  lda     $0406,x
         jmp     _L7792
 
 _L77A5  lda     #$0a
-        sta     L76DB+67
+        sta     L771E
         lda     #$ff
-        sta     L76DB+66
-        sta     L76DB+65
+        sta     L771D
+        sta     L771C
         rts
 
 L77B3   .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$90,$92,$8f
@@ -8541,7 +8627,7 @@ LC000   lda     LCF46,x
         nop
         jmp     LCA70
 
-_LC00E  jmp     LCD55
+_LC00E  jmp     If_CD55
 
 LC011   lda     L4555      ;A = $4555
         cmp     #$ff       ;Compare A to #ff
@@ -8554,7 +8640,7 @@ LC011   lda     L4555      ;A = $4555
         lda     Adr_ScreenControl
         and     #$f7
         sta     Adr_ScreenControl
-        jsr     LC46B
+        jsr     If_C46B
 _LC031  rts
 
 LC032   lda     L4517
@@ -8816,7 +8902,8 @@ Var_UpInput
         .byte   $ea
         .byte   $ea
 
-LC29D   lda     #$00
+Sub_C29D
+        lda     #$00
         sta     $fb
 LC2A1   lda     #$a8
         sta     $fc
@@ -8829,20 +8916,20 @@ LC2AD   lda     #$ff
 LC2B2   lda     #$ab
         sta     $0391
         ldy     #$00
-_LC2B9  lda     ($fb),y
+If_C2B9 lda     ($fb),y
         sta     (Var_SpriteCollision),y
         inc     $fb
-        bne     _LC2C3
+        bne     If_C2C3
         inc     $fc
-_LC2C3  inc     Var_SpriteCollision
-        bne     _LC2C9
+If_C2C3 inc     Var_SpriteCollision
+        bne     If_C2C9
         inc     $fe
-_LC2C9  lda     $0391
+If_C2C9 lda     $0391
         cmp     $fc
-        bne     _LC2B9
+        bne     If_C2B9
         lda     $0390
         cmp     $fb
-        bne     _LC2B9
+        bne     If_C2B9
         rts
 
         .byte   $a2,$00,$a9,$0b,$9d,$00,$d8,$9d,$00,$d9,$9d,$00,$da,$9d,$00,$db
@@ -8858,7 +8945,7 @@ _LC2C9  lda     $0391
         .byte   $fd,$fd
 
 LC37A   tya
-        jsr     LC900
+        jsr     Sub_C900
         rts
 
         .byte   $ea,$ae,$80,$03,$ee,$80,$03,$bd,$00,$40,$c9,$00,$f0,$18,$c9,$ff
@@ -8882,48 +8969,49 @@ LC412   lda     $d828
         lda     $0428
         sta     LC410+1
         ldx     #$00
-_LC420  lda     $0429,x
+If_C420 lda     $0429,x
         sta     $0428,x
         lda     $d829,x
         sta     $d828,x
         inx
         cpx     #$d2
-        bne     _LC420
+        bne     If_C420
         ldx     #$00
-_LC433  lda     $04fa,x
+If_C433 lda     $04fa,x
         sta     $04f9,x
         lda     $d8fa,x
         sta     $d8f9,x
         inx
         cpx     #$fa
-        bne     _LC433
+        bne     If_C433
         ldx     #$00
-_LC446  lda     $05f4,x
+If_C446 lda     $05f4,x
         sta     $05f3,x
         lda     $d9f4,x
         sta     $d9f3,x
         inx
         cpx     #$fa
-        bne     _LC446
+        bne     If_C446
         ldx     #$00
-_LC459  lda     $06ee,x
+If_C459 lda     $06ee,x
         sta     $06ed,x
         lda     $daee,x
         sta     $daed,x
         inx
         cpx     #$fa
-        bne     _LC459
+        bne     If_C459
         rts
 
-LC46B   lda     CurrentRasterLine
+If_C46B lda     CurrentRasterLine
         cmp     #$4b
-        bne     LC46B
+        bne     If_C46B
         jsr     LC412
-        jmp     _LC47F
+        jmp     Jump_C47F
 
         .byte   $ea,$ad,$76,$c4,$ea,$ea,$ea
 
-_LC47F  lda     #$bf
+Jump_C47F
+        lda     #$bf
         sta     $fb
         lda     #$07
         sta     $fc
@@ -8931,7 +9019,7 @@ _LC47F  lda     #$bf
         sta     Var_SpriteCollision
         lda     #$db
         sta     $fe
-_LC48F  ldy     #$00
+If_C48F ldy     #$00
         lda     ($fb),y
         tax
         lda     (Var_SpriteCollision),y
@@ -8942,21 +9030,21 @@ _LC48F  ldy     #$00
         lda     $fb
         clc
         sbc     #$27
-        bcs     _LC4A8
+        bcs     If_C4A8
         dec     $fc
         dec     $fe
-_LC4A8  sta     $fb
+If_C4A8 sta     $fb
         sta     Var_SpriteCollision
         lda     $fc
         cmp     #$03
-        beq     _LC4BE
+        beq     If_C4BE
         lda     $fb
         cmp     #$27
-        bne     _LC48F
+        bne     If_C48F
         lda     $fc
         cmp     #$04
-        bne     _LC48F
-_LC4BE  lda     LC410
+        bne     If_C48F
+If_C4BE lda     LC410
         sta     $d84f
         lda     LC410+1
         sta     $044f
@@ -8967,35 +9055,37 @@ _LC4BE  lda     LC410
         .byte   $d0,$8d,$75,$d8,$8d,$74,$d8,$8d,$f6,$45,$60,$f8,$60,$ea,$ea,$ea
 
 LC4FB   cmp     #$01
-        bne     _LC508
-_LC4FF  lda     SpriteEnableRegister
+        bne     If_C508
+Jump_C4FF
+        lda     SpriteEnableRegister
         and     #$fd
         sta     SpriteEnableRegister
         rts
 
-_LC508  lda     SpritePointer1
+If_C508 lda     SpritePointer1
         eor     #$ff
         eor     #$fe
         sta     SpritePointer1
         inc     LC53C+8
         lda     LC53C+8
         cmp     #$05
-        bne     _LC524
+        bne     RTS_C524
         lda     #$00
         sta     LC53C+8
-        jmp     _LC4FF
+        jmp     Jump_C4FF
 
-_LC524  rts
+RTS_C524
+        rts
 
 LC525   lda     LCF43      ;A = $cf43
         and     #$07
-        bne     _LC538
+        bne     If_C538
         ldx     #$01
         lda     #$03
-        jsr     L2A04
+        jsr     Sub_2A04
         lda     #$02
-        jsr     L2A04
-_LC538  lda     LCF43
+        jsr     Sub_2A04
+If_C538 lda     LCF43
         rts
 
 LC53C   .byte   $ea,$ea,$00,$00,$00,$00,$00,$00,$00,$00,$00,$29,$80,$a2,$00,$bd
@@ -9015,7 +9105,7 @@ LC53C   .byte   $ea,$ea,$00,$00,$00,$00,$00,$00,$00,$00,$00,$29,$80,$a2,$00,$bd
 LC607   dec     LCF82,x
         lda     LCF82,x
         cmp     #$00
-        bne     _LC645
+        bne     RTS_C645
         lda     #$0a
         sta     LCF82,x
         nop
@@ -9026,20 +9116,21 @@ LC607   dec     LCF82,x
         dec     LCF54,x
         lda     LCF54,x
         cmp     #$00
-        bne     _LC645
+        bne     RTS_C645
         inc     SpritePointers,x
         lda     SpritePointers,x
         cmp     #$fc
-        bne     _LC63F
+        bne     If_C63F
         lda     LCF46,x
         eor     #$ff
         and     SpriteEnableRegister
         sta     SpriteEnableRegister
         lda     #$00
         sta     LCF4F,x
-_LC63F  lda     L455B,x
+If_C63F lda     L455B,x
         sta     LCF54,x
-_LC645  rts
+RTS_C645
+        rts
 
 LC646   jsr     ResetGirl
         jsr     Sub_SetupSpritesEtc
@@ -9070,7 +9161,7 @@ LC646   jsr     ResetGirl
         nop
         ldx     #$c0
         ldy     #$56
-        jsr     L2A80
+        jsr     Sub_2A80
         nop
         nop
         nop
@@ -9099,15 +9190,15 @@ LC646   jsr     ResetGirl
         nop
         nop
 LC694   lda     Var_Num01
-        bne     _LC6AC
+        bne     If_C6AC
         lda     #$00
         sta     Var_CurrentEnemyIndex ;Enemy index (1-5)
-_LC69E  jsr     Sub_UpdateEnemySprites
+If_C69E jsr     Sub_UpdateEnemySprites
         inc     Var_CurrentEnemyIndex ;Increase enemy index
         lda     Var_CurrentEnemyIndex
         cmp     Var_Num01+1
-        bne     _LC69E
-_LC6AC  jsr     LC032
+        bne     If_C69E
+If_C6AC jsr     LC032
         lda     #$1c
         sta     Adr_MemorySetupRegister
         lda     #$0f
@@ -9119,13 +9210,13 @@ _LC6AC  jsr     LC032
         ldx     #$00
         nop
         lda     #$00
-_LC6C9  sta     LCF1A,x
+If_C6C9 sta     LCF1A,x
         sta     LCF29,x
         sta     LCF2E,x
         sta     LCF4F,x
         inx
         cpx     #$05
-        bne     _LC6C9
+        bne     If_C6C9
         lda     Adr_SpriteCollision
         jmp     L2D00
 
@@ -9139,12 +9230,12 @@ TimeWastingLoop
         pha
         txa
         pha
-_LC6EB  lda     LCF65
+If_C6EB lda     LCF65
         sta     LCF67
-_LC6F1  dec     LCF67
-        bne     _LC6F1
+If_C6F1 dec     LCF67
+        bne     If_C6F1
         dec     LCF66
-        bne     _LC6EB
+        bne     If_C6EB
         pla
         tax
         pla
@@ -9155,14 +9246,14 @@ LC700   lda     SpritePointer1
         clc
         sbc     #$df
         ldx     #$01
-        jsr     LC900
+        jsr     Sub_C900
         cpy     #$00
-        beq     _LC717
+        beq     If_C717
         rts
 
         .fill   7,$ea
 
-_LC717  nop
+If_C717 nop
         rts
 
         .fill   2,$ea
@@ -9172,80 +9263,80 @@ LC71B   lda     #$00       ;A = #00
         jsr     Sub_GetKeyboardInputs
         lda     Var_DownInput ;A = Var_DownInput. 01 = Down pressed / 00 = No input
         cmp     #$ff       ;Dont know if this would ever be true?
-        bne     Branch_DownInput_Down
+        bne     If_DownInput_Down
         lda     L4000+$500
         cmp     #$00
-        beq     Branch_DownInput_Down
+        beq     If_DownInput_Down
         lda     #$00
         tax
-        jsr     L2A04
+        jsr     Sub_2A04
         inc     Var_MovingLeftRight
         lda     Var_SlidingOnRope+1
         cmp     #$00
-        beq     Branch_DownInput_Down
+        beq     If_DownInput_Down
         lda     SpritePointer0
         and     #$01
         clc
         adc     #$d8
         sta     SpritePointer0
-Branch_DownInput_Down
+If_DownInput_Down
         lda     Var_DownInput ;A = Var_DownInput. 01 = Down pressed / 00 = No input
         cmp     #$01       ;Check if down is pressed
-        bne     Branch_LeftRight_Left ;Branch if down not pressed
+        bne     If_LeftRight_Left ;Branch if down not pressed
         lda     Var_RopeFall-1
         cmp     #$00
-        beq     Branch_LeftRight_Left
+        beq     If_LeftRight_Left
         lda     #$01
         ldx     #$00
-        jsr     L2A04
+        jsr     Sub_2A04
         inc     Var_MovingLeftRight
         lda     Var_SlidingOnRope+2
         cmp     #$00
-        beq     Branch_LeftRight_Left
+        beq     If_LeftRight_Left
         lda     SpritePointer0
         and     #$01
         clc
         adc     #$da
         sta     SpritePointer0
-Branch_LeftRight_Left
+If_LeftRight_Left
         lda     Var_LeftRightInput ;Left = #ff / Right = #01
         cmp     #$ff       ;Check if left input received
-        bne     Branch_LeftRight_Right ;Branch if left not input
+        bne     If_LeftRight_Right ;Branch if left not input
         lda     Var_RopeFall ;A = Var_Falling (#00 = Falling on rope)
         cmp     #$00       ;Check if falling on rope
-        beq     Branch_LeftRight_Right ;Branch if falling on rope
+        beq     If_LeftRight_Right ;Branch if falling on rope
         lda     #$02       ;A = #02
         ldx     #$00       ;X = #00
-        jsr     L2A04      ;JSR as only moving right with no rope
+        jsr     Sub_2A04   ;JSR as only moving right with no rope
         inc     Var_MovingLeftRight
         lda     Var_SlidingOnRope+3
         cmp     #$00
-        beq     Branch_LeftRight_Right
+        beq     If_LeftRight_Right
         lda     SpritePointer0
         and     #$03
         clc
 LC79B   adc     #$e8
         sta     SpritePointer0
-Branch_LeftRight_Right
+If_LeftRight_Right
         lda     Var_LeftRightInput ;Left = #ff / Right = #01
         cmp     #$01       ;Check if going right
-        bne     Branch_UpInput_Up ;Branch if not going right
+        bne     If_UpInput_Up ;Branch if not going right
         lda     Var_SlidingOnRope ;Sliding on rope =  #00
         cmp     #$00       ;Check if sliding on rope
-        beq     Branch_UpInput_Up ;Branch if sliding on rope
+        beq     If_UpInput_Up ;Branch if sliding on rope
         lda     #$03       ;A = #03
         ldx     #$00       ;X = #00
-        jsr     L2A04
+        jsr     Sub_2A04
         inc     Var_MovingLeftRight
         lda     L4507
         cmp     #$00
-        beq     Branch_UpInput_Up
+        beq     If_UpInput_Up
         lda     SpritePointer0
         and     #$03
         clc
 LC7C5   adc     #$ec
         sta     SpritePointer0
-Branch_UpInput_Up
+If_UpInput_Up
         lda     Var_UpInput ;A = Var_UpInput
         cmp     #$00       ;Check if up input received
         beq     LC819      ;Branch if no up input received
@@ -9281,7 +9372,7 @@ LC7D4   and     #$02
         tya
         asl     a
         ora     SpriteXMSBRegister
-        jsr     L2F00
+        jsr     Sub_2F00
 LC819   lda     Var_GoSlowRedZone+1 ;A = $450d (Always #00)
         cmp     #$01       ;Compare A to #01
         beq     _LC827
@@ -9308,42 +9399,42 @@ Sub_GetKeyboardInputs
         sta     Var_UpInput ;Var_UpInput = #00
         lda     L4511      ;Cant see this ever being set
         cmp     #$01       ;Compare $4511 = #01
-        beq     _LC861
+        beq     If_C861
         lda     #$00       ;A = #00
         sta     Var_DownInput ;Var_DownInput = #00
         sta     Var_LeftRightInput ;Var_LeftRightInput = #00
-_LC861  lda     Var_KeyboardInput ;A = KeyboardInput
+If_C861 lda     Var_KeyboardInput ;A = KeyboardInput
         cmp     #$40       ;Compare A = #40
-        beq     _LC8AB     ;Branch if no keyboard input
+        beq     If_C8AB    ;Branch if no keyboard input
         lda     #$00       ;A = #00
         sta     Var_DownInput ;Var_DownInput = #00
         sta     Var_LeftRightInput ;Var_LeftRightInput = #00
         lda     Var_KeyboardInput ;A = Var_KeyboardInput
         cmp     L4512      ;Compare $c5 = $4512
-        bne     _LC87B     ;Always taken from what I can see
+        bne     If_C87B    ;Always taken from what I can see
         lda     #$ff
         sta     Var_DownInput
-_LC87B  lda     Var_KeyboardInput
+If_C87B lda     Var_KeyboardInput
         cmp     L4512
-        bne     _LC887
+        bne     If_C887
         lda     #$ff
         sta     Var_DownInput
-_LC887  lda     Var_KeyboardInput
+If_C887 lda     Var_KeyboardInput
         cmp     L4513
-        bne     _LC893
+        bne     If_C893
         lda     #$01
         sta     Var_DownInput
-_LC893  lda     Var_KeyboardInput
+If_C893 lda     Var_KeyboardInput
         cmp     L4514
-        bne     _LC89F
+        bne     If_C89F
         lda     #$ff
         sta     Var_LeftRightInput
-_LC89F  lda     Var_KeyboardInput
+If_C89F lda     Var_KeyboardInput
         cmp     L4515
-        bne     _LC8AB
+        bne     If_C8AB
         lda     #$01
         sta     Var_LeftRightInput
-_LC8AB  lda     $028d
+If_C8AB lda     $028d
         cmp     #$00
         beq     Sub_GetJoystickInputs
         lda     #$01
@@ -9352,105 +9443,107 @@ Sub_GetJoystickInputs
         jsr     Sub_ResetMovementVars ;Reset movement variables and get port A input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)
         and     #$01       ;Isolate first bit
         cmp     #$01       ;Compare to see if the bit is true
-        beq     _LC8C5     ;Branch if up is not pressed
+        beq     If_C8C5    ;Branch if up is not pressed
         lda     #$01       ;A = #01
         sta     Var_UpInput ;Store #01 to Var_UpInput
-_LC8C5  lda     InputPortA ;Get Port A inputs
+If_C8C5 lda     InputPortA ;Get Port A inputs
         and     #$02       ;Isolate second bit
         cmp     #$02       ;Check if second bit is set
-        beq     _LC8D3     ;Branch if down is not pressed
+        beq     If_C8D3    ;Branch if down is not pressed
         lda     #$01       ;A = #01
         sta     Var_DownInput ;Store #01 to Var_DownInput
-_LC8D3  lda     InputPortA ;Get Port A inputs
+If_C8D3 lda     InputPortA ;Get Port A inputs
         and     #$04
         cmp     #$04
-        beq     _LC8E1
+        beq     If_C8E1
         lda     #$ff       ;A = #ff
         sta     Var_LeftRightInput ;Store #ff (Left) to Var_LeftRightInput
-_LC8E1  lda     InputPortA ;Get Port A inputs
+If_C8E1 lda     InputPortA ;Get Port A inputs
         and     #$08
         cmp     #$08
-        beq     _LC8EF     ;Branch to RTS
+        beq     RTS_C8EF   ;Branch to RTS
         lda     #$01       ;A = #01
         sta     Var_LeftRightInput ;Store #01 (Right) to Var_LeftRightInput
-_LC8EF  rts
+RTS_C8EF
+        rts
 
 LC8F0   .byte   $00,$dc,$29,$10,$c9,$10,$f0,$05,$a9,$01,$8d,$05,$5a,$60,$03,$05
 
-LC900   ldy     #$ff       ;Y = #ff
+Sub_C900
+        ldy     #$ff       ;Y = #ff
         sta     LC8F0+14   ;$c8fe = #ff
-        stx     LC8F0+15   ;$c8ff = #ff
+        stx     Sub_C900-1 ;$c8ff = #ff
         txa                ;Transfer X to A (#ff)
         clc                ;Clear carry
         asl     a          ;Multiply by 2
         tax                ;Transfer A to X
         lda     LC8F0+14   ;A = $c8fe (#ff)
         cmp     #$00       ;Compare A = #00
-        beq     _LC920     ;Branch if equal #00
+        beq     If_C920    ;Branch if equal #00
         cmp     #$01
-        beq     _LC92D
+        beq     LC92D
         cmp     #$02
-        beq     _LC93A
+        beq     LC93A
         cmp     #$03
-        beq     _LC96A
+        beq     LC96A
         rts
 
-_LC920  lda     SpriteMSBXPosition,x
+If_C920 lda     SpriteMSBXPosition,x
         cmp     #$32
-        beq     _LC92C
+        beq     If_C92C
         dec     SpriteMSBXPosition,x
         ldy     #$00
-_LC92C  rts
+If_C92C rts
 
-_LC92D  lda     SpriteMSBXPosition,x
+LC92D   lda     SpriteMSBXPosition,x
         cmp     #$e3
-        beq     _LC939
+        beq     If_C939
         inc     SpriteMSBXPosition,x
         ldy     #$00
-_LC939  rts
+If_C939 rts
 
-_LC93A  lda     Sprite0XPosition,x
+LC93A   lda     Sprite0XPosition,x
         cmp     #$08
-        bne     _LC951
-        ldy     LC8F0+15
+        bne     If_C951
+        ldy     Sub_C900-1
         lda     LC9DF+10,y
         and     SpriteXMSBRegister
         cmp     #$00
-        bne     _LC951
+        bne     If_C951
         ldy     #$ff
         rts
 
-_LC951  dec     Sprite0XPosition,x
+If_C951 dec     Sprite0XPosition,x
         lda     Sprite0XPosition,x
         cmp     #$ff
-        bne     _LC967
-        ldy     LC8F0+15
+        bne     If_C967
+        ldy     Sub_C900-1
         lda     LC9DF+2,y
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-_LC967  ldy     #$00
+If_C967 ldy     #$00
         rts
 
-_LC96A  lda     Sprite0XPosition,x
+LC96A   lda     Sprite0XPosition,x
         cmp     #$4f
-        bne     _LC981
-        ldy     LC8F0+15
+        bne     If_C981
+        ldy     Sub_C900-1
         lda     LC9DF+10,y
         and     SpriteXMSBRegister
         cmp     #$00
-        beq     _LC981
+        beq     If_C981
         ldy     #$ff
         rts
 
-_LC981  inc     Sprite0XPosition,x
+If_C981 inc     Sprite0XPosition,x
         lda     Sprite0XPosition,x
         cmp     #$00
-        bne     _LC997
-        ldy     LC8F0+15
+        bne     If_C997
+        ldy     Sub_C900-1
         lda     LC9DF+10,y
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-_LC997  ldy     #$00
+If_C997 ldy     #$00
         rts
 
         .byte   $ea,$ea,$ea,$ee,$14,$d0,$ae,$14,$a9,$00,$8d,$04,$cf,$a9,$00,$8d
@@ -9461,14 +9554,14 @@ Sub_ResetMovementVars
         lda     InputPortA ;Load joystick input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)
         and     #$0f       ;AND on input recieved
         cmp     #$0f       ;Check if no input received
-        beq     _LC9DB     ;Branch if no input received
+        beq     If_C9DB    ;Branch if no input received
         lda     Var_KeyboardInput ;Not sure what $c5 is used for
         cmp     #$40
-        bne     _LC9DB
+        bne     If_C9DB
         lda     #$00       ;A = #00
         sta     Var_DownInput ;Reset down input
         sta     Var_LeftRightInput ;Reset left/right input
-_LC9DB  lda     InputPortA ;Load port A inputs
+If_C9DB lda     InputPortA ;Load port A inputs
         rts
 
 LC9DF   .byte   $ea,$ea,$fe,$fd,$fb,$f7,$ef,$df,$bf,$7f,$01,$02,$04,$08,$10,$20
@@ -9485,18 +9578,18 @@ LC9F1   inc     LCF14      ;Increase $cf14
 LCA00   jsr     Branch_DamageBorderColour
         jsr     L5800
 LCA06   cmp     #$08
-        bne     _LCA12
+        bne     If_CA12
         lda     #$00       ;A = #00
         sta     Var_SomethingRandom ;Var_SomethingRandom = #00
         jsr     LC700
-_LCA12  inc     Var_SomethingElseRandom
+If_CA12 inc     Var_SomethingElseRandom
         lda     Var_SomethingElseRandom
 LCA18   cmp     #$20       ;Value ($ca19) get modified by code
-        bne     _LCA24
+        bne     If_CA24
         lda     #$00
         sta     Var_SomethingElseRandom
         jsr     LC71B
-_LCA24  jmp     L2D4B
+If_CA24 jmp     L2D4B
 
 LCA27   lda     #$00       ;A = #00
         sta     Var_CurrentEnemyIndex ;Var_CurrentEnemyIndex = #00
@@ -9510,33 +9603,34 @@ _LCA2C  lda     Var_CurrentEnemyIndex ;A = Var_CurrentEnemyIndex
         jsr     LCE87
         lda     LCF81
         cmp     #$01
-        bne     _LCA51
+        bne     If_CA51
         lda     #$00
         sta     LCF81
         jmp     LC694
 
-_LCA51  jsr     LC011      ;Not sure what this does as it never goes into subroutine
+If_CA51 jsr     LC011      ;Not sure what this does as it never goes into subroutine
         jsr     Sub_StartEnemyUpdate
         lda     LCF7F
         cmp     #$ff
-        bne     _LCA61
+        bne     If_CA61
         jmp     Sub_SetInterruptsAndMem ;Never seems to go into here
 
-_LCA61  jmp     LCA00
+If_CA61 jmp     LCA00
 
 LCA64   lda     Var_MovingLeftRight,x
         and     SpriteEnableRegister
-        beq     _LCA6F
+        beq     RTS_CA6F
         jsr     LC37A
-_LCA6F  rts
+RTS_CA6F
+        rts
 
 LCA70   lda     LCF4F,x
         cmp     #$01
-        beq     _LCA7D
+        beq     If_CA7D
         lda     L454E,x
         jmp     LCD17
 
-_LCA7D  jmp     LCD55
+If_CA7D jmp     If_CD55
 
         .byte   $20,$e1,$2b,$ea,$ea,$ea,$a9,$fc,$8d,$f8,$07,$ad,$88,$45,$8d,$ff
         .byte   $ff,$ad,$89,$45,$8d,$ff,$ff,$ad,$8a,$45,$8d,$ff,$ff,$a9,$00,$8d
@@ -9546,10 +9640,11 @@ _LCA7D  jmp     LCD55
         .byte   $f0,$06,$ee,$60,$cf,$4c,$a7,$ca,$ad,$f8,$07,$c9,$ff,$f0,$06,$ee
         .byte   $f8,$07,$4c,$a2,$ca,$ac,$88,$45,$88,$4c,$f9,$ca,$60
 
-LCAED   dec     LCF7C
+Jump_CAED
+        dec     LCF7C
         lda     #$01
         sta     SpriteEnableRegister
-        jsr     L56BC
+        jsr     Sub_56BC
         rts
 
         .byte   $8c,$ff,$ff,$4c,$da,$ce,$ea,$60,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea
@@ -9580,30 +9675,31 @@ Sub_HorizontalMovingEnemies
         nop
         lda     L451C,x
         cmp     #$00
-        beq     _LCBBB
+        beq     LCBBB
         jsr     LC9F1
-_LCB5C  lda     #$00
+LCB5C   lda     #$00
         sta     LCF12
-_LCB61  ldx     Counter_Enemy
+Jump_CB61
+        ldx     Counter_Enemy
         lda     LCF0D,x
         tax
         lda     LCF12
         cmp     L451C,x
-        beq     _LCB8B
+        beq     If_CB8B
         dey
         cpy     #$00
-        beq     _LCBBB
+        beq     LCBBB
         inc     LCF12
         lda     #$03
         sty     LCF13
         ldx     Counter_Enemy
         inx
         inx
-        jsr     LC900
+        jsr     Sub_C900
         ldy     LCF13
-        jmp     _LCB61
+        jmp     Jump_CB61
 
-_LCB8B  lda     Counter_Enemy
+If_CB8B lda     Counter_Enemy
         tax
         asl     a
         sty     LCF13
@@ -9621,34 +9717,35 @@ _LCB8B  lda     Counter_Enemy
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
         ldy     LCF13
-        jmp     _LCB5C
+        jmp     LCB5C
 
-_LCBBB  lda     L451D,x
+LCBBB   lda     L451D,x
         cmp     #$00
-        beq     _LCC0D
+        beq     RTS_CC0D
         jsr     LC9F1
-_LCBC5  lda     #$00
+LCBC5   lda     #$00
         sta     LCF12
-_LCBCA  ldx     Counter_Enemy
+Jump_CBCA
+        ldx     Counter_Enemy
         lda     LCF0D,x
         tax
         lda     LCF12
         cmp     L451D,x
-        beq     _LCBF4
+        beq     If_CBF4
         dey
         cpy     #$00
-        beq     _LCC0D
+        beq     RTS_CC0D
         inc     LCF12
         lda     #$01
         sty     LCF13
         ldx     Counter_Enemy
         inx
         inx
-        jsr     LC900
+        jsr     Sub_C900
         ldy     LCF13
-        jmp     _LCBCA
+        jmp     Jump_CBCA
 
-_LCBF4  lda     Counter_Enemy
+If_CBF4 lda     Counter_Enemy
         tax
         asl     a
         sty     LCF13
@@ -9658,9 +9755,10 @@ _LCBF4  lda     Counter_Enemy
         lda     L451A,x
         sta     SpriteYPositionRegister,y
         ldy     LCF13
-        jmp     _LCBC5
+        jmp     LCBC5
 
-_LCC0D  rts
+RTS_CC0D
+        rts
 
         .byte   $ea
         .byte   $ea
@@ -9668,27 +9766,28 @@ _LCC0D  rts
 Temp_CurrentEnemy
         .byte   $03
 
-LCC12   sta     Temp_CurrentEnemy ;A = Enemy index
+Sub_CC12
+        sta     Temp_CurrentEnemy ;A = Enemy index
         tax                ;Transfer A to X
         lda     LCF15,x    ;A = $cf15,x (Not sure what A is loaded with)
         ldx     Temp_CurrentEnemy ;X = Temp_CurrentEnemy
-        jmp     _LCC81
+        jmp     Jump_CC81
 
-_LCC1F  ldx     Temp_CurrentEnemy
+LCC1F   ldx     Temp_CurrentEnemy
         inc     LCF1A,x
         lda     LCF1A,x
         cmp     #$08
-        beq     _LCC2D
+        beq     If_CC2D
         rts
 
-_LCC2D  lda     #$00
+If_CC2D lda     #$00
         sta     LCF1A,x
         lda     L453D,x
         cmp     #$00
-        beq     _LCC3C
-        jmp     _LCC65
+        beq     If_CC3C
+        jmp     Jump_CC65
 
-_LCC3C  lda     L574A+20,x
+If_CC3C lda     L574A+20,x
         sta     $fb
         lda     LCF24,x
         sta     $fc
@@ -9699,16 +9798,17 @@ _LCC3C  lda     L574A+20,x
         nop
         nop
         cmp     #$ff
-        bne     _LCC61
+        bne     If_CC61
         lda     #$01
         ldx     Temp_CurrentEnemy
         sta     LCF29,x
         ldy     #$00
         lda     ($fb),y
-_LCC61  sta     LCF15,x
+If_CC61 sta     LCF15,x
         rts
 
-_LCC65  jsr     LC9F1
+Jump_CC65
+        jsr     LC9F1
         tya
         and     #$3f
         tay
@@ -9723,77 +9823,79 @@ _LCC65  jsr     LC9F1
 
         .fill   2,$ea
 
-_LCC81  tay                ;Transfer A to Y
+Jump_CC81
+        tay                ;Transfer A to Y
         ldx     Temp_CurrentEnemy ;X = Temp_CurrentEnemy
         inx                ;Increase X
         inx                ;Increase X
         jsr     LCA64
         cpy     #$ff
-        bne     _LCCA4
+        bne     If_CCA4
         ldx     Temp_CurrentEnemy
         lda     L4538,x
         cmp     #$00
-        bne     _LCCA4
+        bne     If_CCA4
         jsr     LCEEE
         eor     #$ff
         and     SpriteEnableRegister
         sta     SpriteEnableRegister
         rts
 
-_LCCA4  jmp     _LCC1F
+If_CCA4 jmp     LCC1F
 
         .byte   $ea,$ea,$ea,$aa
 
 LCCAB   inc     LCF2E,x    ;Increase $cf2e,x (#00-#04)
         lda     LCF2E,x    ;A = $cf2e,x 
         cmp     Var_Sprite3Speed,x ;Compare cf2e,x to Var_Sprite3Speed
-        bne     _LCCBF     ;Branch if $cf2e,x != Var_Sprite3Speed
+        bne     If_CCBF    ;Branch if $cf2e,x != Var_Sprite3Speed
         lda     #$00       ;A = #00
         sta     LCF2E,x    ;$cf2e = #00
         txa                ;Transfer X to A (Enemy index)
-        jsr     LCC12
-_LCCBF  inc     LCF97,x
+        jsr     Sub_CC12
+If_CCBF inc     LCF97,x
         lda     LCF97,x
         cmp     #$10
-        bne     _LCCF2
+        bne     RTS_CCF2
         lda     #$00
         sta     LCF97,x
         ldx     Var_CurrentEnemyIndex
         inc     LCF33,x
         lda     LCF33,x
         cmp     L54E5,x
-        bne     _LCCF2
+        bne     RTS_CCF2
         lda     #$00
         sta     LCF33,x
         lda     SpritePointers,x
         inc     SpritePointers,x
         cmp     LCF38,x
-        bne     _LCCF2
+        bne     RTS_CCF2
         lda     LCF3D,x
         sta     SpritePointers,x
-_LCCF2  rts
+RTS_CCF2
+        rts
 
         .fill   2,$ea
 
 LCCF5   lda     SpriteEnableRegister ;A = SpriteEnableRegister
         and     #$80       ;Isolate girl
         cmp     #$00       ;Check if girl is visible
-        beq     _LCD01     ;Branch if girl not visible
-        jmp     LCD55
+        beq     If_CD01    ;Branch if girl not visible
+        jmp     If_CD55
 
-_LCD01  jsr     LCD7B
+If_CD01 jsr     LCD7B
         cpy     L4553
-        bpl     LCD55
-_LCD09  jsr     LC9F1
+        bpl     If_CD55
+If_CD09 jsr     LC9F1
         tya
         and     #$07
         cmp     #$05
-        bpl     _LCD09
+        bpl     If_CD09
         tax
         jmp     LC000
 
 LCD17   cmp     #$04
-        beq     LCD55
+        beq     If_CD55
         sta     LCF44
         lda     SpriteEnableRegister
         ora     #$80
@@ -9815,25 +9917,26 @@ LCD17   cmp     #$04
         sta     SpriteXMSBRegister
         and     LCF46,x
         cmp     #$00
-        beq     LCD55
+        beq     If_CD55
         lda     #$80
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-LCD55   inc     LCF45
+If_CD55 inc     LCF45
         lda     LCF45
         cmp     L4554
-        bne     _LCD79
+        bne     RTS_CD79
         lda     #$00
         sta     LCF45
         lda     LCF44
         ldx     #$07
-        jsr     LC900
+        jsr     Sub_C900
         cpy     #$ff
-        bne     _LCD79
+        bne     RTS_CD79
         lda     SpriteEnableRegister
         and     #$7f
         sta     SpriteEnableRegister
-_LCD79  rts
+RTS_CD79
+        rts
 
         .byte   $ea
 
@@ -9845,34 +9948,35 @@ LCD7B   jsr     LC9F1
         tya
         and     #$7f
         cmp     #$78
-        bpl     _LCD93
+        bpl     If_CD93
         ldy     #$7f
-        jmp     LCD96
+        jmp     RTS_CD96
 
-_LCD93  ldy     LCF4C
-LCD96   rts
+If_CD93 ldy     LCF4C
+RTS_CD96
+        rts
 
         .byte   $ea,$ea,$ea,$4c,$87,$ce
 
 LCD9D   lda     Var_SpriteCollision ;A = Var_SpriteCollision
         and     #$02       ;Isolate second bit
-        bne     _LCDA6     ;Branch if collision is second bit
-        jmp     LCD96      ;Jump and RTS
+        bne     If_CDA6    ;Branch if collision is second bit
+        jmp     RTS_CD96   ;Jump and RTS
 
-_LCDA6  ldx     #$00       ;X = #00
+If_CDA6 ldx     #$00       ;X = #00
         ldy     #$00       ;Y = #00
-_LCDAA  lda     LCF46,x
+IF_CDAA lda     LCF46,x
         and     Var_SpriteCollision
-        beq     _LCDB2
+        beq     If_CDB2
         iny
-_LCDB2  inx
+If_CDB2 inx
         cpx     #$05
-        bne     _LCDAA
+        bne     IF_CDAA
         cpy     #$00
-        bne     _LCDBE
-        jmp     LCD96
+        bne     If_CDBE
+        jmp     RTS_CD96
 
-_LCDBE  ldx     #$02
+If_CDBE ldx     #$02
         jsr     Update_DamageOccuring
         rts
 
@@ -9883,10 +9987,10 @@ _LCDBE  ldx     #$02
 LCDE9   tax                ;Trasnfer A to X (Will rotate between #00-#04)
         lda     LCF4F,x    ;A = $cf4f,x
         cmp     #$01       ;Values are always #00
-        beq     _LCDF4     ;Never taken
+        beq     If_CDF4    ;Never taken
         jmp     LCCAB
 
-_LCDF4  jmp     LC607
+If_CDF4 jmp     LC607
 
 LCDF7   .byte   $ea,$ea,$ea,$bd,$4f,$cf,$c9,$01,$d0,$dd,$60,$9d,$4f,$cf,$a9,$fd
         .byte   $2d,$15,$d0,$8d,$15,$d0,$4c,$6b,$ce,$60
@@ -9914,21 +10018,22 @@ LCE42   lda     Counter_ScoreUpdate3 ;A = $cf5c
 Loop_ScoreUpdate
         lda     Counter_ScoreUpdate1 ;A = $cf5a
         cmp     #$00
-        beq     LCE58
+        beq     If_CE58
         dec     Counter_ScoreUpdate1
 Temp_Something1
         jsr     Sub_UpdateScore
         jmp     Loop_ScoreUpdate
 
-LCE58   lda     Counter_ScoreUpdate2
+If_CE58 lda     Counter_ScoreUpdate2
         cmp     #$00
-        beq     _LCE6A
+        beq     RTS_CE6A
         dec     Counter_ScoreUpdate2
         lda     #$ff
         sta     Counter_ScoreUpdate1
         jmp     Temp_Something1
 
-_LCE6A  rts
+RTS_CE6A
+        rts
 
         .byte   $ae,$4e,$cf,$bd,$60,$45,$8d,$5a,$cf,$bd,$65,$45,$8d,$5b,$cf,$bd
         .byte   $6a,$45,$8d,$5c,$cf,$20,$42,$ce,$60,$ea,$ea,$ea
@@ -9936,41 +10041,42 @@ _LCE6A  rts
 LCE87   lda     Adr_SpriteCollision ;A = Adr_SpriteCollision
         sta     Var_SpriteCollision ;Var_SpriteCollision = Adr_SpriteCollision
         and     #$01       ;Isolate boy
-        bne     _LCE93     ;Branch if boy has collision
+        bne     If_CE93    ;Branch if boy has collision
         jmp     LCD9D
 
-_LCE93  lda     Var_SpriteCollision ;A = Var_SpriteCollision
+If_CE93 lda     Var_SpriteCollision ;A = Var_SpriteCollision
         and     #$02       ;Isolate girl
-        beq     Br_CheckEnemyCollide ;Branch if girl does not have collision
+        beq     If_CheckEnemyCollide ;Branch if girl does not have collision
         rts                ;Return from subroutine
 
-Br_CheckEnemyCollide
+If_CheckEnemyCollide
         ldx     #$00       ;X = #00
         ldy     #$00       ;Y = #00
 Loop_CheckEnemyCollide
         lda     LCF46,x    ;Will increase through each enemy (#04, #08, #10, #20, #40)
         and     Var_SpriteCollision ;Check if selected sprite caused collision
-        beq     NotEnemy   ;Branch if select enemy caused collision
+        beq     If_NotEnemy ;Branch if select enemy caused collision
         iny                ;Increase Y. Used to confirm enemy found.
-NotEnemy
+If_NotEnemy
         inx                ;Increase X
         cpx     #$06       ;Compare X to #06 (As there are only 5 enemies)
         bne     Loop_CheckEnemyCollide ;Loop as not at final enemy
         cpy     #$01       ;Compare Y to #01 (Check if enemy found).
-        beq     _LCEB0     ;Branch if enemy found.
+        beq     If_CEB0    ;Branch if enemy found.
         rts
 
-_LCEB0  lda     Var_SpriteCollision ;A = Var_SpriteCollision
+If_CEB0 lda     Var_SpriteCollision ;A = Var_SpriteCollision
         and     #$fc       ;Isolate enemy sprites only
         sta     Temp_EnemyCollidedBin ;A = Temp_EnemyThatCollided
         ldx     #$00       ;X = #00
-_LCEB9  cmp     #$04       ;Check enemy number
-        beq     _LCEC2     ;Branch if enemy selected
+Jump_CEB9
+        cmp     #$04       ;Check enemy number
+        beq     If_CEC2    ;Branch if enemy selected
         inx                ;Increase X (Enemy number)
         lsr     a          ;Divide by 2
-        jmp     _LCEB9
+        jmp     Jump_CEB9
 
-_LCEC2  stx     Temp_EnemyCollidedInt ;Temp_EnemyCollidedInt = X
+If_CEC2 stx     Temp_EnemyCollidedInt ;Temp_EnemyCollidedInt = X
         ldx     #$02       ;X = #02
         jsr     Update_DamageOccuring
         jmp     LCD9D
@@ -9987,7 +10093,7 @@ LCEEE   inc     LCF76,x
 
 LCEF6   sta     $d027
         lda     L45EC
-        jmp     LCAED
+        jmp     Jump_CAED
 
 Var_CurrentEnemyIndex
         .byte   $05,$00,$ea
@@ -10193,7 +10299,7 @@ LCFAA   .byte   $87
 Sub_CFC0
         jsr     Sub_5733
         ldx     #$00
-_LCFC5  lda     LCFA1,x
+If_CFC5 lda     LCFA1,x
         lda     $0617,x
         lda     $d81a
         lda     #$01
@@ -10203,7 +10309,7 @@ _LCFC5  lda     LCFA1,x
         sta     $0438,x
         inx
         cpx     #$09
-        bne     _LCFC5
+        bne     If_CFC5
         rts
 
         .byte   $33,$57,$00,$00,$ee,$ec,$ed,$ee,$ed,$ed,$ed,$ed,$ed,$ed,$ed,$ed

@@ -30,6 +30,8 @@ Adr_BorderColor = $d020
 Adr_BackgroundColor = $d021
 ExtraBackgroundColor1 = $d022
 ExtraBackgroundColor2 = $d023
+Adr_Voice3Control = $d412
+Adr_Voice3AttackDecay = $d413
 FilterCutoffFrequencyLow = $d415
 FilterCutoffFrequencyHigh = $d416
 FilterResonanceRouting = $d417
@@ -652,7 +654,7 @@ If_2A43 lda     $fc
 Jump_2A57
         ldx     #$00       ;X = #00
         lda     Var_SpriteFrame ;A = Var_SpriteFrame
-        jsr     Sub_C900
+        jsr     Sub_UpdateSpritePositions
         rts
 
 Sub_2A60
@@ -1016,7 +1018,7 @@ L2EE3   lda     L45FE
 Sub_2F00
         sta     SpriteXMSBRegister
         lda     #$00
-        sta     $d412
+        sta     Adr_Voice3Control
         ldx     #$00
 If_2F0A lda     L45B3,x
         sta     $d40e,x
@@ -6466,14 +6468,15 @@ If_547B lda     #$00
 
         .fill   2,$ea
 
-L5483   lda     #$00
-        sta     $d412
+Jump_JumpSound
+        lda     #$00
+        sta     Adr_Voice3Control
         lda     #$0d
-        sta     $d413
+        sta     Adr_Voice3AttackDecay
         lda     #$00
         sta     FilterCutoffFrequencyLow-1
         lda     L45B7
-        sta     $d412
+        sta     Adr_Voice3Control
         lda     #$00
         nop
         nop
@@ -6482,7 +6485,7 @@ L5483   lda     #$00
 L549F   .byte   $00
 
 L54A0   lda     #$00
-        sta     $d412
+        sta     Adr_Voice3Control
         sta     L549F
         jmp     L53EF
 
@@ -6495,7 +6498,7 @@ L54AC   lda     L549F
 If_54B2 cmp     ($54,x)
         lda     #$01
         sta     L549F
-        jsr     L5483
+        jsr     Jump_JumpSound
         jmp     L54DC
 
 L54BF   .byte   $73,$80
@@ -6816,7 +6819,7 @@ Jump_58A8
         lda     #$f0       ;A = #f0
         sta     LC79B+1    ;#c79b = #f0
         sta     LC7C5+1    ;#c7c5 = #f0
-        jmp     L5483
+        jmp     Jump_JumpSound
 
 Sub_CheckSlidingOnRope
         lda     Var_SlidingOnRope
@@ -10151,7 +10154,7 @@ If_C2C9 lda     $0391
         .byte   $fd,$fd
 
 LC37A   tya
-        jsr     Sub_C900
+        jsr     Sub_UpdateSpritePositions
         rts
 
         .byte   $ea,$ae,$80,$03,$ee,$80,$03,$bd,$00,$40,$c9,$00,$f0,$18,$c9,$ff
@@ -10452,7 +10455,7 @@ LC700   lda     SpritePointer1
         clc
         sbc     #$df
         ldx     #$01
-        jsr     Sub_C900
+        jsr     Sub_UpdateSpritePositions
         cpy     #$00
         beq     If_C717
         rts
@@ -10674,45 +10677,66 @@ If_C8E1 lda     InputPortA ;Get Port A inputs
 RTS_C8EF
         rts
 
-LC8F0   .byte   $00,$dc,$29,$10,$c9,$10,$f0,$05,$a9,$01,$8d,$05,$5a,$60,$03,$05
+        .byte   $00
+        .byte   $dc
+        .byte   $29
+        .byte   $10
+        .byte   $c9
+        .byte   $10
+        .byte   $f0
+        .byte   $05
+        .byte   $a9
+        .byte   $01
+        .byte   $8d
+        .byte   $05
+        .byte   $5a
+        .byte   $60
+Var_SpriteDirection
+        .byte   $03
+Var_SpriteAddress
+        .byte   $05
 
-Sub_C900
+Sub_UpdateSpritePositions
         ldy     #$ff       ;Y = #ff
-        sta     LC8F0+14   ;$c8fe = #ff
-        stx     Sub_C900-1 ;$c8ff = #ff
-        txa                ;Transfer X to A (#ff)
+        sta     Var_SpriteDirection ;Load request sprite movement direction
+        stx     Var_SpriteAddress ;Update sprite number
+        txa                ;Transfer X to A
         clc                ;Clear carry
         asl     a          ;Multiply by 2
         tax                ;Transfer A to X
-        lda     LC8F0+14   ;A = $c8fe (#ff)
-        cmp     #$00       ;Compare A = #00
-        beq     If_C920    ;Branch if equal #00
-        cmp     #$01
-        beq     LC92D
-        cmp     #$02
-        beq     LC93A
-        cmp     #$03
-        beq     LC96A
-        rts
+        lda     Var_SpriteDirection ;Load A with requested sprite direction
+        cmp     #$00       ;Check if movement is up
+        beq     If_DecreaseYposition ;Branch if sprite should move up
+        cmp     #$01       ;Check if movement is down
+        beq     If_IncreaseYposition ;Branch if sprite should move down
+        cmp     #$02       ;Check if movement is left
+        beq     If_DecreaseXPosition ;Branch if sprite should move left
+        cmp     #$03       ;Check if movement is right
+        beq     If_IncreaseXPosition ;Branch if sprite should move right
+        rts                ;Return from subroutine
 
-If_C920 lda     Sprite0YPosition,x
-        cmp     #$32
-        beq     If_C92C
-        dec     Sprite0YPosition,x
-        ldy     #$00
-If_C92C rts
+If_DecreaseYposition
+        lda     Sprite0YPosition,x
+        cmp     #$32       ;Seems to be knock-back related. Possibly pass through characters.
+        beq     If_RTS
+        dec     Sprite0YPosition,x ;Increase vertical position
+        ldy     #$00       ;Y = #00
+If_RTS  rts
 
-LC92D   lda     Sprite0YPosition,x
+If_IncreaseYposition
+        lda     Sprite0YPosition,x
         cmp     #$e3
-        beq     If_C939
+        beq     If_e3_RTS
         inc     Sprite0YPosition,x
         ldy     #$00
-If_C939 rts
+If_e3_RTS
+        rts
 
-LC93A   lda     Sprite0XPosition,x
+If_DecreaseXPosition
+        lda     Sprite0XPosition,x
         cmp     #$08
         bne     If_C951
-        ldy     Sub_C900-1
+        ldy     Var_SpriteAddress
         lda     LC9DF+10,y
         and     SpriteXMSBRegister
         cmp     #$00
@@ -10724,17 +10748,18 @@ If_C951 dec     Sprite0XPosition,x
         lda     Sprite0XPosition,x
         cmp     #$ff
         bne     If_C967
-        ldy     Sub_C900-1
+        ldy     Var_SpriteAddress
         lda     LC9DF+2,y
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
 If_C967 ldy     #$00
         rts
 
-LC96A   lda     Sprite0XPosition,x
+If_IncreaseXPosition
+        lda     Sprite0XPosition,x
         cmp     #$4f
         bne     If_C981
-        ldy     Sub_C900-1
+        ldy     Var_SpriteAddress
         lda     LC9DF+10,y
         and     SpriteXMSBRegister
         cmp     #$00
@@ -10746,7 +10771,7 @@ If_C981 inc     Sprite0XPosition,x
         lda     Sprite0XPosition,x
         cmp     #$00
         bne     If_C997
-        ldy     Sub_C900-1
+        ldy     Var_SpriteAddress
         lda     LC9DF+10,y
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
@@ -10902,7 +10927,7 @@ Jump_CB61
         ldx     Counter_Enemy
         inx
         inx
-        jsr     Sub_C900
+        jsr     Sub_UpdateSpritePositions
         ldy     LCF13
         jmp     Jump_CB61
 
@@ -10948,7 +10973,7 @@ Jump_CBCA
         ldx     Counter_Enemy
         inx
         inx
-        jsr     Sub_C900
+        jsr     Sub_UpdateSpritePositions
         ldy     LCF13
         jmp     Jump_CBCA
 
@@ -11136,7 +11161,7 @@ If_CD55 inc     LCF45
         sta     LCF45
         lda     LCF44
         ldx     #$07
-        jsr     Sub_C900
+        jsr     Sub_UpdateSpritePositions
         cpy     #$ff
         bne     RTS_CD79
         lda     SpriteEnableRegister

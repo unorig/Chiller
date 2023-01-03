@@ -1284,9 +1284,31 @@
 "49413":"Check if movement is right",
 "49415":"Branch if sprite should move right",
 "49417":"Return from subroutine",
-"49421":"Seems to be knock-back related. Possibly pass through characters.",
-"49425":"Increase vertical position",
+"49418":"Load Sprite Y position",
+"49421":"Sets when to stop updating sprite (Top of screen / score)",
+"49423":"Branch if near top of screen",
+"49425":"Increase vertical position on screen",
 "49428":"Y = #00",
+"49430":"Return from subroutine",
+"49431":"Load Sprite Y position",
+"49434":"Lowest point a sprite can go down the screen",
+"49436":"Branch if at lowest point",
+"49438":"Deccrease vertical position on screen",
+"49441":"Y = #00",
+"49443":"Return from subroutine",
+"49447":"Compare sprite position to #08 (Left hand boundary).",
+"49449":"Branch if not on left hand boundary",
+"49454":"Load #80",
+"49467":"Move sprite left",
+"49470":"Load X position",
+"49473":"Compare X position to #ff",
+"49475":"Branch if not going over the MSB line",
+"49477":"Load sprite number",
+"49480":"Load the binary for setting the MSB value",
+"49483":"Toggle the X Position MSB value",
+"49486":"Update the X position MSB value",
+"49489":"Y = #00",
+"49491":"Return from subroutine",
 "49582":"Load joystick input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)",
 "49585":"AND on input recieved",
 "49587":"Check if no input received",
@@ -3068,35 +3090,35 @@
 "LabelAnno":"None"},
 
 "49418":{
-"Label":"If_DecreaseYposition",
+"Label":"BEQ_DecreaseYposition",
 "Value":51488,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49430":{
-"Label":"If_RTS",
+"Label":"BEQ_RTS_DecreaseYposition",
 "Value":51500,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49443":{
-"Label":"If_e3_RTS",
+"Label":"BEQ_RTS_IncreaseYposition",
 "Value":51513,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49467":{
-"Label":"If_C951",
+"Label":"BNE_DecreaseXPosition",
 "Value":51537,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49489":{
-"Label":"If_C967",
+"Label":"BNE_BeginRTS",
 "Value":51559,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -3880,7 +3902,7 @@
 "LabelAnno":"None"},
 
 "49431":{
-"Label":"If_IncreaseYposition",
+"Label":"BEQ_IncreaseYposition",
 "Value":51501,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -3894,22 +3916,29 @@
 "LabelAnno":"None"},
 
 "49385":{
-"Label":"Var_SpriteAddress",
+"Label":"Var_SpriteNumber",
 "Value":51455,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49444":{
-"Label":"If_DecreaseXPosition",
+"Label":"BEQ_DecreaseXPosition",
 "Value":51514,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49492":{
-"Label":"If_IncreaseXPosition",
+"Label":"BEQ_IncreaseXPosition",
 "Value":51562,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"49611":{
+"Label":"Var_SpriteDisableSwitch",
+"Value":51681,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},
@@ -35926,8 +35955,110 @@
 "SymbolRef":null},
 
 "49609":{
-"Length":18,
-"Format":"Uninit",
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49610":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49611":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49612":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49613":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49614":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49615":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49616":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49617":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49618":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49619":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49620":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49621":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49622":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49623":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49624":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49625":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"49626":{
+"Length":1,
+"Format":"NumericLE",
 "SubFormat":"None",
 "SymbolRef":null},
 

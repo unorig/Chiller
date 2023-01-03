@@ -990,7 +990,7 @@ L2EB3   jmp     LCA27
 
         .byte   $ea
 
-L2EB7   lda     Var_RegisteredMovingLeftRight+1,x
+L2EB7   lda     Var_BinaryEnemySpriteNum,x
         and     SpriteEnableRegister
         cmp     #$00
         beq     L2EC4
@@ -1068,7 +1068,7 @@ Sub_EnemyPositionLoop
         sta     LCF75
         ldx     #$00       ;Start loop value at #00
 Loop_NextEnemy
-        lda     Var_RegisteredMovingLeftRight+1,x ;Isolate the enemy bit
+        lda     Var_BinaryEnemySpriteNum,x ;Isolate the enemy bit
         and     SpriteEnableRegister ;Compare to the SpriteEnableRegister
         cmp     #$00       ;Check if enemy is visible
         bne     Branch_NextEnemy ;Branch if enemy is not visible
@@ -2679,6 +2679,7 @@ Var_EnemyXPosition
         .byte   $00
 Var_EnemyYPosition
         .byte   $d0
+Adr_EnemyMSBXPosition
         .byte   $00
         .byte   $00
         .byte   $20
@@ -10922,15 +10923,15 @@ Sub_VerticalEnemyMovement
         lda     Var_EnemyYPosition,x
         sta     Adr_EnemyYPosition,y
         ldy     Counter_Enemy
-        lda     Var_RegisteredMovingLeftRight+1,y
-        eor     #$ff
-        and     SpriteXMSBRegister
-        sta     SpriteXMSBRegister
-        lda     Var_EnemyYPosition+1,x
+        lda     Var_BinaryEnemySpriteNum,y ;Load the binary for setting the MSB value
+        eor     #$ff       ;Reverse selection
+        and     SpriteXMSBRegister ;Ensure sprites on MSB side are enabled
+        sta     SpriteXMSBRegister ;Update SpriteXMSBRegister
+        lda     Adr_EnemyMSBXPosition,x
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
         nop                ;No operation
-        lda     Var_EnemyYPosition+2,x
+        lda     Adr_EnemyMSBXPosition+1,x
         cmp     #$00
         beq     LCBBB
         jsr     LC9F1
@@ -10941,7 +10942,7 @@ Jump_CB61
         lda     LCF0D,x
         tax
         lda     LCF12
-        cmp     Var_EnemyYPosition+2,x
+        cmp     Adr_EnemyMSBXPosition+1,x
         beq     If_CB8B
         dey
         cpy     #$00
@@ -10966,17 +10967,17 @@ If_CB8B lda     Counter_Enemy
         lda     Var_EnemyXPosition,x
         sta     Adr_EnemyXPosition,y
         ldy     Counter_Enemy
-        lda     Var_RegisteredMovingLeftRight+1,y
+        lda     Var_BinaryEnemySpriteNum,y
         eor     #$ff
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-        lda     Var_EnemyYPosition+1,x
+        lda     Adr_EnemyMSBXPosition,x
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
         ldy     LCF13
         jmp     LCB5C
 
-LCBBB   lda     Var_EnemyYPosition+3,x
+LCBBB   lda     Adr_EnemyMSBXPosition+2,x
         cmp     #$00
         beq     RTS_CC0D
         jsr     LC9F1
@@ -10987,7 +10988,7 @@ Jump_CBCA
         lda     LCF0D,x
         tax
         lda     LCF12
-        cmp     Var_EnemyYPosition+3,x
+        cmp     Adr_EnemyMSBXPosition+2,x
         beq     If_CBF4
         dey
         cpy     #$00
@@ -11343,7 +11344,7 @@ If_CEC2 stx     Temp_EnemyCollidedInt ;Temp_EnemyCollidedInt = X
         .byte   $60
 
 LCEEE   inc     LCF76,x
-        lda     Var_RegisteredMovingLeftRight+1,x
+        lda     Var_BinaryEnemySpriteNum,x
         rts
 
         .byte   $ea
@@ -11362,6 +11363,7 @@ Var_MovingLeftRight
         .byte   $00
 Var_RegisteredMovingLeftRight
         .byte   $00
+Var_BinaryEnemySpriteNum
         .byte   $04
         .byte   $08
         .byte   $10

@@ -10693,74 +10693,77 @@ RTS_C8EF
         .byte   $60
 Var_SpriteDirection
         .byte   $03
-Var_SpriteAddress
+Var_SpriteNumber
         .byte   $05
 
 Sub_UpdateSpritePositions
         ldy     #$ff       ;Y = #ff
         sta     Var_SpriteDirection ;Load request sprite movement direction
-        stx     Var_SpriteAddress ;Update sprite number
+        stx     Var_SpriteNumber ;Update sprite number
         txa                ;Transfer X to A
         clc                ;Clear carry
         asl     a          ;Multiply by 2
         tax                ;Transfer A to X
         lda     Var_SpriteDirection ;Load A with requested sprite direction
         cmp     #$00       ;Check if movement is up
-        beq     If_DecreaseYposition ;Branch if sprite should move up
+        beq     BEQ_DecreaseYposition ;Branch if sprite should move up
         cmp     #$01       ;Check if movement is down
-        beq     If_IncreaseYposition ;Branch if sprite should move down
+        beq     BEQ_IncreaseYposition ;Branch if sprite should move down
         cmp     #$02       ;Check if movement is left
-        beq     If_DecreaseXPosition ;Branch if sprite should move left
+        beq     BEQ_DecreaseXPosition ;Branch if sprite should move left
         cmp     #$03       ;Check if movement is right
-        beq     If_IncreaseXPosition ;Branch if sprite should move right
+        beq     BEQ_IncreaseXPosition ;Branch if sprite should move right
         rts                ;Return from subroutine
 
-If_DecreaseYposition
-        lda     Sprite0YPosition,x
-        cmp     #$32       ;Seems to be knock-back related. Possibly pass through characters.
-        beq     If_RTS
-        dec     Sprite0YPosition,x ;Increase vertical position
+BEQ_DecreaseYposition
+        lda     Sprite0YPosition,x ;Load Sprite Y position
+        cmp     #$32       ;Sets when to stop updating sprite (Top of screen / score)
+        beq     BEQ_RTS_DecreaseYposition ;Branch if near top of screen
+        dec     Sprite0YPosition,x ;Increase vertical position on screen
         ldy     #$00       ;Y = #00
-If_RTS  rts
+BEQ_RTS_DecreaseYposition
+        rts                ;Return from subroutine
 
-If_IncreaseYposition
-        lda     Sprite0YPosition,x
-        cmp     #$e3
-        beq     If_e3_RTS
-        inc     Sprite0YPosition,x
-        ldy     #$00
-If_e3_RTS
-        rts
+BEQ_IncreaseYposition
+        lda     Sprite0YPosition,x ;Load Sprite Y position
+        cmp     #$e3       ;Lowest point a sprite can go down the screen
+        beq     BEQ_RTS_IncreaseYposition ;Branch if at lowest point
+        inc     Sprite0YPosition,x ;Deccrease vertical position on screen
+        ldy     #$00       ;Y = #00
+BEQ_RTS_IncreaseYposition
+        rts                ;Return from subroutine
 
-If_DecreaseXPosition
+BEQ_DecreaseXPosition
         lda     Sprite0XPosition,x
-        cmp     #$08
-        bne     If_C951
-        ldy     Var_SpriteAddress
-        lda     LC9DF+10,y
+        cmp     #$08       ;Compare sprite position to #08 (Left hand boundary).
+        bne     BNE_DecreaseXPosition ;Branch if not on left hand boundary
+        ldy     Var_SpriteNumber
+        lda     LC9E9,y    ;Load #80
         and     SpriteXMSBRegister
         cmp     #$00
-        bne     If_C951
+        bne     BNE_DecreaseXPosition
         ldy     #$ff
         rts
 
-If_C951 dec     Sprite0XPosition,x
-        lda     Sprite0XPosition,x
-        cmp     #$ff
-        bne     If_C967
-        ldy     Var_SpriteAddress
-        lda     LC9DF+2,y
-        and     SpriteXMSBRegister
-        sta     SpriteXMSBRegister
-If_C967 ldy     #$00
-        rts
+BNE_DecreaseXPosition
+        dec     Sprite0XPosition,x ;Move sprite left
+        lda     Sprite0XPosition,x ;Load X position
+        cmp     #$ff       ;Compare X position to #ff
+        bne     BNE_BeginRTS ;Branch if not going over the MSB line
+        ldy     Var_SpriteNumber ;Load sprite number
+        lda     Var_SpriteDisableSwitch,y ;Load the binary for setting the MSB value
+        and     SpriteXMSBRegister ;Toggle the X Position MSB value
+        sta     SpriteXMSBRegister ;Update the X position MSB value
+BNE_BeginRTS
+        ldy     #$00       ;Y = #00
+        rts                ;Return from subroutine
 
-If_IncreaseXPosition
+BEQ_IncreaseXPosition
         lda     Sprite0XPosition,x
         cmp     #$4f
         bne     If_C981
-        ldy     Var_SpriteAddress
-        lda     LC9DF+10,y
+        ldy     Var_SpriteNumber
+        lda     LC9E9,y
         and     SpriteXMSBRegister
         cmp     #$00
         beq     If_C981
@@ -10771,8 +10774,8 @@ If_C981 inc     Sprite0XPosition,x
         lda     Sprite0XPosition,x
         cmp     #$00
         bne     If_C997
-        ldy     Var_SpriteAddress
-        lda     LC9DF+10,y
+        ldy     Var_SpriteNumber
+        lda     LC9E9,y
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
 If_C997 ldy     #$00
@@ -10796,8 +10799,25 @@ Sub_ResetMovementVars
 If_C9DB lda     InputPortA ;Load port A inputs
         rts
 
-LC9DF   .byte   $ea,$ea,$fe,$fd,$fb,$f7,$ef,$df,$bf,$7f,$01,$02,$04,$08,$10,$20
-        .byte   $40,$80
+        .byte   $ea
+        .byte   $ea
+Var_SpriteDisableSwitch
+        .byte   $fe
+        .byte   $fd
+        .byte   $fb
+        .byte   $f7
+        .byte   $ef
+        .byte   $df
+        .byte   $bf
+        .byte   $7f
+LC9E9   .byte   $01
+        .byte   $02
+        .byte   $04
+        .byte   $08
+        .byte   $10
+        .byte   $20
+        .byte   $40
+        .byte   $80
 
 LC9F1   inc     LCF14      ;Increase $cf14
         ldx     LCF14      ;X = $cf14

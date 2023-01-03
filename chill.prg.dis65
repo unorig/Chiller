@@ -55,6 +55,40 @@
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
 
+"Adr_EnemyXPosition":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Adr_EnemyXPosition",
+"Value":53252,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Adr_EnemyYPosition":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Adr_EnemyYPosition",
+"Value":53253,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
 "Adr_MagicCrossNumLeft":{
 "DataDescriptor":{
 "Length":1,
@@ -561,40 +595,6 @@
 "MultiMask":null,
 "Label":"SpriteXMSBRegister",
 "Value":53264,
-"Source":"Project",
-"Type":"ExternalAddr",
-"LabelAnno":"None"},
-
-"SpriteXPositionRegister":{
-"DataDescriptor":{
-"Length":1,
-"Format":"NumericLE",
-"SubFormat":"Hex",
-"SymbolRef":null},
-
-"Comment":"",
-"HasWidth":false,
-"Direction":"ReadWrite",
-"MultiMask":null,
-"Label":"SpriteXPositionRegister",
-"Value":53252,
-"Source":"Project",
-"Type":"ExternalAddr",
-"LabelAnno":"None"},
-
-"SpriteYPositionRegister":{
-"DataDescriptor":{
-"Length":1,
-"Format":"NumericLE",
-"SubFormat":"Hex",
-"SymbolRef":null},
-
-"Comment":"",
-"HasWidth":false,
-"Direction":"ReadWrite",
-"MultiMask":null,
-"Label":"SpriteYPositionRegister",
-"Value":53253,
 "Source":"Project",
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
@@ -1296,10 +1296,16 @@
 "49438":"Deccrease vertical position on screen",
 "49441":"Y = #00",
 "49443":"Return from subroutine",
+"49444":"Load Sprite X position",
 "49447":"Compare sprite position to #08 (Left hand boundary).",
 "49449":"Branch if not on left hand boundary",
-"49454":"Load #80",
-"49467":"Move sprite left",
+"49454":"Load MSB enable check",
+"49457":"Check if sprite is on right hand side of MSB",
+"49460":"Check the outcome of the check",
+"49462":"Branch as sprite is on right hand side of MSB",
+"49464":"Y = #ff",
+"49466":"Return from subroutine",
+"49467":"Move sprite left on screen",
 "49470":"Load X position",
 "49473":"Compare X position to #ff",
 "49475":"Branch if not going over the MSB line",
@@ -1309,6 +1315,25 @@
 "49486":"Update the X position MSB value",
 "49489":"Y = #00",
 "49491":"Return from subroutine",
+"49492":"Load Sprite X position",
+"49495":"Compare sprite position to #4f (Right hand boundary).",
+"49499":"Load sprite number",
+"49502":"Load MSB enable check",
+"49505":"Check if sprite is on right hand side of MSB",
+"49508":"Check the outcome of the check",
+"49510":"Branch if sprite is on left hand side of MSB",
+"49512":"Y = #ff",
+"49514":"Return from subroutine",
+"49515":"Move sprite right on screen",
+"49518":"Load X position",
+"49521":"Compare X position to #00",
+"49523":"Branch if not over the MSB line",
+"49525":"Load sprite number",
+"49528":"Load the binary for setting the MSB value",
+"49531":"Toggle the X Position MSB value",
+"49534":"Update the X position MSB value",
+"49537":"Y = #00",
+"49539":"Return from subroutine",
 "49582":"Load joystick input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)",
 "49585":"AND on input recieved",
 "49587":"Check if no input received",
@@ -1332,11 +1357,12 @@
 "49723":"Not sure what this does as it never goes into subroutine",
 "49736":"Never seems to go into here",
 "49934":"Rotates between #00-04",
-"49937":"Transfer A to X",
-"49938":"Multiply A by 2",
-"49939":"Transfer A to Y",
+"49937":"Transfer A to X (Enemy counter)",
+"49938":"Multiply A by 2 (Enemy counter X2)",
+"49939":"Transfer A to Y (Enemy counter X2)",
 "49940":"A = cf0d,x (X is the enemy number)",
 "49943":"Transfer A to X",
+"49979":"No operation",
 "50172":"A = Enemy index",
 "50175":"Transfer A to X",
 "50176":"A = $cf15,x (Not sure what A is loaded with)",
@@ -1760,7 +1786,7 @@
 "LabelAnno":"None"},
 
 "49934":{
-"Label":"Sub_HorizontalMovingEnemies",
+"Label":"Sub_VerticalEnemyMovement",
 "Value":52004,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -3090,49 +3116,49 @@
 "LabelAnno":"None"},
 
 "49418":{
-"Label":"BEQ_DecreaseYposition",
+"Label":"IF_DecreaseYposition",
 "Value":51488,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49430":{
-"Label":"BEQ_RTS_DecreaseYposition",
+"Label":"IF_RTS_DecreaseYposition",
 "Value":51500,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49443":{
-"Label":"BEQ_RTS_IncreaseYposition",
+"Label":"IF_RTS_IncreaseYposition",
 "Value":51513,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49467":{
-"Label":"BNE_DecreaseXPosition",
+"Label":"IF_DecreaseXMSBPosition",
 "Value":51537,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49489":{
-"Label":"BNE_BeginRTS",
+"Label":"RTS_DecreaseXMSBPosition",
 "Value":51559,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49515":{
-"Label":"If_C981",
+"Label":"IF_IncreaseXMSBPosition",
 "Value":51585,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49537":{
-"Label":"If_C997",
+"Label":"RTS_IncreaseXMSBPosition",
 "Value":51607,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -3902,7 +3928,7 @@
 "LabelAnno":"None"},
 
 "49431":{
-"Label":"BEQ_IncreaseYposition",
+"Label":"IF_IncreaseYposition",
 "Value":51501,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -3923,22 +3949,43 @@
 "LabelAnno":"None"},
 
 "49444":{
-"Label":"BEQ_DecreaseXPosition",
+"Label":"IF_DecreaseXPosition",
 "Value":51514,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49492":{
-"Label":"BEQ_IncreaseXPosition",
+"Label":"IF_IncreaseXPosition",
 "Value":51562,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "49611":{
-"Label":"Var_SpriteDisableSwitch",
+"Label":"Var_SpriteMSBOff",
 "Value":51681,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"49619":{
+"Label":"Var_SpriteMSBOn",
+"Value":51689,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"15619":{
+"Label":"Var_EnemyXPosition",
+"Value":17689,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"15620":{
+"Label":"Var_EnemyYPosition",
+"Value":17690,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

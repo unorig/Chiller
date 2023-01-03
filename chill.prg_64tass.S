@@ -17,8 +17,8 @@ Sprite0XPosition = $d000
 Sprite0YPosition = $d001
 Sprite1XPositionRegister = $d002
 Sprite1YPosition = $d003
-SpriteXPositionRegister = $d004
-SpriteYPositionRegister = $d005
+Adr_EnemyXPosition = $d004
+Adr_EnemyYPosition = $d005
 SpriteXMSBRegister = $d010
 ScreenControlRegister = $d011
 CurrentRasterLine = $d012
@@ -2674,12 +2674,14 @@ L4514   .byte   $0c
 L4515   .byte   $14
 L4516   .byte   $80
 L4517   .byte   $e0
-L4518   .byte   $00
-L4519   .byte   $00
-L451A   .byte   $d0
-L451B   .byte   $00
-L451C   .byte   $00
-L451D   .byte   $20
+        .byte   $00
+Var_EnemyXPosition
+        .byte   $00
+Var_EnemyYPosition
+        .byte   $d0
+        .byte   $00
+        .byte   $00
+        .byte   $20
         .byte   $20
         .byte   $f0
         .byte   $00
@@ -7610,7 +7612,7 @@ Sub_SetupScreen
         lda     (Adr_MapLow),y
         sta     Sprite1YPosition
         iny
-        lda     L4518
+        lda     Var_EnemyXPosition-1
         and     #$fd
         ora     (Adr_MapLow),y
         sta     SpriteXMSBRegister
@@ -7755,7 +7757,7 @@ Sub_SetupScreen
         ldx     #$00
 _L5FA1  iny
         lda     (Adr_MapLow),y
-        sta     L4519,x
+        sta     Var_EnemyXPosition,x
         inx
         cpx     #$19
         bne     _L5FA1
@@ -8730,7 +8732,7 @@ L7F27   sta     L4517
         sta     Sprite0YPosition
         rts
 
-L7F2E   sta     L4518
+L7F2E   sta     Var_EnemyXPosition-1
         jsr     L7EF1
         rts
 
@@ -9869,7 +9871,7 @@ Var_CurrentEnemy
 
 Sub_UpdateEnemySprites
         jsr     Sub_VerticalMovingEnemies ;A = Active enemy index
-        jsr     Sub_HorizontalMovingEnemies ;A = Active enemy index
+        jsr     Sub_VerticalEnemyMovement ;A = Active enemy index
         lda     Var_CurrentEnemy ;A = C0e3 (Alternates between #00-04)
         tax                ;Transfer A to X
         lda     LCF46,x    ;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
@@ -9927,7 +9929,7 @@ LC1B4   nop
 
 LC1E1   lda     SpriteXMSBRegister
         and     #$fe
-        ora     L4518
+        ora     Var_EnemyXPosition-1
         jmp     LC407
 
 Var_DownInput
@@ -10706,80 +10708,82 @@ Sub_UpdateSpritePositions
         tax                ;Transfer A to X
         lda     Var_SpriteDirection ;Load A with requested sprite direction
         cmp     #$00       ;Check if movement is up
-        beq     BEQ_DecreaseYposition ;Branch if sprite should move up
+        beq     IF_DecreaseYposition ;Branch if sprite should move up
         cmp     #$01       ;Check if movement is down
-        beq     BEQ_IncreaseYposition ;Branch if sprite should move down
+        beq     IF_IncreaseYposition ;Branch if sprite should move down
         cmp     #$02       ;Check if movement is left
-        beq     BEQ_DecreaseXPosition ;Branch if sprite should move left
+        beq     IF_DecreaseXPosition ;Branch if sprite should move left
         cmp     #$03       ;Check if movement is right
-        beq     BEQ_IncreaseXPosition ;Branch if sprite should move right
+        beq     IF_IncreaseXPosition ;Branch if sprite should move right
         rts                ;Return from subroutine
 
-BEQ_DecreaseYposition
+IF_DecreaseYposition
         lda     Sprite0YPosition,x ;Load Sprite Y position
         cmp     #$32       ;Sets when to stop updating sprite (Top of screen / score)
-        beq     BEQ_RTS_DecreaseYposition ;Branch if near top of screen
+        beq     IF_RTS_DecreaseYposition ;Branch if near top of screen
         dec     Sprite0YPosition,x ;Increase vertical position on screen
         ldy     #$00       ;Y = #00
-BEQ_RTS_DecreaseYposition
+IF_RTS_DecreaseYposition
         rts                ;Return from subroutine
 
-BEQ_IncreaseYposition
+IF_IncreaseYposition
         lda     Sprite0YPosition,x ;Load Sprite Y position
         cmp     #$e3       ;Lowest point a sprite can go down the screen
-        beq     BEQ_RTS_IncreaseYposition ;Branch if at lowest point
+        beq     IF_RTS_IncreaseYposition ;Branch if at lowest point
         inc     Sprite0YPosition,x ;Deccrease vertical position on screen
         ldy     #$00       ;Y = #00
-BEQ_RTS_IncreaseYposition
+IF_RTS_IncreaseYposition
         rts                ;Return from subroutine
 
-BEQ_DecreaseXPosition
-        lda     Sprite0XPosition,x
+IF_DecreaseXPosition
+        lda     Sprite0XPosition,x ;Load Sprite X position
         cmp     #$08       ;Compare sprite position to #08 (Left hand boundary).
-        bne     BNE_DecreaseXPosition ;Branch if not on left hand boundary
+        bne     IF_DecreaseXMSBPosition ;Branch if not on left hand boundary
         ldy     Var_SpriteNumber
-        lda     LC9E9,y    ;Load #80
-        and     SpriteXMSBRegister
-        cmp     #$00
-        bne     BNE_DecreaseXPosition
-        ldy     #$ff
-        rts
+        lda     Var_SpriteMSBOn,y ;Load MSB enable check
+        and     SpriteXMSBRegister ;Check if sprite is on right hand side of MSB
+        cmp     #$00       ;Check the outcome of the check
+        bne     IF_DecreaseXMSBPosition ;Branch as sprite is on right hand side of MSB
+        ldy     #$ff       ;Y = #ff
+        rts                ;Return from subroutine
 
-BNE_DecreaseXPosition
-        dec     Sprite0XPosition,x ;Move sprite left
+IF_DecreaseXMSBPosition
+        dec     Sprite0XPosition,x ;Move sprite left on screen
         lda     Sprite0XPosition,x ;Load X position
         cmp     #$ff       ;Compare X position to #ff
-        bne     BNE_BeginRTS ;Branch if not going over the MSB line
+        bne     RTS_DecreaseXMSBPosition ;Branch if not going over the MSB line
         ldy     Var_SpriteNumber ;Load sprite number
-        lda     Var_SpriteDisableSwitch,y ;Load the binary for setting the MSB value
+        lda     Var_SpriteMSBOff,y ;Load the binary for setting the MSB value
         and     SpriteXMSBRegister ;Toggle the X Position MSB value
         sta     SpriteXMSBRegister ;Update the X position MSB value
-BNE_BeginRTS
+RTS_DecreaseXMSBPosition
         ldy     #$00       ;Y = #00
         rts                ;Return from subroutine
 
-BEQ_IncreaseXPosition
-        lda     Sprite0XPosition,x
-        cmp     #$4f
-        bne     If_C981
-        ldy     Var_SpriteNumber
-        lda     LC9E9,y
-        and     SpriteXMSBRegister
-        cmp     #$00
-        beq     If_C981
-        ldy     #$ff
-        rts
+IF_IncreaseXPosition
+        lda     Sprite0XPosition,x ;Load Sprite X position
+        cmp     #$4f       ;Compare sprite position to #4f (Right hand boundary).
+        bne     IF_IncreaseXMSBPosition
+        ldy     Var_SpriteNumber ;Load sprite number
+        lda     Var_SpriteMSBOn,y ;Load MSB enable check
+        and     SpriteXMSBRegister ;Check if sprite is on right hand side of MSB
+        cmp     #$00       ;Check the outcome of the check
+        beq     IF_IncreaseXMSBPosition ;Branch if sprite is on left hand side of MSB
+        ldy     #$ff       ;Y = #ff
+        rts                ;Return from subroutine
 
-If_C981 inc     Sprite0XPosition,x
-        lda     Sprite0XPosition,x
-        cmp     #$00
-        bne     If_C997
-        ldy     Var_SpriteNumber
-        lda     LC9E9,y
-        ora     SpriteXMSBRegister
-        sta     SpriteXMSBRegister
-If_C997 ldy     #$00
-        rts
+IF_IncreaseXMSBPosition
+        inc     Sprite0XPosition,x ;Move sprite right on screen
+        lda     Sprite0XPosition,x ;Load X position
+        cmp     #$00       ;Compare X position to #00
+        bne     RTS_IncreaseXMSBPosition ;Branch if not over the MSB line
+        ldy     Var_SpriteNumber ;Load sprite number
+        lda     Var_SpriteMSBOn,y ;Load the binary for setting the MSB value
+        ora     SpriteXMSBRegister ;Toggle the X Position MSB value
+        sta     SpriteXMSBRegister ;Update the X position MSB value
+RTS_IncreaseXMSBPosition
+        ldy     #$00       ;Y = #00
+        rts                ;Return from subroutine
 
         .byte   $ea,$ea,$ea,$ee,$14,$d0,$ae,$14,$a9,$00,$8d,$04,$cf,$a9,$00,$8d
         .byte   $05,$cf,$ee,$05,$cf,$ad,$05,$cf,$c9,$ff,$d0,$f6,$ee,$04,$cf,$ad
@@ -10801,7 +10805,7 @@ If_C9DB lda     InputPortA ;Load port A inputs
 
         .byte   $ea
         .byte   $ea
-Var_SpriteDisableSwitch
+Var_SpriteMSBOff
         .byte   $fe
         .byte   $fd
         .byte   $fb
@@ -10810,7 +10814,8 @@ Var_SpriteDisableSwitch
         .byte   $df
         .byte   $bf
         .byte   $7f
-LC9E9   .byte   $01
+Var_SpriteMSBOn
+        .byte   $01
         .byte   $02
         .byte   $04
         .byte   $08
@@ -10905,27 +10910,27 @@ Jump_CAED
 Counter_Enemy
         .byte   $01
 
-Sub_HorizontalMovingEnemies
+Sub_VerticalEnemyMovement
         sta     Counter_Enemy ;Rotates between #00-04
-        tax                ;Transfer A to X
-        asl     a          ;Multiply A by 2
-        tay                ;Transfer A to Y
+        tax                ;Transfer A to X (Enemy counter)
+        asl     a          ;Multiply A by 2 (Enemy counter X2)
+        tay                ;Transfer A to Y (Enemy counter X2)
         lda     LCF0D,x    ;A = cf0d,x (X is the enemy number)
         tax                ;Transfer A to X
-        lda     L4519,x
-        sta     SpriteXPositionRegister,y
-        lda     L451A,x
-        sta     SpriteYPositionRegister,y
+        lda     Var_EnemyXPosition,x
+        sta     Adr_EnemyXPosition,y
+        lda     Var_EnemyYPosition,x
+        sta     Adr_EnemyYPosition,y
         ldy     Counter_Enemy
         lda     Var_RegisteredMovingLeftRight+1,y
         eor     #$ff
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-        lda     L451B,x
+        lda     Var_EnemyYPosition+1,x
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-        nop
-        lda     L451C,x
+        nop                ;No operation
+        lda     Var_EnemyYPosition+2,x
         cmp     #$00
         beq     LCBBB
         jsr     LC9F1
@@ -10936,7 +10941,7 @@ Jump_CB61
         lda     LCF0D,x
         tax
         lda     LCF12
-        cmp     L451C,x
+        cmp     Var_EnemyYPosition+2,x
         beq     If_CB8B
         dey
         cpy     #$00
@@ -10958,20 +10963,20 @@ If_CB8B lda     Counter_Enemy
         tay
         lda     LCF0D,x
         tax
-        lda     L4519,x
-        sta     SpriteXPositionRegister,y
+        lda     Var_EnemyXPosition,x
+        sta     Adr_EnemyXPosition,y
         ldy     Counter_Enemy
         lda     Var_RegisteredMovingLeftRight+1,y
         eor     #$ff
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-        lda     L451B,x
+        lda     Var_EnemyYPosition+1,x
         ora     SpriteXMSBRegister
         sta     SpriteXMSBRegister
         ldy     LCF13
         jmp     LCB5C
 
-LCBBB   lda     L451D,x
+LCBBB   lda     Var_EnemyYPosition+3,x
         cmp     #$00
         beq     RTS_CC0D
         jsr     LC9F1
@@ -10982,7 +10987,7 @@ Jump_CBCA
         lda     LCF0D,x
         tax
         lda     LCF12
-        cmp     L451D,x
+        cmp     Var_EnemyYPosition+3,x
         beq     If_CBF4
         dey
         cpy     #$00
@@ -11004,8 +11009,8 @@ If_CBF4 lda     Counter_Enemy
         tay
         lda     LCF0D,x
         tax
-        lda     L451A,x
-        sta     SpriteYPositionRegister,y
+        lda     Var_EnemyYPosition,x
+        sta     Adr_EnemyYPosition,y
         ldy     LCF13
         jmp     LCBC5
 
@@ -11157,9 +11162,9 @@ LCD17   cmp     #$04
         txa
         asl     a
         tax
-        lda     SpriteXPositionRegister,x
+        lda     Adr_EnemyXPosition,x
         sta     $d00e
-        lda     SpriteYPositionRegister,x
+        lda     Adr_EnemyYPosition,x
         sta     SpriteXMSBRegister-1
         txa
         lsr     a

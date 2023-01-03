@@ -1362,6 +1362,10 @@
 "49939":"Transfer A to Y (Enemy counter X2)",
 "49940":"A = cf0d,x (X is the enemy number)",
 "49943":"Transfer A to X",
+"49959":"Load the binary for setting the MSB value",
+"49962":"Reverse selection",
+"49964":"Ensure sprites on MSB side are enabled",
+"49967":"Update SpriteXMSBRegister",
 "49979":"No operation",
 "50172":"A = Enemy index",
 "50175":"Transfer A to X",
@@ -3986,6 +3990,20 @@
 "15620":{
 "Label":"Var_EnemyYPosition",
 "Value":17690,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"15621":{
+"Label":"Adr_EnemyMSBXPosition",
+"Value":17691,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"50930":{
+"Label":"Var_BinaryEnemySpriteNum",
+"Value":53000,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

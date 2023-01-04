@@ -795,10 +795,12 @@
 "10146":"Check if $cfb2 is up to 255 loops",
 "10148":"Branch if looped through 254 times",
 "10150":"Return from subroutine (Back to $ca57)",
-"10156":"Start loop value at #00",
+"10151":"A = #00",
+"10153":"$cf75 = #00",
+"10156":"Start loop value at #00. Loops until #05.",
 "10158":"Isolate the enemy bit",
 "10161":"Compare to the SpriteEnableRegister",
-"10164":"Check if enemy is visible",
+"10164":"Check if enemy is not visible",
 "10166":"Branch if enemy is not visible",
 "10171":"Compare A to #00",
 "10173":"Branch if equal to #00",
@@ -1358,15 +1360,28 @@
 "49736":"Never seems to go into here",
 "49934":"Rotates between #00-04",
 "49937":"Transfer A to X (Enemy counter)",
-"49938":"Multiply A by 2 (Enemy counter X2)",
+"49938":"Multiply A by 2 (Allows for offset for X/Y sets)",
 "49939":"Transfer A to Y (Enemy counter X2)",
-"49940":"A = cf0d,x (X is the enemy number)",
-"49943":"Transfer A to X",
+"49940":"A = cf0d,x (X is the enemy counter)",
+"49943":"Transfer A to X (A reference to the data)",
+"49944":"Get X starting position",
+"49947":"Set X starting position",
+"49950":"Get Y starting position",
+"49953":"Set Y starting position",
+"49956":"Y = Enemy counter",
 "49959":"Load the binary for setting the MSB value",
 "49962":"Reverse selection",
-"49964":"Ensure sprites on MSB side are enabled",
+"49964":"Keep MSB sprites enabled and disable active sprite",
 "49967":"Update SpriteXMSBRegister",
+"49976":"Update SpriteXMSB",
 "49979":"No operation",
+"49985":"This is branched on all enemies except climbing guy",
+"49990":"A = #00",
+"49992":"$cf12 = 00",
+"49995":"X = Active enemy",
+"50023":"Load enemy number",
+"50026":"Increase X (Jump to next enemy)",
+"50027":"Increase X (Jump to next enemy)",
 "50172":"A = Enemy index",
 "50175":"Transfer A to X",
 "50176":"A = $cf15,x (Not sure what A is loaded with)",
@@ -1480,6 +1495,24 @@
 "Text":"          Sprites ",
 "BoxMode":true,
 "MaxWidth":30,
+"BackgroundColor":0},
+
+"49937":{
+"Text":"Level 1\r\nSpider 1 = 1\r\nSpider 2 = 2\r\nSpider 3 = 3\r\nSkeleton = 4\r\nClimber  = 5\r\n",
+"BoxMode":true,
+"MaxWidth":30,
+"BackgroundColor":0},
+
+"49940":{
+"Text":"Level 1\r\nEnemy 00 (Spider)   = #00\r\nEnemy 01 (Spider)   = #05\r\nEnemy 02 (Spider)   = #0a\r\nEnemy 03 (Skeleton) = #0f\r\nEnemy 00 (Climber)  = #14\r\n",
+"BoxMode":true,
+"MaxWidth":30,
+"BackgroundColor":0},
+
+"50085":{
+"Text":"Level 1\r\nEnemy 00 (Spider)   = #00\r\nEnemy 01 (Spider)   = #05\r\nEnemy 02 (Spider)   = #0a\r\nEnemy 03 (Skeleton) = #0f\r\nEnemy 00 (Climber)  = #14\r\n",
+"BoxMode":false,
+"MaxWidth":80,
 "BackgroundColor":0}},
 
 "Notes":{
@@ -1790,7 +1823,7 @@
 "LabelAnno":"None"},
 
 "49934":{
-"Label":"Sub_VerticalEnemyMovement",
+"Label":"Sub_EnemyMSB",
 "Value":52004,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -1937,7 +1970,7 @@
 "LabelAnno":"None"},
 
 "10207":{
-"Label":"Branch_NextEnemy",
+"Label":"IF_NextEnemy",
 "Value":12277,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -4002,7 +4035,7 @@
 "LabelAnno":"None"},
 
 "50930":{
-"Label":"Var_BinaryEnemySpriteNum",
+"Label":"Var_BinaryEnemyNum",
 "Value":53000,
 "Source":"User",
 "Type":"GlobalAddr",

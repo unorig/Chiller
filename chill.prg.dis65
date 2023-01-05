@@ -704,8 +704,8 @@
 "Comments":{
 "0":"load address",
 "8683":"Clear carry",
-"8686":"Set Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)",
-"8689":"A = SpriteMSBYPosition",
+"8686":"Set Var_PlayerDirection to up (00 = up / 01 = down / 02 = left / 03 = right).",
+"8689":"A = Sprite0YPos",
 "8692":"Set carry",
 "8693":"Subtract with carry #2c (44)",
 "8695":"Divide by 2",
@@ -725,10 +725,11 @@
 "8726":"Transfer Y to A. Y = (Y Pos - #2c) / 8 ",
 "8727":"Multiply by 2",
 "8728":"Transfer A to Y",
+"8754":"Set player position high byte",
 "8756":"X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)",
-"8759":"A = $5145,x",
+"8759":"A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)",
 "8762":"Transfer A to Y",
-"8763":"($fb),y = Get character below current position of player",
+"8763":"($fb),y = Get character based on direction.",
 "8765":"Check if current character is blank",
 "8767":"Branch if not a blank space",
 "8769":"X = #00. Set direction to Up",
@@ -829,7 +830,7 @@
 "19323":"#01 jumping / #00 not jumping",
 "19326":"Branch if not jumping",
 "19339":"Branch if not jumping (#01 Not jumping / #00 Jumping)",
-"19341":"A = #00",
+"19341":"A = #00. Used to set player direction which is up.",
 "19352":"Maximum jump height",
 "19406":"#01 jumping / #00 not jumping",
 "19461":"Branch if not falling (Falling = #00)",
@@ -1522,15 +1523,15 @@
 "Text":"Level 1\r\nEnemy 00 (Spider)   = #00\r\nEnemy 01 (Spider)   = #05\r\nEnemy 02 (Spider)   = #0a\r\nEnemy 03 (Skeleton) = #0f\r\nEnemy 00 (Climber)  = #14\r\n",
 "BoxMode":false,
 "MaxWidth":80,
+"BackgroundColor":0},
+
+"8759":{
+"Text":"This is getting the codes to find what character is next. \r\nThe player position ($fb/$fc) is considered a row above the platform. \r\n$5145 = #00 (00) characters from current position. Checking above.\r\n$5146 = #50 (80) characters from current position. Checking below.\r\n$5147 = #27 (39) characters from current position. Checking left.\r\n$5148 = #29 (41) characters from current position. Checking right.",
+"BoxMode":true,
+"MaxWidth":80,
 "BackgroundColor":0}},
 
 "Notes":{
-"8756":{
-"Text":"Come back",
-"BoxMode":false,
-"MaxWidth":80,
-"BackgroundColor":-256},
-
 "9623":{
 "Text":"Checking here",
 "BoxMode":false,

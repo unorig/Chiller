@@ -361,6 +361,23 @@
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
 
+"High_PlayerLocation":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"High_PlayerLocation",
+"Value":252,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
 "InputPortA":{
 "DataDescriptor":{
 "Length":1,
@@ -408,6 +425,23 @@
 "MultiMask":null,
 "Label":"IRQVectorLow",
 "Value":788,
+"Source":"Project",
+"Type":"ExternalAddr",
+"LabelAnno":"None"},
+
+"Low_PlayerLocation":{
+"DataDescriptor":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"Hex",
+"SymbolRef":null},
+
+"Comment":"",
+"HasWidth":false,
+"Direction":"ReadWrite",
+"MultiMask":null,
+"Label":"Low_PlayerLocation",
+"Value":251,
 "Source":"Project",
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
@@ -725,6 +759,7 @@
 "8726":"Transfer Y to A. Y = (Y Pos - #2c) / 8 ",
 "8727":"Multiply by 2",
 "8728":"Transfer A to Y",
+"8752":"Add #04 to the current value of $fc. This equates to the screen high byte.",
 "8754":"Set player position high byte",
 "8756":"X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)",
 "8759":"A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)",
@@ -1527,6 +1562,12 @@
 
 "8759":{
 "Text":"This is getting the codes to find what character is next. \r\nThe player position ($fb/$fc) is considered a row above the platform. \r\n$5145 = #00 (00) characters from current position. Checking above.\r\n$5146 = #50 (80) characters from current position. Checking below.\r\n$5147 = #27 (39) characters from current position. Checking left.\r\n$5148 = #29 (41) characters from current position. Checking right.",
+"BoxMode":true,
+"MaxWidth":80,
+"BackgroundColor":0},
+
+"8729":{
+"Text":"$5100 is the top left character. Y is the number of characters from $5100 from left to right. $fc is the high byte / $fb is the low byte.",
 "BoxMode":true,
 "MaxWidth":80,
 "BackgroundColor":0}},
@@ -4075,6 +4116,20 @@
 "8808":{
 "Label":"L2A7E",
 "Value":10878,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"18666":{
+"Label":"Low_ScreenMap",
+"Value":20736,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"18667":{
+"Label":"High_ScreenMap",
+"Value":20737,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},

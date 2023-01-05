@@ -4,6 +4,8 @@
 Adr_MapLow =    $11
 Adr_MapHigh =   $12
 Var_KeyboardInput = $c5    ;This is for the keyboard player inputs
+Low_PlayerLocation = $fb
+High_PlayerLocation = $fc
 Var_SpriteCollision = $fd
 IRQVectorLow =  $0314
 IRQVectorHigh = $0315
@@ -631,20 +633,24 @@ If_2A29 lsr     a          ;Divide by 2
         tya                ;Transfer Y to A. Y = (Y Pos - #2c) / 8 
         asl     a          ;Multiply by 2
         tay                ;Transfer A to Y
-        lda     L5100,y
-        sta     $fb
-        lda     L5101,y
-        sta     $fc
+;*******************************************************************************
+;* $5100 is the top left character. Y is the number of characters from $5100   *
+;* from left to right. $fc is the high byte / $fb is the low byte.             *
+;*******************************************************************************
+        lda     Low_ScreenMap,y
+        sta     Low_PlayerLocation
+        lda     High_ScreenMap,y
+        sta     High_PlayerLocation
         txa
         clc
-        adc     $fb
-        sta     $fb
+        adc     Low_PlayerLocation
+        sta     Low_PlayerLocation
         bcc     If_2A43
-        inc     $fc
-If_2A43 lda     $fc
+        inc     High_PlayerLocation
+If_2A43 lda     High_PlayerLocation
         clc
-        adc     #$04
-        sta     $fc        ;Set player position high byte
+        adc     #$04       ;Add #04 to the current value of $fc. This equates to the screen high byte.
+        sta     High_PlayerLocation ;Set player position high byte
         ldx     Var_PlayerDirection ;X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
 ;*******************************************************************************
 ;* This is getting the codes to find what character is next.                   *
@@ -656,7 +662,7 @@ If_2A43 lda     $fc
 ;*******************************************************************************
         lda     L5145,x    ;A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
         tay                ;Transfer A to Y
-        lda     ($fb),y    ;($fb),y = Get character based on direction.
+        lda     (Low_PlayerLocation),y ;($fb),y = Get character based on direction.
         cmp     #$a0       ;Check if current character is blank
         bne     Sub_2A60   ;Branch if not a blank space
 Jump_PlayerGoingUp
@@ -687,25 +693,25 @@ L2A7E   .byte   $07
 L2A7F   .byte   $09
 
 Sub_2A80
-        stx     $fb        ;X = $fb (From $2a80. Passed with X = #bf)
-        sty     $fc        ;Y = $fc (From $2a80. Passed with Y = #5b)
+        stx     Low_PlayerLocation ;X = $fb (From $2a80. Passed with X = #bf)
+        sty     High_PlayerLocation ;Y = $fc (From $2a80. Passed with Y = #5b)
         ldy     #$00       ;Y = #00
-        lda     ($fb),y    ;A = 5bbf,00. Start of the index set.
+        lda     (Low_PlayerLocation),y ;A = 5bbf,00. Start of the index set.
         sta     Sub_C29D+1 ;$C29E = #00
         iny                ;Increase Y
-        lda     ($fb),y    ;A = #b2
+        lda     (Low_PlayerLocation),y ;A = #b2
         sta     LC2A1+1    ;$C2A2 = #b2
         iny                ;Increase Y
-        lda     ($fb),y    ;A = #ff
+        lda     (Low_PlayerLocation),y ;A = #ff
         sta     LC2AD+1    ;$C2AE = #ff
         iny                ;Increase Y
-        lda     ($fb),y    ;A = #b5
+        lda     (Low_PlayerLocation),y ;A = #b5
         sta     LC2B2+1    ;$C2B3 = #b5
         iny                ;Increase Y
-        lda     ($fb),y    ;A = 00
+        lda     (Low_PlayerLocation),y ;A = 00
         sta     LC2A5+1    ;$C2A6 = #00
         iny                ;Increase Y
-        lda     ($fb),y    ;A = #30
+        lda     (Low_PlayerLocation),y ;A = #30
         sta     LC2A9+1    ;C2AA = #30
         jsr     Sub_C29D
         rts                ;Return from subroutine
@@ -1041,12 +1047,12 @@ If_2F0A lda     L45B3,x
 
 L2F38   sta     $d029,x
         lda     L574A+20,x
-        sta     $fb
+        sta     Low_PlayerLocation
         lda     LCF24,x
-        sta     $fc
+        sta     High_PlayerLocation
         ldy     #$00
 Sub_2F47
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
         sta     LCF15,x
         rts
 
@@ -5734,8 +5740,10 @@ L45FF   .byte   $01
         .byte   $c0
         .byte   $ff
         .byte   $00
-L5100   .byte   $00
-L5101   .byte   $00
+Low_ScreenMap
+        .byte   $00
+High_ScreenMap
+        .byte   $00
         .byte   $28
         .byte   $00
         .byte   $50
@@ -7174,17 +7182,17 @@ If_UpdateBridge
         cmp     #$53       ;Check if bridge block is #53
         bne     If_ErrodeBridge ;Branch if not #53 (Gap)
         lda     #$a0       ;If bridge block is #53 then set to blank space
-        sta     ($fb),y    ;Update bridge block
+        sta     (Low_PlayerLocation),y ;Update bridge block
         rts
 
         .byte   $ea,$ea,$60
 
 If_ErrodeBridge
-        lda     ($fb),y    ;Load current value of bridge
+        lda     (Low_PlayerLocation),y ;Load current value of bridge
         tax                ;Transfer A to X
         inx                ;Increase X
         txa                ;Transfer X to A
-        sta     ($fb),y    ;Store updated value of bridge
+        sta     (Low_PlayerLocation),y ;Store updated value of bridge
         rts                ;Return
 
 Sub_GetMushroom
@@ -7193,7 +7201,7 @@ Sub_GetMushroom
         ldx     #$18       ;X = #18
         jsr     Sub_IncHealthIdx
         lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     ($fb),y    ;Remove mushroom
+        sta     (Low_PlayerLocation),y ;Remove mushroom
         rts
 
 If_GetRedFlower
@@ -7202,7 +7210,7 @@ If_GetRedFlower
         ldx     #$19
         jsr     Update_DamageOccuring
         lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     ($fb),y    ;Remove flower
+        sta     (Low_PlayerLocation),y ;Remove flower
         rts
 
 Sub_GetBasket
@@ -7216,7 +7224,7 @@ Sub_GetBasket
         sta     Counter_ScoreUpdate3
         jsr     LCE42
         lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     ($fb),y    ;Remove basket
+        sta     (Low_PlayerLocation),y ;Remove basket
         rts
 
         .fill   2,$ea
@@ -7365,9 +7373,9 @@ L5C00   lda     #$e7
         jsr     L5CC5
         tax
         lda     #$45
-        sta     $fb
+        sta     Low_PlayerLocation
         lda     #$05
-        sta     $fc
+        sta     High_PlayerLocation
         lda     #$45
         sta     Var_SpriteCollision
         lda     #$d9
@@ -7377,7 +7385,7 @@ Jump_5C1B
         jsr     Sub_5C87
         jmp     L5CAA
 
-L5C21   sta     ($fb),y
+L5C21   sta     (Low_PlayerLocation),y
         lda     #$0a
         sta     (Var_SpriteCollision),y
         inx
@@ -7460,7 +7468,7 @@ L5CAA   inc     L5BF4+7
 
 If_5CBA ldy     #$31
         lda     #$32
-        sta     ($fb),y
+        sta     (Low_PlayerLocation),y
         lda     #$0a
         sta     (Var_SpriteCollision),y
         rts
@@ -7477,19 +7485,19 @@ L5CC5   lda     #$00
 Sub_5CD8
         lda     #$93
         jsr     BSOUT
-        stx     $fb
-        sty     $fc
+        stx     Low_PlayerLocation
+        sty     High_PlayerLocation
         ldy     #$00
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
         tax
         iny
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
         tay
         clc
         jsr     PLOT
         ldy     #$02
 Jump_5CF0
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
         cmp     #$01
         beq     RTS_5CFD
         iny
@@ -7506,14 +7514,14 @@ RTS_5CFD
 Sub_5D20
         ldx     #$00
 L5D22   ldy     #$b0
-        stx     $fb
-        sty     $fc
+        stx     Low_PlayerLocation
+        sty     High_PlayerLocation
         lda     #$00
         sta     Var_SpriteCollision
         lda     #$d8
         sta     $fe
 If_5D30 ldy     #$00
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
         sta     (Var_SpriteCollision),y
         iny
         lsr     a
@@ -7521,9 +7529,9 @@ If_5D30 ldy     #$00
         lsr     a
         lsr     a
         sta     (Var_SpriteCollision),y
-        inc     $fb
+        inc     Low_PlayerLocation
         bne     If_5D43
-        inc     $fc
+        inc     High_PlayerLocation
 If_5D43 inc     Var_SpriteCollision
         bne     If_5D49
         inc     $fe
@@ -7815,22 +7823,22 @@ Sub_5FC0
         ldx     #$00
 If_5FC2 iny
         lda     (Adr_MapLow),y
-        sta     $fb
+        sta     Low_PlayerLocation
         iny
         lda     (Adr_MapLow),y
-        sta     $fc
+        sta     High_PlayerLocation
         tya
         pha
         ldy     #$00
         lda     #$57
-        sta     ($fb),y
-        lda     $fc
+        sta     (Low_PlayerLocation),y
+        lda     High_PlayerLocation
         clc
         adc     #$d4
-        sta     $fc
+        sta     High_PlayerLocation
 SelfMod_5FDB
         lda     #$0a
-        sta     ($fb),y
+        sta     (Low_PlayerLocation),y
         pla
         tay
         inx
@@ -8401,12 +8409,12 @@ _L7639  jsr     L60CA
 
 Sub_CopyTopRowStartScreen
         lda     #$00       ;A = #00
-        sta     $fb        ;$fb = #00
+        sta     Low_PlayerLocation ;$fb = #00
         lda     #$04       ;A = #04
-        sta     $fc        ;$fc = #04
+        sta     High_PlayerLocation ;$fc = #04
         ldy     #$00       ;Y = #00
 Loop_CopyTopRowStartScreen
-        lda     ($fb),y    ;A = $0400,00
+        lda     (Low_PlayerLocation),y ;A = $0400,00
         sta     $0200,y    ;Store $0400,00 to $0200,00
         iny                ;Increase Y
         cpy     #$50       ;Compare Y to #50
@@ -8417,11 +8425,11 @@ Loop_CopyTopRowStartScreen
 
 L7659   jsr     Sub_CopyTopRowStartScreen
         lda     #$00
-        sta     $fb
+        sta     Low_PlayerLocation
         lda     #$02
-        sta     $fc
+        sta     High_PlayerLocation
         ldy     #$00
-If_7666 lda     ($fb),y
+If_7666 lda     (Low_PlayerLocation),y
         sta     $0400,y
         iny
         cpy     #$50
@@ -8778,12 +8786,12 @@ L7F2E   sta     Var_EnemyXPosition-1
 
         .fill   27,$00
 
-L7F50   lda     $fc        ;A = #fc
+L7F50   lda     High_PlayerLocation ;A = #fc
         nop                ;No operation
         clc                ;Clear carry
         adc     #$d4       ;Add 
-        sta     $fc
-        lda     ($fb),y
+        sta     High_PlayerLocation
+        lda     (Low_PlayerLocation),y
         and     #$04
         tax
         lda     Var_BorderColour
@@ -8796,12 +8804,12 @@ _L7F67  cpx     #$04
         beq     _L7F6C
         rts
 
-_L7F6C  lda     $fc        ;A = $fc (Low byte of screen address)
+_L7F6C  lda     High_PlayerLocation ;A = $fc (Low byte of screen address)
         sec
         sbc     #$d4
-        sta     $fc
+        sta     High_PlayerLocation
         lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     ($fb),y    ;Remove cross from ($fb),y which is screen address
+        sta     (Low_PlayerLocation),y ;Remove cross from ($fb),y which is screen address
         jmp     JMP_IncMagicCrossNumRight
 
         .fill   6,$ea
@@ -8814,19 +8822,19 @@ L7F80   dec     Var_5a16   ;Decrease $5a16
         ldx     #$00       ;X = #00
 _L7F8E  iny                ;Increase Y
         lda     (Adr_MapLow),y
-        sta     $fb
+        sta     Low_PlayerLocation
         iny
         lda     (Adr_MapLow),y
         clc
         adc     #$d4
-        sta     $fc
+        sta     High_PlayerLocation
         tya
         pha
         ldy     #$00
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
         sec
         sbc     #$08
-        sta     ($fb),y
+        sta     (Low_PlayerLocation),y
         pla
         tay
         inx
@@ -10155,9 +10163,9 @@ Var_UpInput
 
 Sub_C29D
         lda     #$00
-        sta     $fb
+        sta     Low_PlayerLocation
 LC2A1   lda     #$a8
-        sta     $fc
+        sta     High_PlayerLocation
 LC2A5   lda     #$00
         sta     Var_SpriteCollision
 LC2A9   lda     #$30
@@ -10167,19 +10175,19 @@ LC2AD   lda     #$ff
 LC2B2   lda     #$ab
         sta     $0391
         ldy     #$00
-If_C2B9 lda     ($fb),y
+If_C2B9 lda     (Low_PlayerLocation),y
         sta     (Var_SpriteCollision),y
-        inc     $fb
+        inc     Low_PlayerLocation
         bne     If_C2C3
-        inc     $fc
+        inc     High_PlayerLocation
 If_C2C3 inc     Var_SpriteCollision
         bne     If_C2C9
         inc     $fe
 If_C2C9 lda     $0391
-        cmp     $fc
+        cmp     High_PlayerLocation
         bne     If_C2B9
         lda     $0390
-        cmp     $fb
+        cmp     Low_PlayerLocation
         bne     If_C2B9
         rts
 
@@ -10263,36 +10271,36 @@ If_C46B lda     CurrentRasterLine
 
 Jump_C47F
         lda     #$bf
-        sta     $fb
+        sta     Low_PlayerLocation
         lda     #$07
-        sta     $fc
+        sta     High_PlayerLocation
         lda     #$bf
         sta     Var_SpriteCollision
         lda     #$db
         sta     $fe
 If_C48F ldy     #$00
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
         tax
         lda     (Var_SpriteCollision),y
         ldy     #$28
         sta     (Var_SpriteCollision),y
         txa
-        sta     ($fb),y
-        lda     $fb
+        sta     (Low_PlayerLocation),y
+        lda     Low_PlayerLocation
         clc
         sbc     #$27
         bcs     If_C4A8
-        dec     $fc
+        dec     High_PlayerLocation
         dec     $fe
-If_C4A8 sta     $fb
+If_C4A8 sta     Low_PlayerLocation
         sta     Var_SpriteCollision
-        lda     $fc
+        lda     High_PlayerLocation
         cmp     #$03
         beq     If_C4BE
-        lda     $fb
+        lda     Low_PlayerLocation
         cmp     #$27
         bne     If_C48F
-        lda     $fc
+        lda     High_PlayerLocation
         cmp     #$04
         bne     If_C48F
 If_C4BE lda     LC410
@@ -11107,13 +11115,13 @@ If_CC2D lda     #$00
         jmp     Jump_CC65
 
 If_CC3C lda     L574A+20,x
-        sta     $fb
+        sta     Low_PlayerLocation
         lda     LCF24,x
-        sta     $fc
+        sta     High_PlayerLocation
         lda     LCF29,x
         tay
         inc     LCF29,x
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
         nop
         nop
         cmp     #$ff
@@ -11122,7 +11130,7 @@ If_CC3C lda     L574A+20,x
         ldx     Temp_CurrentEnemy
         sta     LCF29,x
         ldy     #$00
-        lda     ($fb),y
+        lda     (Low_PlayerLocation),y
 If_CC61 sta     LCF15,x
         rts
 
@@ -11133,10 +11141,10 @@ Jump_CC65
         tay
         ldx     Temp_CurrentEnemy
         lda     L574A+20,x
-        sta     $fb
+        sta     Low_PlayerLocation
         lda     LCF24,x
-        sta     $fc
-        lda     ($fb),y
+        sta     High_PlayerLocation
+        lda     (Low_PlayerLocation),y
         sta     LCF15,x
         rts
 

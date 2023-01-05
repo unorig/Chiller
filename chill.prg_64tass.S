@@ -606,8 +606,8 @@ L2A00   lsr     a
         bcc     If_2A29
 
 Sub_2A04
-        sta     Var_PlayerDirection ;Set Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
-        lda     Sprite0YPos ;A = SpriteMSBYPosition
+        sta     Var_PlayerDirection ;Set Var_PlayerDirection to up (00 = up / 01 = down / 02 = left / 03 = right).
+        lda     Sprite0YPos ;A = Sprite0YPos
         sec                ;Set carry
 L2A0B   sbc     #$2c       ;Subtract with carry #2c (44)
         lsr     a          ;Divide by 2
@@ -644,11 +644,19 @@ If_2A29 lsr     a          ;Divide by 2
 If_2A43 lda     $fc
         clc
         adc     #$04
-        sta     $fc
+        sta     $fc        ;Set player position high byte
         ldx     Var_PlayerDirection ;X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
-        lda     L5145,x    ;A = $5145,x
+;*******************************************************************************
+;* This is getting the codes to find what character is next.                   *
+;* The player position ($fb/$fc) is considered a row above the platform.       *
+;* $5145 = #00 (00) characters from current position. Checking above.          *
+;* $5146 = #50 (80) characters from current position. Checking below.          *
+;* $5147 = #27 (39) characters from current position. Checking left.           *
+;* $5148 = #29 (41) characters from current position. Checking right.          *
+;*******************************************************************************
+        lda     L5145,x    ;A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
         tay                ;Transfer A to Y
-        lda     ($fb),y    ;($fb),y = Get character below current position of player
+        lda     ($fb),y    ;($fb),y = Get character based on direction.
         cmp     #$a0       ;Check if current character is blank
         bne     Sub_2A60   ;Branch if not a blank space
 Jump_PlayerGoingUp
@@ -6365,7 +6373,7 @@ L538E   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
 
 If_539E jsr     Sub_SetPosTemps
         bne     IF_NotJumping ;Branch if not jumping (#01 Not jumping / #00 Jumping)
-        lda     #$00       ;A = #00
+        lda     #$00       ;A = #00. Used to set player direction which is up.
         jsr     Sub_2A04
         jsr     L5437
         ldx     L2A7E

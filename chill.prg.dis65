@@ -463,7 +463,7 @@
 "Type":"ExternalAddr",
 "LabelAnno":"None"},
 
-"Sprite0YPosition":{
+"Sprite0YPos":{
 "DataDescriptor":{
 "Length":1,
 "Format":"NumericLE",
@@ -474,7 +474,7 @@
 "HasWidth":false,
 "Direction":"ReadWrite",
 "MultiMask":null,
-"Label":"Sprite0YPosition",
+"Label":"Sprite0YPos",
 "Value":53249,
 "Source":"Project",
 "Type":"ExternalAddr",
@@ -704,7 +704,7 @@
 "Comments":{
 "0":"load address",
 "8683":"Clear carry",
-"8686":"$2afe = A",
+"8686":"Set Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)",
 "8689":"A = SpriteMSBYPosition",
 "8692":"Set carry",
 "8693":"Subtract with carry #2c (44)",
@@ -725,14 +725,15 @@
 "8726":"Transfer Y to A. Y = (Y Pos - #2c) / 8 ",
 "8727":"Multiply by 2",
 "8728":"Transfer A to Y",
-"8756":"X = Var_SpriteFrame",
+"8756":"X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)",
 "8759":"A = $5145,x",
 "8762":"Transfer A to Y",
 "8763":"($fb),y = Get character below current position of player",
 "8765":"Check if current character is blank",
 "8767":"Branch if not a blank space",
-"8769":"X = #00",
-"8771":"A = Var_SpriteFrame",
+"8769":"X = #00. Set direction to Up",
+"8771":"A = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)",
+"8774":"X = Sprite / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)",
 "8778":"Check if current character is a platform",
 "8780":"Branch if not a platform (e.g. mushroom)",
 "8785":"Check if current character is mushroom",
@@ -829,6 +830,7 @@
 "19326":"Branch if not jumping",
 "19339":"Branch if not jumping (#01 Not jumping / #00 Jumping)",
 "19341":"A = #00",
+"19352":"Maximum jump height",
 "19406":"#01 jumping / #00 not jumping",
 "19461":"Branch if not falling (Falling = #00)",
 "19463":"A = #01",
@@ -1186,6 +1188,7 @@
 "47498":"Branch if not #00",
 "47506":"#01 jumping / #00 not jumping",
 "47509":"Branch if not jumping",
+"47973":"A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)",
 "48399":"A = $cf43",
 "48694":"Value is usually #f0 (Light grey)",
 "48697":"Set the background colour to light grey",
@@ -1195,6 +1198,7 @@
 "48714":"X = #00",
 "48773":"Enemy index (1-5)",
 "48779":"Increase enemy index",
+"48882":"A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)",
 "48901":"A = #00",
 "48903":"Reset Var_MovingLeftRight",
 "48909":"A = Var_DownInput. 01 = Down pressed / 00 = No input",
@@ -1269,7 +1273,7 @@
 "49362":"Branch to RTS",
 "49364":"A = #01",
 "49366":"Store #01 (Right) to Var_LeftRightInput",
-"49386":"Y = #ff",
+"49386":"Y = #ff. X = Sprite / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)",
 "49388":"Load request sprite movement direction",
 "49391":"Update sprite number",
 "49394":"Transfer X to A",
@@ -1379,9 +1383,13 @@
 "49990":"A = #00",
 "49992":"$cf12 = 00",
 "49995":"X = Active enemy",
+"50018":"Set direction as right",
 "50023":"Load enemy number",
 "50026":"Increase X (Jump to next enemy)",
 "50027":"Increase X (Jump to next enemy)",
+"50028":"A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)",
+"50092":"Doesnt seem to be executed",
+"50133":"A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)",
 "50172":"A = Enemy index",
 "50175":"Transfer A to X",
 "50176":"A = $cf15,x (Not sure what A is loaded with)",
@@ -1401,6 +1409,7 @@
 "50402":"Isolate girl",
 "50404":"Check if girl is visible",
 "50406":"Branch if girl not visible",
+"50516":"A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)",
 "50567":"A = Var_SpriteCollision",
 "50569":"Isolate second bit",
 "50571":"Branch if collision is second bit",
@@ -1788,7 +1797,7 @@
 "LabelAnno":"None"},
 
 "8936":{
-"Label":"Var_SpriteFrame",
+"Label":"Var_PlayerDirection",
 "Value":11006,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -1998,14 +2007,14 @@
 "LabelAnno":"None"},
 
 "47493":{
-"Label":"Temp_NotJumping",
+"Label":"Temp_Jumping",
 "Value":49563,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"},
 
 "19477":{
-"Label":"Sub_GetBoyJumpPosTemps",
+"Label":"Sub_SetPosTemps",
 "Value":21547,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -3797,7 +3806,7 @@
 "LabelAnno":"None"},
 
 "8769":{
-"Label":"Jump_2A57",
+"Label":"Jump_PlayerGoingUp",
 "Value":10839,
 "Source":"User",
 "Type":"GlobalAddr",
@@ -4037,6 +4046,34 @@
 "50930":{
 "Label":"Var_BinaryEnemyNum",
 "Value":53000,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"19376":{
+"Label":"IF_NotJumping",
+"Value":21446,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"19258":{
+"Label":"IF_InputNotJumping",
+"Value":21328,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"8809":{
+"Label":"L2A7F",
+"Value":10879,
+"Source":"User",
+"Type":"GlobalAddr",
+"LabelAnno":"None"},
+
+"8808":{
+"Label":"L2A7E",
+"Value":10878,
 "Source":"User",
 "Type":"GlobalAddr",
 "LabelAnno":"None"}},
@@ -33881,8 +33918,188 @@
 "SymbolRef":null},
 
 "19506":{
-"Length":31,
-"Format":"Uninit",
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19507":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19508":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19509":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19510":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19511":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19512":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19513":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19514":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19515":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19516":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19517":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19518":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19519":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19520":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19521":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19522":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19523":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19524":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19525":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19526":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19527":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19528":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19529":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19530":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19531":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19532":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19533":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19534":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19535":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"19536":{
+"Length":1,
+"Format":"NumericLE",
 "SubFormat":"None",
 "SymbolRef":null},
 

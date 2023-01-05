@@ -14,7 +14,7 @@ SpritePointer0 = $07f8
 SpritePointer1 = $07f9
 SpritePointers = $07fa
 Sprite0XPosition = $d000
-Sprite0YPosition = $d001
+Sprite0YPos =   $d001
 Sprite1XPositionRegister = $d002
 Sprite1YPosition = $d003
 Adr_EnemyXPosition = $d004
@@ -606,8 +606,8 @@ L2A00   lsr     a
         bcc     If_2A29
 
 Sub_2A04
-        sta     Var_SpriteFrame ;$2afe = A
-        lda     Sprite0YPosition ;A = SpriteMSBYPosition
+        sta     Var_PlayerDirection ;Set Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
+        lda     Sprite0YPos ;A = SpriteMSBYPosition
         sec                ;Set carry
 L2A0B   sbc     #$2c       ;Subtract with carry #2c (44)
         lsr     a          ;Divide by 2
@@ -645,22 +645,22 @@ If_2A43 lda     $fc
         clc
         adc     #$04
         sta     $fc
-        ldx     Var_SpriteFrame ;X = Var_SpriteFrame
+        ldx     Var_PlayerDirection ;X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
         lda     L5145,x    ;A = $5145,x
         tay                ;Transfer A to Y
         lda     ($fb),y    ;($fb),y = Get character below current position of player
         cmp     #$a0       ;Check if current character is blank
         bne     Sub_2A60   ;Branch if not a blank space
-Jump_2A57
-        ldx     #$00       ;X = #00
-        lda     Var_SpriteFrame ;A = Var_SpriteFrame
-        jsr     Sub_UpdateSpritePositions
+Jump_PlayerGoingUp
+        ldx     #$00       ;X = #00. Set direction to Up
+        lda     Var_PlayerDirection ;A = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
+        jsr     Sub_UpdateSpritePositions ;X = Sprite / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         rts
 
 Sub_2A60
         cmp     #$2a       ;Check if current character is a platform
         bpl     If_2A67    ;Branch if not a platform (e.g. mushroom)
-        jmp     Jump_2A57
+        jmp     Jump_PlayerGoingUp
 
 If_2A67 cmp     #$54       ;Check if current character is mushroom
         bpl     If_2A6E    ;Branch if current character is mushroom
@@ -670,13 +670,13 @@ If_2A6E jmp     Sub_GetMushroom
 
         .byte   $60
 
-L2A72   sta     Temp_NotJumping
-        lda     L5448+2
-        sta     Sub_2A80-1
+L2A72   sta     Temp_Jumping
+        lda     L544A
+        sta     L2A7F
         jmp     Sub_5880
 
 L2A7E   .byte   $07
-        .byte   $09
+L2A7F   .byte   $09
 
 Sub_2A80
         stx     $fb        ;X = $fb (From $2a80. Passed with X = #bf)
@@ -708,7 +708,7 @@ Sub_2A80
         .byte   $c9,$54,$d0,$07,$18,$a5,$fb,$69,$28,$85,$fb,$ad,$fd,$2a,$60,$8d
         .byte   $9c,$c1,$a9,$00,$8d,$4e,$53,$60,$ea,$ea,$ea,$ea,$ea,$ea,$ea,$ea
         .byte   $7e
-Var_SpriteFrame
+Var_PlayerDirection
         .byte   $01
 Var_CharacterXPosLow
         .byte   $58,$a9,$00,$85,$fb,$a9,$d8,$85,$fc,$a9,$00,$8d,$84,$03,$a9,$00
@@ -990,7 +990,7 @@ L2EB3   jmp     LCA27
 
         .byte   $ea
 
-L2EB7   lda     Var_BinaryEnemySpriteNum,x
+L2EB7   lda     Var_BinaryEnemyNum,x
         and     SpriteEnableRegister
         cmp     #$00
         beq     L2EC4
@@ -1064,17 +1064,17 @@ Sub_StartEnemyUpdate
 ;*        Enemy positioning loop       *
 ;***************************************
 Sub_EnemyPositionLoop
-        lda     #$00
-        sta     LCF75
-        ldx     #$00       ;Start loop value at #00
+        lda     #$00       ;A = #00
+        sta     LCF75      ;$cf75 = #00
+        ldx     #$00       ;Start loop value at #00. Loops until #05.
 Loop_NextEnemy
-        lda     Var_BinaryEnemySpriteNum,x ;Isolate the enemy bit
+        lda     Var_BinaryEnemyNum,x ;Isolate the enemy bit
         and     SpriteEnableRegister ;Compare to the SpriteEnableRegister
-        cmp     #$00       ;Check if enemy is visible
-        bne     Branch_NextEnemy ;Branch if enemy is not visible
+        cmp     #$00       ;Check if enemy is not visible
+        bne     IF_NextEnemy ;Branch if enemy is not visible
         lda     LCF76,x
         cmp     #$00       ;Compare A to #00
-        beq     Branch_NextEnemy ;Branch if equal to #00
+        beq     IF_NextEnemy ;Branch if equal to #00
         txa                ;Transfer X (Enemy index) to A
         pha                ;Push accumulator to the stack
         jsr     LC9F1
@@ -1083,7 +1083,7 @@ Loop_NextEnemy
         tya                ;Transfer Y to A
         and     #$7f
         cmp     L45E2,x
-        bpl     Branch_NextEnemy
+        bpl     IF_NextEnemy
         txa                ;A will be used for enemy index in later subroutines
         jsr     Sub_UpdateEnemySprites ;Will use A for the enemy index
         dec     LCF76,x
@@ -1091,7 +1091,7 @@ Loop_NextEnemy
         sta     LCF29,x
         lda     #$00
         sta     LCF1A,x
-Branch_NextEnemy
+IF_NextEnemy
         inx                ;Increase loop
         cpx     #$05       ;Check if loop is at #05 which is max enemy index
         bne     Loop_NextEnemy ;Loop if not at the end of the enemy index
@@ -6321,7 +6321,8 @@ Temp_534c
 Var_Falling
         .byte   $00,$ea
 
-L5350   lda     L45FF      ;A = $45ff (Always seems to be #01)
+IF_InputNotJumping
+        lda     L45FF      ;A = $45ff (Always seems to be #01)
         beq     RTS_535A   ;Branch if equal zero
         dec     Temp_534c  ;Decrease #534c
         beq     If_535D    ;Branch if equal zero
@@ -6332,12 +6333,12 @@ RTS_535A
 
 If_535D lda     Temp_0c    ;A = $534b (Always seems to be #0c)
         sta     Temp_534c  ;$534c = $53cb
-        lda     Sprite0YPosition ;A = SpriteMSBYPosition
+        lda     Sprite0YPos ;A = SpriteMSBYPosition
         sta     Temp_SpriteMSBYPosition ;Temp_SpriteMSBYPosition = SpriteMSBYPosition
         lda     #$01       ;A = #01
         ldx     #$00       ;X = #00
         jsr     Sub_2A04
-        lda     Sprite0YPosition
+        lda     Sprite0YPos
         cmp     Temp_SpriteMSBYPosition
         bne     If_537E
         jmp     L54A0
@@ -6355,35 +6356,36 @@ If_537E jsr     L54AC
 
 L538E   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
         lda     Var_JumpInput ;#01 jumping / #00 not jumping
-        beq     L5350      ;Branch if not jumping
-        dec     Sub_2A80-1
+        beq     IF_InputNotJumping ;Branch if not jumping
+        dec     L2A7F
         beq     If_539E
         rts
 
         .fill   2,$ea
 
-If_539E jsr     Sub_GetBoyJumpPosTemps
-        bne     L53C6      ;Branch if not jumping (#01 Not jumping / #00 Jumping)
+If_539E jsr     Sub_SetPosTemps
+        bne     IF_NotJumping ;Branch if not jumping (#01 Not jumping / #00 Jumping)
         lda     #$00       ;A = #00
         jsr     Sub_2A04
         jsr     L5437
         ldx     L2A7E
-        cpx     #$18
+        cpx     #$18       ;Maximum jump height
         bne     If_53B5
         jmp     Jump_53BE
 
-If_53B5 lda     L5448+2,x
-        sta     Sub_2A80-1
+If_53B5 lda     L544A,x
+        sta     L2A7F
         jmp     L54FC
 
 Jump_53BE
         lda     #$01
-        sta     Temp_NotJumping
+        sta     Temp_Jumping
         rts
 
         .fill   2,$ea
 
-L53C6   lda     #$01
+IF_NotJumping
+        lda     #$01
         jsr     L5467
         dec     L2A7E
         ldx     L2A7E
@@ -6391,8 +6393,8 @@ L53C6   lda     #$01
         bne     If_53D8
         jmp     Jump_53E2
 
-If_53D8 lda     L5448+2,x
-        sta     Sub_2A80-1
+If_53D8 lda     L544A,x
+        sta     L2A7F
         jmp     L5518
 
         .byte   $ea
@@ -6437,31 +6439,60 @@ If_5425 jmp     Jump_Jumping
 Temp_Sprite0YPos
         .byte   $e3
 
-Sub_GetBoyJumpPosTemps
-        lda     Sprite0YPosition
+Sub_SetPosTemps
+        lda     Sprite0YPos
         sta     Temp_Sprite0YPos
-        lda     Temp_NotJumping ;#01 Not jumping / #00 Jumping
+        lda     Temp_Jumping ;#01 Not jumping / #00 Jumping
         rts
 
         .fill   2,$ea
 
-L5437   lda     Sprite0YPosition
+L5437   lda     Sprite0YPos
         cmp     Temp_Sprite0YPos
         bne     If_5444
         lda     #$01
-        sta     Temp_NotJumping
+        sta     Temp_Jumping
 If_5444 inc     L2A7E
         rts
 
-L5448   .byte   $ea,$ea,$05,$05,$06,$06,$07,$08,$09,$09,$0a,$0b,$0c,$0e,$0f,$10
-        .byte   $12,$14,$16,$18,$1a,$1c,$1f,$22,$25,$29,$2d,$ea,$ea,$ea,$e3
+        .byte   $ea
+        .byte   $ea
+L544A   .byte   $05
+        .byte   $05
+        .byte   $06
+        .byte   $06
+        .byte   $07
+        .byte   $08
+        .byte   $09
+        .byte   $09
+        .byte   $0a
+        .byte   $0b
+        .byte   $0c
+        .byte   $0e
+        .byte   $0f
+        .byte   $10
+        .byte   $12
+        .byte   $14
+        .byte   $16
+        .byte   $18
+        .byte   $1a
+        .byte   $1c
+        .byte   $1f
+        .byte   $22
+        .byte   $25
+        .byte   $29
+        .byte   $2d
+        .byte   $ea
+        .byte   $ea
+        .byte   $ea
+L5466   .byte   $e3
 
-L5467   lda     Sprite0YPosition
-        sta     L5448+30
+L5467   lda     Sprite0YPos
+        sta     L5466
         lda     #$01
         jsr     Sub_2A04
-        lda     L5448+30
-        cmp     Sprite0YPosition
+        lda     L5466
+        cmp     Sprite0YPos
         beq     If_547B
         rts
 
@@ -6861,7 +6892,7 @@ SetupSpritePositions
         lda     Sprite1XPositionRegister ;Load A with Sprite1_X_Position
         sta     Sprite0XPosition ;Update Sprite0_X_Position with Sprite1_X_Position
         stx     Sprite1XPositionRegister ;Update Sprite1_X_Position with Sprite0_X_Position
-        ldx     Sprite0YPosition ;Load A with Sprite0_Y_Position
+        ldx     Sprite0YPos ;Load A with Sprite0_Y_Position
         jmp     ContSetupSpritePositions
 
         .byte   $8d,$f8,$07
@@ -6882,7 +6913,7 @@ ResetGirl
 
 ContSetupSpritePositions
         lda     Sprite1YPosition ;Load A with Sprite1_Y_Position
-        sta     Sprite0YPosition ;Update Sprite0_Y_Position with Sprite1_Y_Position
+        sta     Sprite0YPos ;Update Sprite0_Y_Position with Sprite1_Y_Position
         stx     Sprite1YPosition ;Update Sprite1_Y_Position with Sprite0_Y_Position
         lda     SpriteXMSBRegister
         and     #$01       ;Isolate first bit in SpriteXMSBRegister
@@ -7119,7 +7150,7 @@ L5A9A   cmp     #$4d       ;Check if current character is complete bridge
         bmi     RTS_BridgeRoutine
         cpy     #$50
         beq     If_5AA5
-        jmp     Jump_2A57
+        jmp     Jump_PlayerGoingUp
 
 If_5AA5 dec     Counter_HealthIncLoop2+2
         beq     If_UpdateBridge
@@ -7267,7 +7298,7 @@ If_5B89 cmp     #$62
         bpl     If_5B95
 L5B8D   cpy     #$50
         beq     If_5B94
-        jmp     Jump_2A57
+        jmp     Jump_PlayerGoingUp
 
 If_5B94 rts
 
@@ -7275,13 +7306,13 @@ If_5B95 cmp     #$66
         bpl     If_5BAD
         cpy     #$50
         beq     If_5BA0
-        jmp     Jump_2A57
+        jmp     Jump_PlayerGoingUp
 
 If_5BA0 dec     Unknown+1
         bne     If_5B94
         lda     #$03
         sta     Unknown+1
-        jmp     Jump_2A57
+        jmp     Jump_PlayerGoingUp
 
 If_5BAD jmp     L7673
 
@@ -8429,7 +8460,7 @@ If_76BB lda     #$06
 Jump_76C0
         ldy     #$73
         lda     #$01
-        sta     Temp_NotJumping
+        sta     Temp_Jumping
         lda     (Adr_MapLow),y
         cmp     #$0a
         bmi     If_76D5
@@ -8730,7 +8761,7 @@ L7F20   sta     L4516
         rts
 
 L7F27   sta     L4517
-        sta     Sprite0YPosition
+        sta     Sprite0YPos
         rts
 
 L7F2E   sta     Var_EnemyXPosition-1
@@ -9872,7 +9903,7 @@ Var_CurrentEnemy
 
 Sub_UpdateEnemySprites
         jsr     Sub_VerticalMovingEnemies ;A = Active enemy index
-        jsr     Sub_VerticalEnemyMovement ;A = Active enemy index
+        jsr     Sub_EnemyMSB ;A = Active enemy index
         lda     Var_CurrentEnemy ;A = C0e3 (Alternates between #00-04)
         tax                ;Transfer A to X
         lda     LCF46,x    ;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
@@ -9888,7 +9919,7 @@ Sub_UpdateEnemySprites
         .byte   $08,$d0,$e1,$60,$00,$00,$00,$60,$00,$a9,$00,$9d,$00,$d4,$e8,$e0
         .byte   $18,$d0,$f8,$60
 
-LC144   sta     Sprite0YPosition
+LC144   sta     Sprite0YPos
         lda     L4516
         sta     Sprite0XPosition
         jmp     LC1E1
@@ -9898,7 +9929,7 @@ LC144   sta     Sprite0YPosition
         .byte   $a2,$00,$a9,$20,$9d,$ee,$05,$9d,$ee,$06,$9d,$3c,$05,$e8,$e0,$00
         .byte   $d0,$f2,$60,$ea,$ea,$4c,$4a,$54,$00,$30,$00,$34,$e8,$03,$00,$4e
         .byte   $00,$52,$00,$30,$e8,$03,$e8,$07,$00,$4e,$ea
-Temp_NotJumping
+Temp_Jumping
         .byte   $01
 Var_JumpInput
         .fill   1,$00      ;#01 jumping / #00 not jumping
@@ -10157,7 +10188,7 @@ If_C2C9 lda     $0391
         .byte   $fd,$fd
 
 LC37A   tya
-        jsr     Sub_UpdateSpritePositions
+        jsr     Sub_UpdateSpritePositions ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         rts
 
         .byte   $ea,$ae,$80,$03,$ee,$80,$03,$bd,$00,$40,$c9,$00,$f0,$18,$c9,$ff
@@ -10458,7 +10489,7 @@ LC700   lda     SpritePointer1
         clc
         sbc     #$df
         ldx     #$01
-        jsr     Sub_UpdateSpritePositions
+        jsr     Sub_UpdateSpritePositions ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         cpy     #$00
         beq     If_C717
         rts
@@ -10573,7 +10604,7 @@ LC7D4   and     #$02
         sta     SpriteEnableRegister
         lda     Sprite0XPosition
         sta     Sprite1XPositionRegister
-        lda     Sprite0YPosition
+        lda     Sprite0YPos
         sta     Sprite1YPosition
         lda     SpriteXMSBRegister
         and     #$01
@@ -10700,7 +10731,7 @@ Var_SpriteNumber
         .byte   $05
 
 Sub_UpdateSpritePositions
-        ldy     #$ff       ;Y = #ff
+        ldy     #$ff       ;Y = #ff. X = Sprite / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         sta     Var_SpriteDirection ;Load request sprite movement direction
         stx     Var_SpriteNumber ;Update sprite number
         txa                ;Transfer X to A
@@ -10719,19 +10750,19 @@ Sub_UpdateSpritePositions
         rts                ;Return from subroutine
 
 IF_DecreaseYposition
-        lda     Sprite0YPosition,x ;Load Sprite Y position
+        lda     Sprite0YPos,x ;Load Sprite Y position
         cmp     #$32       ;Sets when to stop updating sprite (Top of screen / score)
         beq     IF_RTS_DecreaseYposition ;Branch if near top of screen
-        dec     Sprite0YPosition,x ;Increase vertical position on screen
+        dec     Sprite0YPos,x ;Increase vertical position on screen
         ldy     #$00       ;Y = #00
 IF_RTS_DecreaseYposition
         rts                ;Return from subroutine
 
 IF_IncreaseYposition
-        lda     Sprite0YPosition,x ;Load Sprite Y position
+        lda     Sprite0YPos,x ;Load Sprite Y position
         cmp     #$e3       ;Lowest point a sprite can go down the screen
         beq     IF_RTS_IncreaseYposition ;Branch if at lowest point
-        inc     Sprite0YPosition,x ;Deccrease vertical position on screen
+        inc     Sprite0YPos,x ;Deccrease vertical position on screen
         ldy     #$00       ;Y = #00
 IF_RTS_IncreaseYposition
         rts                ;Return from subroutine
@@ -10911,34 +10942,50 @@ Jump_CAED
 Counter_Enemy
         .byte   $01
 
-Sub_VerticalEnemyMovement
+Sub_EnemyMSB
         sta     Counter_Enemy ;Rotates between #00-04
+;*****************************
+;* Level 1                   *
+;* Spider 1 = 1              *
+;* Spider 2 = 2              *
+;* Spider 3 = 3              *
+;* Skeleton = 4              *
+;* Climber  = 5              *
+;*****************************
         tax                ;Transfer A to X (Enemy counter)
-        asl     a          ;Multiply A by 2 (Enemy counter X2)
+        asl     a          ;Multiply A by 2 (Allows for offset for X/Y sets)
         tay                ;Transfer A to Y (Enemy counter X2)
-        lda     LCF0D,x    ;A = cf0d,x (X is the enemy number)
-        tax                ;Transfer A to X
-        lda     Var_EnemyXPosition,x
-        sta     Adr_EnemyXPosition,y
-        lda     Var_EnemyYPosition,x
-        sta     Adr_EnemyYPosition,y
-        ldy     Counter_Enemy
-        lda     Var_BinaryEnemySpriteNum,y ;Load the binary for setting the MSB value
+;*****************************
+;* Level 1                   *
+;* Enemy 00 (Spider)   = #00 *
+;* Enemy 01 (Spider)   = #05 *
+;* Enemy 02 (Spider)   = #0a *
+;* Enemy 03 (Skeleton) = #0f *
+;* Enemy 00 (Climber)  = #14 *
+;*****************************
+        lda     LCF0D,x    ;A = cf0d,x (X is the enemy counter)
+        tax                ;Transfer A to X (A reference to the data)
+        lda     Var_EnemyXPosition,x ;Get X starting position
+        sta     Adr_EnemyXPosition,y ;Set X starting position
+        lda     Var_EnemyYPosition,x ;Get Y starting position
+        sta     Adr_EnemyYPosition,y ;Set Y starting position
+        ldy     Counter_Enemy ;Y = Enemy counter
+        lda     Var_BinaryEnemyNum,y ;Load the binary for setting the MSB value
         eor     #$ff       ;Reverse selection
-        and     SpriteXMSBRegister ;Ensure sprites on MSB side are enabled
+        and     SpriteXMSBRegister ;Keep MSB sprites enabled and disable active sprite
         sta     SpriteXMSBRegister ;Update SpriteXMSBRegister
         lda     Adr_EnemyMSBXPosition,x
         ora     SpriteXMSBRegister
-        sta     SpriteXMSBRegister
+        sta     SpriteXMSBRegister ;Update SpriteXMSB
         nop                ;No operation
         lda     Adr_EnemyMSBXPosition+1,x
         cmp     #$00
-        beq     LCBBB
+        beq     LCBBB      ;This is branched on all enemies except climbing guy
         jsr     LC9F1
-LCB5C   lda     #$00
-        sta     LCF12
+LCB5C   lda     #$00       ;A = #00
+        sta     LCF12      ;$cf12 = 00
 Jump_CB61
-        ldx     Counter_Enemy
+        ldx     Counter_Enemy ;X = Active enemy
         lda     LCF0D,x
         tax
         lda     LCF12
@@ -10948,12 +10995,12 @@ Jump_CB61
         cpy     #$00
         beq     LCBBB
         inc     LCF12
-        lda     #$03
+        lda     #$03       ;Set direction as right
         sty     LCF13
-        ldx     Counter_Enemy
-        inx
-        inx
-        jsr     Sub_UpdateSpritePositions
+        ldx     Counter_Enemy ;Load enemy number
+        inx                ;Increase X (Jump to next enemy)
+        inx                ;Increase X (Jump to next enemy)
+        jsr     Sub_UpdateSpritePositions ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         ldy     LCF13
         jmp     Jump_CB61
 
@@ -10967,7 +11014,7 @@ If_CB8B lda     Counter_Enemy
         lda     Var_EnemyXPosition,x
         sta     Adr_EnemyXPosition,y
         ldy     Counter_Enemy
-        lda     Var_BinaryEnemySpriteNum,y
+        lda     Var_BinaryEnemyNum,y
         eor     #$ff
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
@@ -10977,10 +11024,16 @@ If_CB8B lda     Counter_Enemy
         ldy     LCF13
         jmp     LCB5C
 
+; Level 1
+; Enemy 00 (Spider)   = #00
+; Enemy 01 (Spider)   = #05
+; Enemy 02 (Spider)   = #0a
+; Enemy 03 (Skeleton) = #0f
+; Enemy 00 (Climber)  = #14
 LCBBB   lda     Adr_EnemyMSBXPosition+2,x
         cmp     #$00
         beq     RTS_CC0D
-        jsr     LC9F1
+        jsr     LC9F1      ;Doesnt seem to be executed
 LCBC5   lda     #$00
         sta     LCF12
 Jump_CBCA
@@ -10999,7 +11052,7 @@ Jump_CBCA
         ldx     Counter_Enemy
         inx
         inx
-        jsr     Sub_UpdateSpritePositions
+        jsr     Sub_UpdateSpritePositions ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         ldy     LCF13
         jmp     Jump_CBCA
 
@@ -11187,7 +11240,7 @@ If_CD55 inc     LCF45
         sta     LCF45
         lda     LCF44
         ldx     #$07
-        jsr     Sub_UpdateSpritePositions
+        jsr     Sub_UpdateSpritePositions ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         cpy     #$ff
         bne     RTS_CD79
         lda     SpriteEnableRegister
@@ -11344,7 +11397,7 @@ If_CEC2 stx     Temp_EnemyCollidedInt ;Temp_EnemyCollidedInt = X
         .byte   $60
 
 LCEEE   inc     LCF76,x
-        lda     Var_BinaryEnemySpriteNum,x
+        lda     Var_BinaryEnemyNum,x
         rts
 
         .byte   $ea
@@ -11363,7 +11416,7 @@ Var_MovingLeftRight
         .byte   $00
 Var_RegisteredMovingLeftRight
         .byte   $00
-Var_BinaryEnemySpriteNum
+Var_BinaryEnemyNum
         .byte   $04
         .byte   $08
         .byte   $10

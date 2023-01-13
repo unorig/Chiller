@@ -162,23 +162,23 @@ L2A7E   .byte   $07
 L2A7F   .byte   $09
 
 Sub_2A80
-        stx     Low_PlayerLocation ;X = $fb (From $2a80. Passed with X = #bf)
-        sty     High_PlayerLocation ;Y = $fc (From $2a80. Passed with Y = #5b)
-        ldy     #$00       ;Y = #00
-        lda     (Low_PlayerLocation),y ;A = 5bbf,00. Start of the index set.
-        sta     Sub_C29D+1 ;$C29E = #00
-        iny                ;Increase Y
-        lda     (Low_PlayerLocation),y ;A = #b2
-        sta     LC2A1+1    ;$C2A2 = #b2
-        iny                ;Increase Y
-        lda     (Low_PlayerLocation),y ;A = #ff
-        sta     LC2AD+1    ;$C2AE = #ff
-        iny                ;Increase Y
-        lda     (Low_PlayerLocation),y ;A = #b5
-        sta     LC2B2+1    ;$C2B3 = #b5
-        iny                ;Increase Y
-        lda     (Low_PlayerLocation),y ;A = 00
-        sta     LC2A5+1    ;$C2A6 = #00
+        stx     Low_PlayerLocation 			;X = $fb (From $2a80. Passed with X = #bf)
+        sty     High_PlayerLocation 		;Y = $fc (From $2a80. Passed with Y = #5b)
+        ldy     #$00       					;Y = #00
+        lda     (Low_PlayerLocation),y 		;A = 5bbf,00. Start of the index set.
+        sta     Sub_C29D+1 					;$C29E = #00
+        iny                					;Increase Y
+        lda     (Low_PlayerLocation),y 		;A = #b2
+        sta     LC2A1+1    					;$C2A2 = #b2
+        iny                					;Increase Y
+        lda     (Low_PlayerLocation),y 		;A = #ff
+        sta     LC2AD+1    					;$C2AE = #ff
+        iny                					;Increase Y
+        lda     (Low_PlayerLocation),y 		;A = #b5
+        sta     LC2B2+1    					;$C2B3 = #b5
+        iny                					;Increase Y
+        lda     (Low_PlayerLocation),y 		;A = 00
+        sta     LC2A5+1    					;$C2A6 = #00
         iny                ;Increase Y
         lda     (Low_PlayerLocation),y ;A = #30
         sta     LC2A9+1    ;C2AA = #30
@@ -238,7 +238,7 @@ If_2C1B inc     LCFA6,x
         bne     If_2C2F
         lda     #$b0
         sta     LCFA6,x
-        dex
+        dex								; Decrease X
         cpx     #$00
         bne     If_2C1B
 If_2C2F jsr     L5681
@@ -433,7 +433,7 @@ Menu_FirePressed
         lda     Adr_BorderColor ;At menu screen is #f0
         and     #$0f       ;And on #f0 becomes #00
         beq     _L2DD3     ;Jump to $2dd3
-        jsr     Sub_7780
+        jsr     CheckSetHighScore
 _L2DD3  jmp     JUMP_c646
 
 ;*****************************
@@ -1543,20 +1543,20 @@ Sub_WaitForCurrentRaster
 
 L5BC7   ldx     #$bf
         ldy     #$5b
-        jsr     Sub_2A80   ;JSR $2a80 with Y = #5b / X = #bf
-        lda     #$00					; A = #00       ;A = #00
-        sta     SpriteEnableRegister ;Disable all sprites
-        lda     #$00					; A = #00       ;A = #00
-        sta     ExtraBackgroundColor1 ;Extra Background Color 1 = Black
-        sta     ExtraBackgroundColor2 ;Extra Background Color 2 = Black
-        ldy     #$74       ;Y = #74
-        lda     (Adr_MapLow),y ;A = 00
-        tax                ;Transfer A to X
-        iny                ;Increase Y
-        lda     (Adr_MapLow),y ;A = #41
-        tay                ;Transfer A to Y
+        jsr     Sub_2A80   					;JSR $2a80 with Y = #5b / X = #bf
+        lda     #$00						; A = #00       ;A = #00
+        sta     SpriteEnableRegister 		;Disable all sprites
+        lda     #$00						; A = #00       ;A = #00
+        sta     ExtraBackgroundColor1 		;Extra Background Color 1 = Black
+        sta     ExtraBackgroundColor2 		;Extra Background Color 2 = Black
+        ldy     #$74       					;Y = #74
+        lda     (Adr_MapLow),y 				;A = 00
+        tax                					;Transfer A to X
+        iny                					;Increase Y
+        lda     (Adr_MapLow),y 				;A = #41
+        tay                					;Transfer A to Y
         jsr     L5C4F
-        sei                ;Set interrupts
+        sei                					;Set interrupts
         lda     #$18
         sta     $b7
         lda     #$6a
@@ -2071,32 +2071,32 @@ L60B5   lda     #$03
         cmp     $02
         bne     If_60C7
         ldx     $02ac
-        dex
+        dex								; Decrease X
         stx     $d404
         lda     #$50
         sta     $d40b
 If_60C7 jmp     $ea31
 
-L60CA   lda     #$00       		;A = 00
-        sta     $02        		;$02 = 00
-        sta     $02ff      		;Reset $02ff to 00. This sets the 'Not transitioning flag'.
-        ldx     #$20       		;X = 20. Counter for 20 loops.
--		sta     $d400,x    		;Store A (00) to $d400,x
-        dex                		;Decrease X
-        bne     -		   		;Loop 20 times.
-        lda     #$f8       		;A = f8
-        sta     $b7        		;$b7 = f8
-        sta     $b9        		;$b7 = f8
-        lda     #$61      		;A = 61
-        sta     $b8       		;$b8 = 61
-        sta     $ba        		;$ba = 61
-        jsr     SoundConfig 	;Setting various sound settings
-        sei                		;Set Interrupt Flag
-        lda     #$f5       		;A = f5
-        sta     IRQVectorLow 	;Set interrupt address (low)
-        lda     #$60       		;A = 60
-        sta     IRQVectorHigh 	;Set interrupt address (High)
-        cli                		;Clear interrupt flag
+L60CA   lda     #$00       				;A = 00
+        sta     $02        				;$02 = 00
+        sta     $02ff      				;Reset $02ff to 00. This sets the 'Not transitioning flag'.
+        ldx     #$20       				;X = 20. Counter for 20 loops.
+-		sta     $d400,x    				;Store A (00) to $d400,x
+        dex                				;Decrease X
+        bne     -		   				;Loop 20 times.
+        lda     #$f8       				;A = f8
+        sta     $b7        				;$b7 = f8
+        sta     $b9        				;$b7 = f8
+        lda     #$61      				;A = 61
+        sta     $b8       				;$b8 = 61
+        sta     $ba        				;$ba = 61
+        jsr     SoundConfig 			;Setting various sound settings
+        sei                				;Set Interrupt Flag
+        lda     #$f5       				;A = f5
+        sta     IRQVectorLow 			;Set interrupt address (low)
+        lda     #$60       				;A = 60
+        sta     IRQVectorHigh 			;Set interrupt address (High)
+        cli                				;Clear interrupt flag
         rts
 
         ldy     #$00
@@ -2152,7 +2152,7 @@ SelfMod_610B
         sta     $02aa
         jmp     $ea31
 
-_L6174  lda     $02aa
+_L6174  lda     $02aa					;
         sta     $02
         jmp     $ea31
 
@@ -2186,7 +2186,7 @@ _L6174  lda     $02aa
         jmp     If_6100
 
         lda     $b9
-        sta     $b7
+        sta     $b7						;
         lda     $ba
         sta     $b8
         jmp     $ea31
@@ -2195,7 +2195,7 @@ Sub_DisableMusic
 		lda     #$00					; A = #00
         ldx     #$20 					; X = #20
 -		sta     $d400,x 				; Update SID; audio
-        dex								; Decrease X
+       dex								; Decrease X								; Decrease X
         bne     -						; Loop
         sei								; Set interrupt flag
         lda     #$31 					; A = #31
@@ -2605,11 +2605,11 @@ Sub_ResetToMenu
         bne     L771F
         lda     #$0a
         sta     L771E
-        jsr     Sub_7780
+        jsr     CheckSetHighScore 			; Check and set high score at end of game.
         ldx     #$bf
         ldy     #$5b
         jsr     Sub_2A80
-        lda     #$00					; A = #00
+        lda     #$00						; A = #00
         sta     SpriteEnableRegister
         sta     ExtraBackgroundColor1
         sta     ExtraBackgroundColor2
@@ -2628,7 +2628,7 @@ _L776D  jsr     L7580
 
         .fill   15,$00
 
-Sub_7780
+CheckSetHighScore
         lda     $0406,x 				; Load A with the score on screen.
         cmp     Adr_HighScore,x			; Compare to the number to the stored high score.
         bmi     _jump 					; Branch (and end) if score is less than high score.
@@ -2636,7 +2636,7 @@ Sub_7780
         jmp     ++ 						; Branch if score number is greater than high score.
 +  		inx 							; Increase X for looping.
         cpx     #$06					; Check if on the 6th loop.
-        bne     Sub_7780				; Loop if loop not complete.
+        bne     CheckSetHighScore		; Loop if loop not complete.
 _jump  	jmp     ++						; Jump to ending operations.
 +	  	ldx     #$00					; X = #00
 -  		lda     $0406,x 				; Load A with the score.
@@ -2646,10 +2646,10 @@ _jump  	jmp     ++						; Jump to ending operations.
         bne     - 						; Continue loop.
         jmp     _jump					; Jump and start ending operations.
 +		lda     #$0a 					; A = #0a
-        sta     L771E
+        sta     L771E 					; No idea what this is
         lda     #$ff 					; A = #ff
-        sta     L771D
-        sta     L771C
+        sta     L771D 					; No idea what this is
+        sta     L771C 					; No idea what this is
         rts								; Return from subroutine
 
         .fill   13,$00
@@ -2672,10 +2672,10 @@ AllCrossesCollected
         nop								; No operation.
         nop								; No operation.
         nop								; No operation.
-        lda     #$03       ;A = #03
-        sta     SpriteEnableRegister ;Turn off all sprites other than boy and girl
-        ldy     #$73       ;Y = #73
-        lda     (Adr_MapLow),y ;A = ($11),y - which is ($11),73
+        lda     #$03       				;A = #03
+        sta     SpriteEnableRegister 	;Turn off all sprites other than boy and girl
+        ldy     #$73       				;Y = #73
+        lda     (Adr_MapLow),y 			;A = ($11),y - which is ($11),73
         tax
         cpx     #$12
         bne     _L7F19
@@ -2698,10 +2698,10 @@ L7F2E   sta     Var_EnemyXPosition-1
 
         .fill   27,$00
 
-L7F50   lda     High_PlayerLocation ;A = #fc
+L7F50   lda     High_PlayerLocation 	;A = #fc
         nop								; No operation.
-        clc                ;Clear carry
-        adc     #$d4       ;Add 
+        clc                				;Clear carry
+        adc     #$d4       				;Add 
         sta     High_PlayerLocation
         lda     (Low_PlayerLocation),y
         and     #$04
@@ -2716,12 +2716,12 @@ _L7F67  cpx     #$04
         beq     _L7F6C
         rts
 
-_L7F6C  lda     High_PlayerLocation ;A = $fc (Low byte of screen address)
+_L7F6C  lda     High_PlayerLocation 	;A = $fc (Low byte of screen address)
         sec
         sbc     #$d4
         sta     High_PlayerLocation
-        lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     (Low_PlayerLocation),y ;Remove cross from ($fb),y which is screen address
+        lda     #$a0       				;A = #a0 (Blank sprite)
+        sta     (Low_PlayerLocation),y 	;Remove cross from ($fb),y which is screen address
         jmp     JMP_IncMagicCrossNumRight
 
         .fill   6,$ea
@@ -3416,22 +3416,22 @@ RTS_Inputs
 ;*****************************
 Sub_GetKeyboardInputs
         lda     #$00					; A = #00       ;A = #00
-        sta     Var_UpInput ;Var_UpInput = #00
-        lda     L4511      ;Cant see this ever being set
-        cmp     #$01       ;Compare $4511 = #01
+        sta     Var_UpInput 			;Var_UpInput = #00
+        lda     L4511      				;Cant see this ever being set
+        cmp     #$01       				;Compare $4511 = #01
         beq     If_C861
         lda     #$00					; A = #00       ;A = #00
-        sta     Var_DownInput ;Var_DownInput = #00
-        sta     Var_LeftRightInput ;Var_LeftRightInput = #00
-If_C861 lda     Var_KeyboardInput ;A = KeyboardInput
-        cmp     #$40       ;Compare A = #40
-        beq     If_C8AB    ;Branch if no keyboard input
+        sta     Var_DownInput 			;Var_DownInput = #00
+        sta     Var_LeftRightInput 		;Var_LeftRightInput = #00
+If_C861 lda     Var_KeyboardInput 		;A = KeyboardInput
+        cmp     #$40       				;Compare A = #40
+        beq     If_C8AB    				;Branch if no keyboard input
         lda     #$00					; A = #00       ;A = #00
-        sta     Var_DownInput ;Var_DownInput = #00
-        sta     Var_LeftRightInput ;Var_LeftRightInput = #00
-        lda     Var_KeyboardInput ;A = Var_KeyboardInput
-        cmp     L4512      ;Compare $c5 = $4512
-        bne     If_C87B    ;Always taken from what I can see
+        sta     Var_DownInput 			;Var_DownInput = #00
+        sta     Var_LeftRightInput 		;Var_LeftRightInput = #00
+        lda     Var_KeyboardInput 		;A = Var_KeyboardInput
+        cmp     L4512      				;Compare $c5 = $4512
+        bne     If_C87B    				;Always taken from what I can see
         lda     #$ff
         sta     Var_DownInput
 If_C87B lda     Var_KeyboardInput

@@ -584,7 +584,7 @@ IF_NextEnemy
         bne     Loop_NextEnemy ;Loop if not at the end of the enemy index
         rts
 
-        .include "charactersets.asm"
+        .include "Charsets/charactersets.asm"
 		.include "Sprites/sprites.asm"
         .include "data.asm"
 		

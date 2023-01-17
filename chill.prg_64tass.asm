@@ -4,6 +4,7 @@
 Adr_MapLow =    $11
 Adr_MapHigh =   $12
 Adr_ColorRam = $d800
+Adr_Voice2 = $d40b
 ;Adr_HighScore = $8422
 Var_KeyboardInput = $c5    ;This is for the keyboard player inputs
 Low_PlayerLocation = $fb
@@ -13,6 +14,7 @@ IRQVectorLow =  $0314
 IRQVectorHigh = $0315
 Adr_MagicCrossNumLeft = $041c
 Adr_MagicCrossNumRight = $041d
+Adr_SID = $d400
 Scr_HealthBar = $042e
 SpritePointer0 = $07f8
 SpritePointer1 = $07f9
@@ -296,19 +298,19 @@ Sub_SetRandomVariables
         jmp     L2C00
 
 Sub_SetInterruptsAndMem
-        sei                ;Set interrupt flags
-        lda     #$31       ;A = #31
-        sta     IRQVectorLow ;IRQVectorLow = #31
-        lda     #$ea       ;A = #ea
-        sta     IRQVectorHigh ;IRQVectorHigh = #ea
-        cli                ;Clear interrupt flag
+        sei                				;Set interrupt flags
+        lda     #$31       				;A = #31
+        sta     IRQVectorLow 			;IRQVectorLow = #31
+        lda     #$ea       				;A = #ea
+        sta     IRQVectorHigh 			;IRQVectorHigh = #ea
+        cli                				;Clear interrupt flag
         lda     #$00					; A = #00       ;A = #00
-        sta     LCF7F      ;$cf7f = #00
-        lda     #$05       ;A = #05
-        sta     Adr_BorderColor ;BorderColor = #05 (Green)
-        lda     #$0f       ;A = #0f
-        sta     Adr_BackgroundColor ;BackgroundColor = #0f (Light grey)
-        lda     #$15       ;A = #15
+        sta     LCF7F      				;$cf7f = #00
+        lda     #$05       				;A = #05
+        sta     Adr_BorderColor 		;BorderColor = #05 (Green)
+        lda     #$0f       				;A = #0f
+        sta     Adr_BackgroundColor 	;BackgroundColor = #0f (Light grey)
+        lda     #$15       				;A = #15
         sta     Adr_MemorySetupRegister ;Adr_MemorySetupRegister
         lda     #$93
         jsr     BSOUT
@@ -528,7 +530,7 @@ Sub_2F47
         sta     LCF15,x
         rts
 
-L2F4D   jsr     L60CA
+L2F4D   jsr     Sub_SIDSetup
         rts
 
         .fill   32,$ea
@@ -1561,7 +1563,7 @@ L5BC7   ldx     #$bf
         sta     $b7
         lda     #$6a
         sta     $b8
-        cli                ;Clear interrupts
+        cli                					;Clear interrupts
         jmp     L7610
 
 L5BF4   .byte   $f0,$fb,$60,$ea,$ea,$ea,$ea,$6a,$00,$01,$00,$15
@@ -2056,8 +2058,7 @@ SelfMod_5FDB
         .byte   $00,$ff,$ff,$84,$ba,$84,$10,$8f,$00,$ff,$00,$00,$90,$81,$ff,$ff
         .byte   $e5,$6d,$00,$ff,$ff,$c0,$14,$00,$15
 
-SoundConfig
-        lda     #$05       ;A = 05
+L60A0  lda     #$05       ;A = 05
         sta     FilterCutoffFrequencyLow ;$d415 = 05
         lda     #$45       ;A = 45
         sta     FilterCutoffFrequencyHigh ;$d416 = 45
@@ -2067,263 +2068,9 @@ SoundConfig
         sta     FilterModeVolume ;$d418 = 3f
         rts
 
-L60B5   lda     #$03
-        cmp     $02
-        bne     If_60C7
-        ldx     $02ac
-        dex								; Decrease X
-        stx     $d404
-        lda     #$50
-        sta     $d40b
-If_60C7 jmp     $ea31
 
-L60CA   lda     #$00       				;A = 00
-        sta     $02        				;$02 = 00
-        sta     $02ff      				;Reset $02ff to 00. This sets the 'Not transitioning flag'.
-        ldx     #$20       				;X = 20. Counter for 20 loops.
--		sta     $d400,x    				;Store A (00) to $d400,x
-        dex                				;Decrease X
-        bne     -		   				;Loop 20 times.
-        lda     #$f8       				;A = f8
-        sta     $b7        				;$b7 = f8
-        sta     $b9        				;$b7 = f8
-        lda     #$61      				;A = 61
-        sta     $b8       				;$b8 = 61
-        sta     $ba        				;$ba = 61
-        jsr     SoundConfig 			;Setting various sound settings
-        sei                				;Set Interrupt Flag
-        lda     #$f5       				;A = f5
-        sta     IRQVectorLow 			;Set interrupt address (low)
-        lda     #$60       				;A = 60
-        sta     IRQVectorHigh 			;Set interrupt address (High)
-        cli                				;Clear interrupt flag
-        rts
+		.include "Music/v2music.asm"
 
-        ldy     #$00
-        cmp     $02
-        beq     If_6100
-        dec     $02
-        jmp     L60B5
-
-If_6100 inc     $b7
-        bne     +
-        inc     $b8		
-+ 		lda     ($b7),y
-        sta     SelfMod_610B+1
-		
-SelfMod_610B
-        jmp     _L6174
-
-        jsr     L61E9
-        sta     $d401
-        jsr     L61E9
-        sta     $d400
-        lda     $02ac
-        sty     $d404
-        sta     $d404
-        jmp     If_6100
-
-        jsr     L61E9
-        sta     $d408
-        jsr     L61E9
-        sta     $d407
-        lda     $02ad
-        sty     $d40b
-        sta     $d40b
-        jmp     If_6100
-
-        jsr     L61E9
-        sta     $d401
-        jsr     L61E9
-        sta     $d400
-        jsr     L61E9
-        sta     $d408
-        jsr     L61E9
-        sta     $d407
-        sty     $d404
-        sty     $d40b
-        lda     $02ac
-        sta     $d404
-        lda     $02ad
-        sta     $d40b
-        jmp     If_6100
-
-        jsr     L61E9
-        sta     $02aa
-        jmp     $ea31
-
-_L6174  lda     $02aa					;
-        sta     $02
-        jmp     $ea31
-
-        inc     $02ff
-        jmp     $ea31
-
-        jsr     L61E9
-        sta     $02ac
-        jsr     L61E9
-        sta     $02ad
-        jmp     If_6100
-
-        jsr     L61E9
-        sta     $d405
-        jsr     L61E9
-        sta     $d40c
-        jsr     L61E9
-        sta     $d406
-        jsr     L61E9
-        sta     $d40d
-        jmp     If_6100
-
-        jsr     L61E9
-        sta     $d402
-        jsr     L61E9
-        sta     $d403
-        jsr     L61E9
-        sta     $d409
-        jsr     L61E9
-        sta     $d40a
-        jmp     If_6100
-
-        lda     $b9
-        sta     $b7						;
-        lda     $ba
-        sta     $b8
-        jmp     $ea31
-
-Sub_DisableMusic   
-		lda     #$00					; A = #00
-        ldx     #$20 					; X = #20
--		sta     $d400,x 				; Update SID; audio
-       dex								; Decrease X								; Decrease X
-        bne     -						; Loop
-        sei								; Set interrupt flag
-        lda     #$31 					; A = #31
-        sta     IRQVectorLow 			; Set IRQ vector low
-        lda     #$ea					; A = #ea
-        sta     IRQVectorHigh 			; Set IRQ vector high
-        cli								; Clear interrupt flag
-        rts								; Return from subroutine
-
-L61E9   inc     $b7
-        bne     +
-        inc     $b8
-+		lda     ($b7),y
-        rts
-
-		.include "Music/music.asm"						; $61f2-$6a15
-        .fill   3,$dd
-        .include "Music/startgamemusic.asm"
-        .byte   $74,$d2,$dd
-        .include "Music/endgamemusic.asm"
-        .byte   $74,$7c,$74,$d2,$dd,$10,$0c,$00,$3c,$ff,$f5,$9e,$00,$ff,$db,$ff
-        .byte   $f1,$fe,$db,$10,$06,$00,$00,$90,$20,$ff,$00,$00,$0a,$fb,$1f,$ff
-        .byte   $ff,$fb,$ff,$a0,$ff,$f0,$0f,$df,$00,$71,$ff,$b0,$8f,$df,$ff,$f7
-        .byte   $00,$df,$8f,$ff,$ff,$04,$02,$0f,$5b,$00,$ff,$ff,$ff,$74,$05,$ff
-        .byte   $ff,$ef,$ff,$ff,$10,$f7,$58,$ff,$9c,$4b,$00,$00,$24,$ff,$ff,$00
-        .byte   $ff,$d7,$ff,$ff,$7f,$ff,$fd,$00,$00,$8c,$ff,$ff,$ff,$ff,$ff,$00
-        .byte   $df,$04,$ff,$75,$eb,$ff,$ff,$00,$00,$b5,$00,$ff,$dd,$ff,$24,$ff
-        .byte   $ff,$00,$fe,$ff,$ff,$db,$f7,$ff,$9f,$ff,$df,$ff,$00,$ff,$ef,$ff
-        .byte   $10,$ff,$ff,$f5,$bf,$04,$7f,$01,$b2,$80,$00,$f7,$7f,$00,$ff,$00
-        .byte   $ff,$00,$ff,$4a,$34,$ff,$fe,$00,$ff,$ff,$00,$ff,$00,$fe,$ff,$00
-        .byte   $75,$ff,$a0,$00,$b4,$da,$4e,$ff,$b5,$00,$00,$ff,$00,$be,$ff,$00
-        .byte   $ff,$db,$08,$ff,$ff,$82,$00,$ab,$0a,$45,$00,$8b,$00,$ff,$ff,$90
-        .byte   $ba,$84,$00,$8b,$00,$ff,$00,$00,$80,$80,$ff,$ff,$e5,$00,$00,$ff
-        .byte   $ff,$40,$34,$00,$05,$5f,$80,$ff,$8f,$00,$ff,$c5,$00,$0b,$31,$30
-        .byte   $ff,$df,$d7,$76,$ff,$ff,$00,$ff,$00,$20,$00,$00,$00,$ff,$43,$9f
-        .byte   $06,$00,$ff,$ff,$24,$ff,$b1,$90,$20,$00,$20,$ff,$02,$02,$00,$ff
-        .byte   $80,$b9,$df,$80,$ff,$90,$0c,$00,$3c,$ff,$ef,$df,$00,$ff,$db,$ff
-        .byte   $fd,$ff,$db,$00,$06,$20,$00,$b0,$30,$ff,$00,$00,$6a,$fb,$0f,$ff
-        .byte   $ff,$fb,$ff,$a0,$ff,$f0,$0f,$df,$00,$71,$ff,$b4,$8f,$ff,$ff,$f7
-        .byte   $00,$df,$cf,$ff,$ff,$00,$02,$85,$5b,$00,$ef,$ff,$ff,$e4,$05,$f5
-        .byte   $ff,$ef,$bf,$ff,$10,$f7,$50,$ff,$94,$6b,$00,$00,$a4,$ff,$ff,$00
-        .byte   $ff,$87,$ff,$ff,$ff,$ff,$f5,$00,$00,$84,$ff,$ff,$ff,$ff,$ff,$00
-        .byte   $df,$04,$ff,$f0,$eb,$ff,$ff,$00,$00,$b5,$00,$df,$dd,$ff,$a4,$ff
-        .byte   $ff,$00,$fe,$ff,$ff,$db,$f7,$ff,$95,$ff,$df,$ff,$00,$f7,$ef,$fb
-        .byte   $00,$ff,$ff,$e4,$bf,$00,$7f,$01,$b0,$80,$00,$ff,$7f,$00,$ff,$00
-        .byte   $ff,$00,$ff,$0a,$00,$ff,$fe,$00,$ff,$ff,$00,$ff,$00,$fe,$ff,$00
-        .byte   $f1,$ff,$a0,$00,$b4,$d8,$44,$ff,$a5,$00,$00,$ff,$00,$be,$ff,$00
-        .byte   $ff,$db,$08,$ff,$ff,$83,$00,$ab,$0a,$45,$00,$cb,$00,$ff,$ff,$90
-        .byte   $ba,$84,$10,$8b,$00,$ff,$00,$00,$80,$80,$ff,$ff,$e5,$00,$00,$ff
-        .byte   $ff,$c0,$00,$00,$05,$df,$80,$ff,$8f,$00,$ff,$c7,$00,$0b,$31,$30
-        .byte   $ff,$df,$84,$74,$ff,$ff,$00,$ff,$00,$20,$00,$00,$00,$ff,$c0,$9f
-        .byte   $06,$00,$fd,$ff,$24,$f7,$a0,$80,$20,$00,$20,$ff,$02,$00,$00,$ff
-        .byte   $80,$b1,$df,$80,$ff,$90,$0c,$00,$3c,$ff,$f5,$de,$00,$ff,$db,$ff
-        .byte   $f1,$fc,$db,$00,$06,$20,$00,$90,$20,$ff,$00,$00,$2a,$fb,$0f,$ff
-        .byte   $ff,$fb,$ff,$a0,$ff,$f2,$0f,$df,$00,$71,$ff,$b0,$8f,$ff,$ff,$f6
-        .byte   $80,$df,$8f,$ff,$ff,$44,$00,$4d,$5f,$00,$ff,$ff,$ff,$f5,$45,$fd
-        .byte   $ff,$ef,$ff,$ff,$10,$f7,$50,$ff,$dc,$4b,$00,$00,$54,$ff,$ff,$00
-        .byte   $ff,$d7,$ff,$ff,$ff,$ff,$fd,$00,$40,$cc,$ff,$ff,$ff,$ff,$ff,$00
-        .byte   $df,$54,$ff,$fd,$ef,$ff,$ff,$00,$00,$f5,$00,$df,$dd,$ff,$f5,$ff
-        .byte   $ff,$00,$fe,$ff,$ff,$db,$f7,$ff,$9d,$ff,$df,$ff,$00,$ff,$ef,$ff
-        .byte   $50,$ff,$ff,$f5,$bf,$04,$7f,$01,$b0,$91,$00,$ff,$7f,$00,$ff,$00
-        .byte   $ff,$00,$ff,$4a,$14,$ff,$fc,$00,$ff,$ff,$00,$ff,$00,$ff,$ff,$00
-        .byte   $f5,$ff,$a0,$00,$b4,$da,$4c,$ff,$b5,$00,$00,$ff,$00,$be,$ff,$00
-        .byte   $ff,$db,$08,$ff,$ff,$c2,$00,$ab,$0a,$45,$00,$8f,$00,$ff,$ff,$90
-        .byte   $ba,$84,$10,$8f,$00,$ff,$00,$00,$80,$80,$ff,$ff,$e5,$00,$00,$ff
-        .byte   $ff,$50,$54,$00,$05,$5f,$80,$ff,$cf,$00,$ff,$c5,$00,$0b,$31,$30
-        .byte   $ff,$df,$d5,$7c,$ff,$ff,$00,$ff,$10,$20,$00,$00,$00,$ff,$51,$df
-        .byte   $06,$00,$ff,$ff,$04,$ff,$b1,$90,$20,$00,$20,$ff,$02,$00,$00,$ff
-        .byte   $80,$f9,$df,$80,$ff,$10,$0c,$00,$3c,$ff,$ff,$5f,$00,$ff,$db,$ff
-        .byte   $fd,$fe,$db,$10,$14,$00,$00,$90,$34,$ff,$00,$00,$4a,$fb,$5f,$ff
-        .byte   $ff,$fb,$ff,$a0,$ff,$f0,$0f,$df,$00,$71,$ff,$fc,$8f,$df,$ff,$f7
-        .byte   $40,$df,$df,$ff,$ff,$40,$00,$4d,$5b,$00,$cf,$ff,$ff,$6c,$45,$f5
-        .byte   $ff,$ef,$ff,$ff,$10,$f7,$58,$ff,$dc,$4b,$00,$00,$44,$ff,$ff,$00
-        .byte   $ff,$47,$ff,$ff,$ff,$ff,$fd,$00,$40,$cc,$ff,$ef,$ff,$ff,$ff,$00
-        .byte   $df,$44,$ff,$fb,$ef,$ff,$ff,$00,$00,$b5,$00,$df,$dd,$ff,$64,$ff
-        .byte   $ff,$00,$fe,$ff,$ff,$db,$f7,$ff,$95,$ff,$df,$ff,$00,$fb,$ef,$db
-        .byte   $50,$ff,$ff,$e4,$bf,$00,$7f,$01,$f0,$80,$00,$ff,$7f,$00,$ff,$00
-        .byte   $ff,$00,$ff,$4a,$40,$ff,$fc,$00,$fd,$ff,$00,$ff,$00,$fe,$ff,$00
-        .byte   $71,$ff,$a0,$00,$3c,$d8,$4c,$ff,$a5,$00,$00,$ff,$00,$be,$ff,$00
-        .byte   $ff,$db,$08,$ff,$ff,$c3,$00,$ab,$0a,$45,$00,$cb,$00,$ff,$ff,$90
-        .byte   $ba,$84,$50,$df,$00,$ff,$00,$00,$80,$80,$ff,$ff,$e5,$00,$00,$ff
-        .byte   $ff,$41,$40,$00,$05,$5f,$80,$ff,$cf,$00,$ff,$c5,$00,$0b,$31,$30
-        .byte   $ff,$df,$84,$7c,$ff,$ff,$00,$ff,$00,$20,$00,$00,$00,$ff,$51,$df
-        .byte   $06,$00,$fd,$ff,$04,$ff,$a1,$90,$00,$00,$20,$ff,$02,$02,$00,$ff
-        .byte   $80,$b1,$df,$80,$ff,$10,$0c,$00,$3c,$ff,$fd,$5f,$00,$ff,$db,$ff
-        .byte   $f1,$fc,$db,$00,$04,$00,$00,$90,$64,$ff,$00,$00,$4a,$fb,$4f,$ff
-        .byte   $ff,$fb,$ff,$a0,$ff,$f0,$0f,$df,$00,$71,$ff,$7c,$8f,$df,$ff,$f7
-        .byte   $40,$df,$cf,$ff,$ff,$50,$84,$f0,$87,$50,$04,$00,$80,$ff,$83,$00
-        .byte   $30,$00,$88,$01,$07,$80,$e0,$00,$e2,$e0,$e0,$00,$f2,$88,$88,$88
-        .byte   $98,$a4,$88,$88,$88,$98,$a4,$8b,$8b,$8b,$9b,$a7,$02,$03,$04,$05
-        .byte   $06,$23,$26,$19,$20,$80,$04,$04,$04,$04,$08,$10,$10,$10,$0d,$0d
-        .byte   $00,$26,$46,$1e,$20,$4a,$4a,$4a,$4a,$4a,$30,$10,$00,$00,$00,$d7
-        .byte   $10,$00,$00,$00,$3f,$10,$10,$00,$00,$11,$de,$00,$00,$00,$b5,$de
-        .byte   $00,$20,$00,$87,$04,$97,$04,$04,$07,$95,$05,$a4,$06,$e8,$07,$e8
-        .byte   $07,$e8,$07,$e8,$07,$e8,$07,$05,$00,$00,$41,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$50,$8e,$f0,$91,$50,$04,$00,$8a,$ff,$8d,$00
-        .byte   $30,$00,$92,$0b,$02,$e0,$b0,$00,$e2,$a0,$70,$00,$f2,$80,$36,$37
-        .byte   $35,$34,$80,$36,$37,$35,$34,$83,$36,$37,$35,$34,$06,$07,$07,$07
-        .byte   $07,$18,$03,$04,$05,$06,$04,$04,$04,$04,$04,$10,$30,$20,$20,$20
-        .byte   $1e,$24,$6b,$70,$73,$4a,$4a,$4a,$4a,$4a,$00,$e0,$00,$00,$00,$30
-        .byte   $00,$00,$ff,$00,$50,$00,$00,$d0,$00,$70,$00,$00,$70,$00,$80,$00
-        .byte   $00,$50,$00,$56,$05,$d1,$05,$f9,$06,$34,$07,$f6,$06,$e8,$07,$e8
-        .byte   $07,$e8,$07,$e8,$07,$e8,$07,$05,$02,$78,$41,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$50,$98,$f0,$9b,$50,$04,$00,$94,$ff,$97,$00
-        .byte   $30,$00,$9c,$0c,$07,$80,$a0,$00,$e2,$70,$a3,$00,$f2,$a0,$84,$90
-        .byte   $3c,$2c,$a0,$84,$90,$3c,$2c,$a3,$87,$93,$3f,$33,$0b,$0b,$0b,$05
-        .byte   $0c,$23,$33,$08,$1f,$08,$04,$04,$04,$04,$04,$10,$10,$20,$10,$10
-        .byte   $1e,$22,$1e,$22,$22,$4a,$4a,$4a,$4a,$4a,$00,$e3,$00,$00,$00,$50
-        .byte   $e0,$08,$00,$10,$00,$30,$00,$00,$b0,$41,$e1,$20,$00,$00,$50,$40
-        .byte   $40,$00,$80,$51,$04,$04,$05,$a7,$05,$de,$05,$6d,$05,$e8,$07,$e8
-        .byte   $07,$e8,$07,$e8,$07,$e8,$07,$05,$04,$b8,$41,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$50,$a2,$f0,$a5,$50,$04,$00,$9e,$ff,$a1,$00
-        .byte   $30,$00,$a6,$01,$0c,$80,$d0,$00,$e2,$50,$d0,$00,$f2,$98,$a0,$9c
-        .byte   $94,$8c,$98,$a0,$9c,$94,$8c,$9b,$a3,$9f,$97,$8f,$02,$03,$04,$01
-        .byte   $09,$23,$26,$19,$20,$08,$04,$04,$04,$04,$04,$20,$20,$20,$20,$20
-        .byte   $1e,$1e,$1e,$22,$22,$4a,$4a,$4a,$4a,$4a,$00,$80,$00,$00,$60,$00
-        .byte   $80,$00,$00,$60,$00,$80,$00,$00,$60,$41,$80,$20,$00,$60,$50,$80
-        .byte   $40,$00,$60,$e8,$04,$cb,$06,$e6,$06,$51,$07,$1e,$05,$e8,$07,$e8
-        .byte   $07,$e8,$07,$e8,$07,$e8,$07,$05,$06,$08,$42,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$50,$ac,$f0,$af,$50,$04,$00,$a8,$ff,$ab,$00
-        .byte   $30,$00,$b0,$01,$09,$80,$e0,$00,$e2,$90,$e0,$00,$f2,$9c,$a4,$98
-        .byte   $90,$8c,$9c,$a4,$98,$90,$8c,$9f,$a7,$9b,$93,$8f,$00,$03,$04,$08
-        .byte   $06,$1f,$28,$10,$08,$08,$04,$06,$04,$04,$04,$09,$09,$09,$09,$09
-        .byte   $1e,$20,$1e,$1e,$22,$4a,$4a,$4a,$4a,$4a,$00,$d0,$00,$00,$20,$20
-        .byte   $f0,$00,$00,$00,$00,$d0,$00,$00,$20,$00,$30,$00,$00,$70,$50,$d0
-        .byte   $40,$00,$80,$a5,$06,$4f,$05,$86,$06,$ca,$04,$ce,$04,$e8,$07,$e8
-        .byte   $07,$e8,$07,$e8,$07,$e8,$07,$05,$08,$88,$42,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00
 
 L7280   .byte   $a0,$73,$b1,$11,$c9,$0a,$30,$03,$4c,$6b,$57,$60,$00,$00,$00,$00
 
@@ -2495,7 +2242,7 @@ _L762E  lda     ExtraBackgroundColor2
         sta     ExtraBackgroundColor2
         jmp     L7610
 
-_L7639  jsr     L60CA
+_L7639  jsr     Sub_SIDSetup
         rts
 
         .fill   2,$00
@@ -2618,7 +2365,7 @@ Sub_ResetToMenu
         ldx     #$00
         ldy     #$7c
         jsr     L5C4F
-        jsr     L60CA
+        jsr     Sub_SIDSetup
         rts
 
         .fill   2,$00

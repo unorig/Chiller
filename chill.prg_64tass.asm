@@ -48,16 +48,16 @@ PLOT    =       $fff0      ;read/set cursor X/Y position
 
 
 *       =       $0818
-        ldx     #$00
+        ldx     #$00					; X = #00
 L081A   lda     L0900,x
         sta     LCE00,x
         lda     L0A00,x
         sta     Var_CurrentEnemyIndex+1,x
-        inx
+        inx									; Increase X
         bne     L081A
 _L0829  lda     L08D0,x
         sta     Sprite0XPosition,x
-        inx
+        inx									; Increase X
         cpx     #$30
         bne     _L0829
         jmp     L2DFA
@@ -70,35 +70,35 @@ _L0829  lda     L08D0,x
         .include "Sprites/enemysprites.asm"
 
 L2A00   lsr     a
-        clc                				; Clear carry
+        clc                					; Clear carry
         bcc     L2A29
 
 Sub_2A04
-        sta     Var_PlayerDirection 	; Set Var_PlayerDirection to up (00 = up / 01 = down / 02 = left / 03 = right).
-        lda     Sprite0YPos 			; A = Sprite0YPos
-        sec                				; Set carry
-L2A0B   sbc     #$2c       				; Subtract with carry #2c (44)
-        lsr     a          				; Divide by 2
-        lsr     a          				; Divide by 2
-        lsr     a          				; Divide by 2
-        tay                				; Transfer A to Y.
-        lda     Sprite0XPosition 		; A = Sprite0XPosition
-        sec                				; Set carry
-        sbc     #$0c       				; Subtract with carry #0c (12)
-        bcc     L2A00      				; Branch if carry clear
-        lsr     a          				; Divide by 2
-        sta     Var_CharacterXPosLow 	; Update Var_CharacterXPosLow
-        lda     SpriteXMSBRegister 		; A = SpriteXMSBRegister
-        and     #$01       				; Isolate the first bit
-        beq     + 						; Branch something something
-        lda     #$80 					; A = #80
-+		ora     Var_CharacterXPosLow
-L2A29 	lsr     a          				; Divide by 2
-        lsr     a          				; Divide by 2
-        tax                				; Transfer A to X
-        tya                				; Transfer Y to A. Y = (Y Pos - #2c) / 8 
-        asl     a          				; Multiply by 2
-        tay                				; Transfer A to Y
+        sta     Var_PlayerDirection 		; Set Var_PlayerDirection to up (00 = up / 01 = down / 02 = left / 03 = right).
+        lda     Sprite0YPos 				; A = Sprite0YPos
+        sec                					; Set carry
+L2A0B   sbc     #$2c       					; Subtract with carry #2c (44)
+        lsr     a          					; Divide by 2
+        lsr     a          					; Divide by 2
+        lsr     a          					; Divide by 2
+        tay                					; Transfer A to Y.
+        lda     Sprite0XPosition 			; A = Sprite0XPosition
+        sec                					; Set carry
+        sbc     #$0c       					; Subtract with carry #0c (12)
+        bcc     L2A00      					; Branch if carry clear
+        lsr     a          					; Divide by 2
+        sta     Var_CharacterXPosLow 		; Update Var_CharacterXPosLow
+        lda     SpriteXMSBRegister 			; A = SpriteXMSBRegister
+        and     #$01       					; Isolate the first bit
+        beq     + 							; Branch something something
+        lda     #$80 						; A = #80
++		ora     Var_CharacterXPosLow		;
+L2A29 	lsr     a          					; Divide by 2
+        lsr     a          					; Divide by 2
+        tax                					; Transfer A to X
+        tya                					; Transfer Y to A. Y = (Y Pos - #2c) / 8 
+        asl     a          					; Multiply by 2
+        tay                					; Transfer A to Y
 ;*******************************************************************************
 ;* $5100 is the top left character. Y is the number of characters from $5100   *
 ;* from left to right. $fc is the high byte / $fb is the low byte.             *
@@ -108,16 +108,16 @@ L2A29 	lsr     a          				; Divide by 2
         lda     High_ScreenMap,y
         sta     High_PlayerLocation
         txa
-        clc
+        clc									; Clear carry flag
         adc     Low_PlayerLocation
         sta     Low_PlayerLocation
         bcc     If_2A43
         inc     High_PlayerLocation
 If_2A43 lda     High_PlayerLocation
-        clc
-        adc     #$04       ;Add #04 to the current value of $fc. This equates to the screen high byte.
-        sta     High_PlayerLocation ;Set player position high byte
-        ldx     Var_PlayerDirection ;X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
+        clc									; Clear carry flag
+        adc     #$04       					;Add #04 to the current value of $fc. This equates to the screen high byte.
+        sta     High_PlayerLocation 		;Set player position high byte
+        ldx     Var_PlayerDirection 		;X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
 ;*******************************************************************************
 ;* This is getting the codes to find what character is next.                   *
 ;* The player position ($fb/$fc) is considered a row above the platform.       *
@@ -126,36 +126,36 @@ If_2A43 lda     High_PlayerLocation
 ;* $5147 = #27 (39) characters from current position. Checking left.           *
 ;* $5148 = #29 (41) characters from current position. Checking right.          *
 ;*******************************************************************************
-        lda     L5145,x    ;A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
-        tay                ;Transfer A to Y
-        lda     (Low_PlayerLocation),y ;($fb),y = Get character based on direction.
-        cmp     #$a0       ;Check if current character is blank
-        bne     Sub_CheckWhatPlayerTouching ;Branch if not a blank space
+        lda     L5145,x    					;A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
+        tay                					;Transfer A to Y
+        lda     (Low_PlayerLocation),y 		;($fb),y = Get character based on direction.
+        cmp     #$a0       					; Check if current character is blank
+        bne     Sub_CheckWhatPlayerTouching ; Branch if not a blank space
 Jump_PlayerGoingUp
-        ldx     #$00       ;X = #00. Set direction to Up
-        lda     Var_PlayerDirection ;A = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
-        jsr     Sub_UpdateSpritePositions ;X = Sprite / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)
+        ldx     #$00       					; X = #00. Set direction to Up
+        lda     Var_PlayerDirection 		; A = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
+        jsr     Sub_UpdateSpritePositions 	; X = Sprite / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         rts
 
 Sub_CheckWhatPlayerTouching
-        cmp     #$2a       ;Check if current character is a platform
-        bpl     If_NotPlatform ;Branch if not a platform (e.g. mushroom)
+        cmp     #$2a       					; Check if current character is a platform
+        bpl     If_NotPlatform 				; Branch if not a platform (e.g. mushroom)
         jmp     Jump_PlayerGoingUp
 
 If_NotPlatform
-        cmp     #$54       ;Check if current character is mushroom
-        bpl     If_TouchingMushroom ;Branch if current character is mushroom
-        jmp     L5A9A
+        cmp     #$54       					; Check if current character is mushroom
+        bpl     If_TouchingMushroom 		; Branch if current character is mushroom
+        jmp     L5A9A						;
 
 If_TouchingMushroom
-        jmp     Sub_GetMushroom
+        jmp     Sub_GetMushroom				;
 
         .byte   $60
 
-L2A72   sta     Temp_Jumping
-        lda     L544A
-        sta     L2A7F
-        jmp     Sub_5880
+L2A72   sta     Temp_Jumping				;
+        lda     L544A						;
+        sta     L2A7F						;
+        jmp     Sub_5880					;
 
 L2A7E   .byte   $07
 L2A7F   .byte   $09
@@ -178,11 +178,11 @@ Sub_2A80
         iny                					;Increase Y
         lda     (Low_PlayerLocation),y 		;A = 00
         sta     LC2A5+1    					;$C2A6 = #00
-        iny                ;Increase Y
-        lda     (Low_PlayerLocation),y ;A = #30
-        sta     LC2A9+1    ;C2AA = #30
-        jsr     Sub_C29D
-        rts                ;Return from subroutine
+        iny                					;Increase Y
+        lda     (Low_PlayerLocation),y 		;A = #30
+        sta     LC2A9+1    					;C2AA = #30
+        jsr     Sub_C29D					;
+        rts                					;Return from subroutine
 
         .byte   $dc,$9d,$bd,$a0,$2a,$20,$80,$2a,$a2,$c3,$a0,$2a,$20,$80,$2a,$60
         .byte   $28,$04,$ff,$07,$28,$41,$28,$d8,$ff,$db,$28,$46,$ea,$ea,$ea,$a8
@@ -221,26 +221,26 @@ Sub_SetScreenControl
 
 L2C00   ldx     #$00
 If_2C02 lda     L4542,x
-        jsr     L56B2
-        inx
+        jsr     L56B2				
+        inx									; Increase X
         cpx     #$05
-        bne     If_2C02
+        bne     +
         jsr     L2E62
         rts
 
         .fill   8,$ea
 
 L2C19   ldx     #$03
-If_2C1B inc     LCFA6,x
+- 		inc     LCFA6,x
         lda     LCFA6,x
         cmp     #$ba
-        bne     If_2C2F
+        bne     +
         lda     #$b0
         sta     LCFA6,x
-        dex								; Decrease X
+        dex									; Decrease X
         cpx     #$00
-        bne     If_2C1B
-If_2C2F jsr     L5681
+        bne     -
++ 		jsr     L5681
         jmp     Jump_2C44
 
         .byte   $a9,$60,$8d,$fc,$ca,$20,$86,$ca,$a9,$4c,$8d,$fc,$ca,$60,$ea
@@ -248,7 +248,7 @@ If_2C2F jsr     L5681
 Jump_2C44
         lda     #$01
         sta     SpriteEnableRegister
-        ldx     #$00
+        ldx     #$00					; X = #00
 - 		lda     $05ef,x
         sta     $0345,x
         lda     $d9ef,x
@@ -257,7 +257,7 @@ Jump_2C44
         sta     $05ef,x
         lda     $d81a
         sta     $d9ef,x
-        inx
+        inx									; Increase X
         cpx     #$09
         bne     -
         lda     #$00					; A = #00
@@ -276,12 +276,12 @@ Jump_2C44
         sta     L2E00+33
         lda     #$00					; A = #00
         sta     LCF74
-        ldx     #$00
+        ldx     #$00					; X = #00
 + 		lda     $0345,x
         sta     $05ef,x
         lda     $034e,x
         sta     $d9ef,x
-        inx
+        inx									; Increase X
         cpx     #$09
         bne     +
         jmp     LC694
@@ -335,7 +335,7 @@ L2CF3   sta     L2E87
 L2D00   ldx     #$00
 If_2D02 lda     L45E7,x
         sta     LCF76,x
-        inx
+        inx									; Increase X
         cpx     #$05
         bne     If_2D02
         lda     L45F5
@@ -504,10 +504,10 @@ Sub_2F00
         sta     SpriteXMSBRegister
         lda     #$00					; A = #00
         sta     Adr_Voice3Control
-        ldx     #$00
+        ldx     #$00					; X = #00
 If_2F0A lda     L45B3,x
         sta     $d40e,x
-        inx
+        inx									; Increase X
         cpx     #$07
         bne     If_2F0A
         rts
@@ -538,11 +538,11 @@ L2F4D   jsr     Sub_SIDSetup
         .byte   $2e
 
 Sub_StartEnemyUpdate
-        inc     LCF75      ;Increment $cfb2
-        lda     LCF75      ;A = $cfb2
-        cmp     #$ff       ;Check if $cfb2 is up to 255 loops
-        beq     Sub_EnemyPositionLoop ;Branch if looped through 254 times
-        rts                ;Return from subroutine (Back to $ca57)
+        inc     LCF75      				;Increment $cfb2
+        lda     LCF75      				;A = $cfb2
+        cmp     #$ff       				;Check if $cfb2 is up to 255 loops
+        beq     Sub_EnemyPositionLoop 	;Branch if looped through 254 times
+        rts                				;Return from subroutine (Back to $ca57)
 
 ;***************************************
 ;*        Enemy positioning loop       *
@@ -586,21 +586,21 @@ IF_NextEnemy
         .include "Data/data.asm"
 		
 IF_InputNotJumping
-        lda     L45FF      ;A = $45ff (Always seems to be #01)
-        beq     RTS_535A   ;Branch if equal zero
-        dec     Temp_534c  ;Decrease #534c
-        beq     If_535D    ;Branch if equal zero
+        lda     L45FF      				;A = $45ff (Always seems to be #01)
+        beq     RTS_535A   				;Branch if equal zero
+        dec     Temp_534c  				;Decrease #534c
+        beq     If_535D    				;Branch if equal zero
 RTS_535A
         rts
 
         .fill   2,$ea
 
-If_535D lda     Temp_0c    ;A = $534b (Always seems to be #0c)
-        sta     Temp_534c  ;$534c = $53cb
-        lda     Sprite0YPos ;A = SpriteMSBYPosition
+If_535D lda     Temp_0c    				;A = $534b (Always seems to be #0c)
+        sta     Temp_534c  				;$534c = $53cb
+        lda     Sprite0YPos 			;A = SpriteMSBYPosition
         sta     Temp_SpriteMSBYPosition ;Temp_SpriteMSBYPosition = SpriteMSBYPosition
-        lda     #$01       ;A = #01
-        ldx     #$00       ;X = #00
+        lda     #$01       				;A = #01
+        ldx     #$00       				;X = #00
         jsr     Sub_2A04
         lda     Sprite0YPos
         cmp     Temp_SpriteMSBYPosition
@@ -618,9 +618,9 @@ If_537E jsr     L54AC
 
         .byte   $ea
 
-L538E   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
-        lda     Var_JumpInput ;#01 jumping / #00 not jumping
-        beq     IF_InputNotJumping ;Branch if not jumping
+L538E   inc     Var_SomethingRandom 	;Increase Var_SomethingRandom
+        lda     Var_JumpInput 			;#01 jumping / #00 not jumping
+        beq     IF_InputNotJumping 		;Branch if not jumping
         dec     L2A7F
         beq     If_539E
         rts
@@ -628,12 +628,12 @@ L538E   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
         .fill   2,$ea
 
 If_539E jsr     Sub_SetPosTemps
-        bne     IF_NotJumping ;Branch if not jumping (#01 Not jumping / #00 Jumping)
+        bne     IF_NotJumping 			;Branch if not jumping (#01 Not jumping / #00 Jumping)
         lda     #$00					; A = #00. Used to set player direction which is up.
         jsr     Sub_2A04
         jsr     L5437
         ldx     L2A7E
-        cpx     #$18       ;Maximum jump height
+        cpx     #$18       				;Maximum jump height
         bne     If_53B5
         jmp     Jump_53BE
 
@@ -665,7 +665,7 @@ If_53D8 lda     L544A,x
 
 Jump_53E2
         lda     #$00					; A = #00
-        sta     Var_JumpInput ;#01 jumping / #00 not jumping
+        sta     Var_JumpInput 			;#01 jumping / #00 not jumping
         lda     #$18
         sta     Var_Falling
         rts
@@ -692,9 +692,9 @@ If_53FF nop
         .byte   $ea,$a9,$00,$8d,$4e,$53,$20,$a7,$2f,$60,$ea,$ea
 
 L5418   lda     Var_Falling
-        bne     If_5425    ;Branch if not falling (Falling = #00)
-        lda     #$01       ;A = #01
-        sta     Var_JumpInput ;Var_JumpInput = #01 (#01 jumping / #00 not jumping)
+        bne     If_5425    				;Branch if not falling (Falling = #00)
+        lda     #$01       				;A = #01
+        sta     Var_JumpInput 			;Var_JumpInput = #01 (#01 jumping / #00 not jumping)
         jmp     LC1B4
 
 If_5425 jmp     Jump_Jumping
@@ -706,7 +706,7 @@ Temp_Sprite0YPos
 Sub_SetPosTemps
         lda     Sprite0YPos
         sta     Temp_Sprite0YPos
-        lda     Temp_Jumping ;#01 Not jumping / #00 Jumping
+        lda     Temp_Jumping 			;#01 Not jumping / #00 Jumping
         rts
 
         .fill   2,$ea
@@ -735,7 +735,7 @@ L5467   lda     Sprite0YPos
         rts
 
 +		lda     #$00
-        sta     Var_JumpInput ;#01 jumping / #00 not jumping
+        sta     Var_JumpInput 			;#01 jumping / #00 not jumping
         rts
 
         .fill   2,$ea
@@ -817,7 +817,7 @@ If_550D lda     L54F7+3
         .fill   4,$ea
 
 L5518   lda     L54F7+2
-        clc
+        clc									; Clear carry flag
         adc     #$05
         sta     L54F7+2
         sta     $d40e
@@ -859,16 +859,16 @@ If_565E jmp     Jump_5716
 
 Sub_VerticalMovingEnemies
         sta     Var_CurrentEnemy
-        tax                ;Transfer A to X (Current enemy)
-        lda     #$01       ;A = #01
-        sta     LCF33,x    ;$cf33,x = #01 ($cf33, current enemy)
-        txa                ;Transfer X to A
+        tax                				;Transfer A to X (Current enemy)
+        lda     #$01       				;A = #01
+        sta     LCF33,x    				;$cf33,x = #01 ($cf33, current enemy)
+        txa                				;Transfer X to A
         rts
 
 L566D   ldx     #$00
 If_566F lda     L45E7,x
         sta     LCF76,x
-        inx
+        inx									; Increase X
         cpx     #$05
         bne     If_566F
         lda     L45EC
@@ -879,7 +879,7 @@ L5681   ldx     #$00
 L5683   lda     L3408+224,x
         cmp     Var_Sprite3Speed,x
         beq     If_56AC
-        clc
+        clc									; Clear carry flag
         lda     Var_Sprite3Speed,x
         lsr     a
         sta     Var_Sprite3Speed,x
@@ -949,15 +949,15 @@ L574A   .byte   $90,$92,$85,$93,$93,$a0,$83,$94,$92,$8c,$a0,$86,$8f,$92,$a0,$8d
 
 L5768   jmp     L7280
 
-L576B   jsr     Sub_WaitForCurrentRaster ;JSR from $5d65
-        nop								; No operation.								; No operation.
-        nop								; No operation.								; No operation.
+L576B   jsr     Sub_WaitForCurrentRaster 	;JSR from $5d65
+        nop									; No operation.								; No operation.
+        nop									; No operation.								; No operation.
         jsr     SetupSpritePositions
         lda     SpriteEnableRegister
         ora     #$03
         sta     SpriteEnableRegister
         lda     Var_BorderColour
-        beq     If_5783    ;Have not seen this executed yet.
+        beq     If_5783    					;Have not seen this executed yet.
         jmp     Jump_57BD
 
 If_5783 lda     #$01
@@ -985,7 +985,7 @@ If_5783 lda     #$01
         jmp     Jump_5844
 
 Jump_57BD
-        lda     #$00					; A = #00
+        lda     #$00						; A = #00
         sta     Var_BorderColour
         lda     #$d8
         sta     L582C+1
@@ -1011,19 +1011,19 @@ Jump_57BD
 
         .fill   9,$ea
 
-L5800   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
+L5800   inc     Var_SomethingRandom 		; Increase Var_SomethingRandom
         jsr     Sub_RedHealthBarZone
         jsr     Sub_HealthBarUpdates
-        nop								; No operation.
-        nop								; No operation.								; No operation.
+        nop									; No operation.
+        nop									; No operation.								; No operation.
         lda     Var_5a00
         cmp     #$00
         beq     If_5818
-        lda     Var_JumpDirection ;Never taken (Left = #ff / Right = #01 / Up = #00)
-        sta     Var_LeftRightInput ;Never taken
-If_5818 lda     Var_JumpInput ;#01 jumping / #00 not jumping
-        cmp     #$00       ;Compare Var_JumpInput
-        bne     If_5836    ;Branch if jumping
+        lda     Var_JumpDirection 			; Never taken (Left = #ff / Right = #01 / Up = #00)
+        sta     Var_LeftRightInput 			; Never taken
+If_5818 lda     Var_JumpInput 				; #01 jumping / #00 not jumping
+        cmp     #$00       					; Compare Var_JumpInput
+        bne     If_5836    					; Branch if jumping
         lda     #$a9
         sta     Sub_GetKeyboardInputs
         lda     #$ad
@@ -1038,99 +1038,98 @@ If_5836 jmp     L59E6
         .fill   11,$ea
 
 Jump_5844
-        lda     SpritePointer0 ;Load SpritePointer0
-L5847   cmp     #$f1       ;Check if SpritePointer0 = #f1
-        bne     Sub_CheckXMovement ;Branch if SpritePointer0 not equal #f1
-L584B   lda     #$f6       ;A = #f6
-        sta     SpritePointer0 ;SpritePointer0 = #f6
+        lda     SpritePointer0 				; Load SpritePointer0
+L5847   cmp     #$f1       					; Check if SpritePointer0 = #f1
+        bne     Sub_CheckXMovement 			; Branch if SpritePointer0 not equal #f1
+L584B   lda     #$f6       					; A = #f6
+        sta     SpritePointer0 				; SpritePointer0 = #f6
 Sub_CheckXMovement
-        ldx     Sprite0XPosition ;Set X to Boy X position
-        lda     Var_JumpDirection+1 ;Set A with previous X position
-        stx     Var_JumpDirection+1 ;Update $5a02 with Boy x position
-        cmp     Var_JumpDirection+1 ;Compare current position to previous position
-        beq     If_5864    ;Branch if no movement change
-        lda     #$00					; A = #00
-        sta     Var_JumpDirection+2 ;Store #00 to $5a03
+        ldx     Sprite0XPosition 			; Set X to Boy X position
+        lda     Var_JumpDirection+1 		; Set A with previous X position
+        stx     Var_JumpDirection+1 		; Update $5a02 with Boy x position
+        cmp     Var_JumpDirection+1 		; Compare current position to previous position
+        beq     If_5864    					; Branch if no movement change
+        lda     #$00						; A = #00
+        sta     Var_JumpDirection+2 		; Store #00 to $5a03
 RTS_5863
         rts
 
-If_5864 inc     Var_JumpDirection+2 ;Increment $5a03
-        lda     Var_JumpDirection+2 ;A = $5a03
-        cmp     #$90       ;Check if $5a03 = #90
-        bne     RTS_5863   ;Branch if A not equal #90 (RTS)
-        lda     SpritePointer0 ;A = SpritePointer0 (e6 right / e2 left)
-        and     #$04       ;Check if facing left or right (Right is #04 / Left is #00)
-        bne     If_587A    ;Branch if facing right
-L5875   lda     #$f2       ;A = #f2
+If_5864 inc     Var_JumpDirection+2 		; Increment $5a03
+        lda     Var_JumpDirection+2 		; A = $5a03
+        cmp     #$90       					; Check if $5a03 = #90
+        bne     RTS_5863   					; Branch if A not equal #90 (RTS)
+        lda     SpritePointer0 				; A = SpritePointer0 (e6 right / e2 left)
+        and     #$04       					; Check if facing left or right (Right is #04 / Left is #00)
+        bne     If_587A    					; Branch if facing right
+L5875   lda     #$f2       					; A = #f2
         jmp     JMP_UpdateLRSprite
 
-If_587A lda     #$f6       ;A = #f6
+If_587A lda     #$f6       					; A = #f6
 JMP_UpdateLRSprite
-        sta     SpritePointer0 ;Update SpritePointer 0 (Right #f6 / Left #f2)
+        sta     SpritePointer0 				; Update SpritePointer 0 (Right #f6 / Left #f2)
         rts
 
 Sub_5880
-        lda     #$00					; A = #00
-        sta     Var_5a00   ;Var_5a00 = #00
-        lda     Var_LeftRightInput ;Left = #ff / Right = #01
-        sta     Var_JumpDirection ;Left = #ff / Right = #01 / Up = #00
-        lda     #$60       ;A = #60
-        sta     Sub_GetKeyboardInputs ;$c84d = #60
-        sta     Jump_5980  ;$5980 = #60
-        lda     SpritePointer0 ;Load SpritePointer0
-        and     #$04       ;Isolate 4th bit
-        bne     If_58a3    ;Branch if facing left
-L589A   lda     #$f0       ;A = #f0
-        nop								; No operation.								; No operation.                ;no operation
-        sta     SpritePointer0 ;SprintPointer0 = #f0
+        lda     #$00						; A = #00
+        sta     Var_5a00   					; Var_5a00 = #00
+        lda     Var_LeftRightInput 			; Left = #ff / Right = #01
+        sta     Var_JumpDirection 			; Left = #ff / Right = #01 / Up = #00
+        lda     #$60       					; A = #60
+        sta     Sub_GetKeyboardInputs 		; $c84d = #60
+        sta     Jump_5980  					; $5980 = #60
+        lda     SpritePointer0 				; Load SpritePointer0
+        and     #$04       					; Isolate 4th bit
+        bne     If_58a3    					; Branch if facing left
+L589A   lda     #$f0       					; A = #f0
+        nop									; No operation.								; No operation.                ;no operation
+        sta     SpritePointer0 				; SprintPointer0 = #f0
         jmp     Jump_58A8
 
-If_58a3 lda     #$f1       ;A = #f1
-        sta     SpritePointer0 ;SpritePointer0 = #f1
+If_58a3 lda     #$f1       					; A = #f1
+        sta     SpritePointer0 				; SpritePointer0 = #f1
 Jump_58A8
-        lda     #$f0       ;A = #f0
-        sta     LC79B+1    ;#c79b = #f0
-        sta     LC7C5+1    ;#c7c5 = #f0
+        lda     #$f0       					; A = #f0
+        sta     LC79B+1    					; #c79b = #f0
+        sta     LC7C5+1    					; #c7c5 = #f0
         jmp     Jump_JumpSound
 
 Sub_CheckSlidingOnRope
         lda     Var_SlidingOnRope
-        bne     If_58bb    ;Branch if not sliding down rope
+        bne     If_58bb    					; Branch if not sliding down rope
         rts
 
         .fill   2,$ea
 
-If_58bb ldx     #$00       ;X = #00
-        lda     InputPortA ;A = $dc00
-        and     #$10       ;Isolate 5th bit. (Port 2 joystick fire pressed)
-        bne     If_58C7    ;Branch if fire not received
-        nop								; No operation.
-        ldx     #$01       ;X = 01
-If_58C7 lda     Var_KeyboardInput ;A = $c5
-        cmp     #$37       ;Compare to #37 (Keyboard fire pressed).
-        bne     If_58cf    ;Branch if fire not received
-        ldx     #$01       ;X = 01
-If_58cf cpx     #$00       ;Compare X to X = #01
-        bne     Sub_FireButtonEvent ;Branch if fire received
-        lda     #$00					; A = #00
-        sta     Var_StartGame ;Reset Var_StartGame
+If_58bb ldx     #$00       					; X = #00
+        lda     InputPortA 					; A = $dc00
+        and     #$10       					; Isolate 5th bit. (Port 2 joystick fire pressed)
+        bne     If_58C7    					; Branch if fire not received
+        nop									; No operation.
+        ldx     #$01       					; X = 01
+If_58C7 lda     Var_KeyboardInput 			; A = $c5
+        cmp     #$37       					; Compare to #37 (Keyboard fire pressed).
+        bne     If_58cf    					; Branch if fire not received
+        ldx     #$01       					; X = 01
+If_58cf cpx     #$00       					; Compare X to X = #01
+        bne     Sub_FireButtonEvent 		; Branch if fire received
+        lda     #$00						; A = #00
+        sta     Var_StartGame 				; Reset Var_StartGame
         jmp     Jump_5844
 
 Sub_FireButtonEvent
         lda     Var_StartGame
-        beq     If_58E3
+        beq     +
         jmp     Jump_5844
-
-If_58E3 jmp     L5768
++ 		jmp     L5768
 
 SetupSpritePositions
-        lda     #$01       					;JSR from $5770
-        sta     Var_StartGame 				;Store #01 to $5A06
-        ldx     Sprite0XPosition 			;Load X with Sprite0_X_Position
-        lda     Sprite1XPositionRegister 	;Load A with Sprite1_X_Position
-        sta     Sprite0XPosition 			;Update Sprite0_X_Position with Sprite1_X_Position
-        stx     Sprite1XPositionRegister 	;Update Sprite1_X_Position with Sprite0_X_Position
-        ldx     Sprite0YPos 				;Load A with Sprite0_Y_Position
+        lda     #$01       					; JSR from $5770
+        sta     Var_StartGame 				; Store #01 to $5A06
+        ldx     Sprite0XPosition 			; Load X with Sprite0_X_Position
+        lda     Sprite1XPositionRegister 	; Load A with Sprite1_X_Position
+        sta     Sprite0XPosition 			; Update Sprite0_X_Position with Sprite1_X_Position
+        stx     Sprite1XPositionRegister 	; Update Sprite1_X_Position with Sprite0_X_Position
+        ldx     Sprite0YPos 				; Load A with Sprite0_Y_Position
         jmp     ContSetupSpritePositions
 
         .byte   $8d,$f8,$07
@@ -1138,47 +1137,47 @@ SetupSpritePositions
 ResetGirl
         jsr     Sub_SetRandomVariables
         lda     #$e0
-        sta     Sprite1XPositionRegister 	;Set girl sprite position
-        sta     Sprite1YPosition 			;Set girl sprite position
-        lda     #$06       					;Value will be used to set border to blue
+        sta     Sprite1XPositionRegister 	; Set girl sprite position
+        sta     Sprite1YPosition 			; Set girl sprite position
+        lda     #$06       					; Value will be used to set border to blue
         nop									; No operation.
-        sta     Adr_BorderColor 			;Set border colour to blue
+        sta     Adr_BorderColor 			; Set border colour to blue
         lda     #$ee
-        sta     SpritePointer1 				;Update sprite pointer for girl
-        rts                					;Return from subroutine
+        sta     SpritePointer1 				; Update sprite pointer for girl
+        rts                					; Return from subroutine
 
         .fill   2,$ea
 
 ContSetupSpritePositions
-        lda     Sprite1YPosition 			;Load A with Sprite1_Y_Position
-        sta     Sprite0YPos 				;Update Sprite0_Y_Position with Sprite1_Y_Position
-        stx     Sprite1YPosition 			;Update Sprite1_Y_Position with Sprite0_Y_Position
+        lda     Sprite1YPosition 			; Load A with Sprite1_Y_Position
+        sta     Sprite0YPos 				; Update Sprite0_Y_Position with Sprite1_Y_Position
+        stx     Sprite1YPosition 			; Update Sprite1_Y_Position with Sprite0_Y_Position
         lda     SpriteXMSBRegister
-        and     #$01       					;Isolate first bit in SpriteXMSBRegister
-        tax                					;Store boy X-MSB flag in X
+        and     #$01       					; Isolate first bit in SpriteXMSBRegister
+        tax                					; Store boy X-MSB flag in X
         lda     SpriteXMSBRegister
-        and     #$02       					;Isolate second bit in SpriteXMSBRegister
-        tay                					;Store girl X-MSB flag in Y
+        and     #$02       					; Isolate second bit in SpriteXMSBRegister
+        tay                					; Store girl X-MSB flag in Y
         lda     SpriteXMSBRegister
-        and     #$fc       					;Get remaining bits (Exlcuding 1 and 2)
-        sta     Temp_SpiteXMSBReg 			;Store enemy X-MSB values
-        cpy     #$00       					;Compare girl X-MSB values to #00
-        beq     + 							;Branch if girl X-MSB flag not set
-        lda     #$01       					;Load A with #01
-        ora     Temp_SpiteXMSBReg 			;Turn on first byte for MSB-X register
-        sta     Temp_SpiteXMSBReg 			;Store girl into SpriteXMSBReg
-+       cpx     #$00       					;Branch if girl X-MSB flag not set
+        and     #$fc       					; Get remaining bits (Exlcuding 1 and 2)
+        sta     Temp_SpiteXMSBReg 			; Store enemy X-MSB values
+        cpy     #$00       					; Compare girl X-MSB values to #00
+        beq     + 							; Branch if girl X-MSB flag not set
+        lda     #$01       					; Load A with #01
+        ora     Temp_SpiteXMSBReg 			; Turn on first byte for MSB-X register
+        sta     Temp_SpiteXMSBReg 			; Store girl into SpriteXMSBReg
++       cpx     #$00       					; Branch if girl X-MSB flag not set
         beq     +
-        lda     #$02       					;Load A with #01
-        ora     Temp_SpiteXMSBReg 			;Turn on second byte for MSB-X register
-        sta     Temp_SpiteXMSBReg 			;Store bpy into SpriteXMSBReg
+        lda     #$02       					; Load A with #01
+        ora     Temp_SpiteXMSBReg 			; Turn on second byte for MSB-X register
+        sta     Temp_SpiteXMSBReg 			; Store bpy into SpriteXMSBReg
 + 		lda     Temp_SpiteXMSBReg
-        sta     SpriteXMSBRegister 			;Update SpriteXMSBRegister
-        ldx     SpritePointer0 				;Set X with SpritePointer0 (Boy)
-        lda     SpritePointer1 				;Set A with SpritePointer1 (Girl)
-        sta     SpritePointer0 				;Store SpritePointer1 (Girl) to SpritePointer0 (Boy)
-        stx     SpritePointer1 				;Store SpritePointer0 (Boy) to SpritePointer1 (Girl)
-        rts                					;Return from subroutine ($5770)
+        sta     SpriteXMSBRegister 			; Update SpriteXMSBRegister
+        ldx     SpritePointer0 				; Set X with SpritePointer0 (Boy)
+        lda     SpritePointer1 				; Set A with SpritePointer1 (Girl)
+        sta     SpritePointer0 				; Store SpritePointer1 (Girl) to SpritePointer0 (Boy)
+        stx     SpritePointer1 				; Store SpritePointer0 (Boy) to SpritePointer1 (Girl)
+        rts                					; Return from subroutine ($5770)
 
 Sub_RedHealthBarZone
         lda     $0430      					; Load top red health block
@@ -1268,7 +1267,6 @@ L59E6   lda     Var_JumpInput 				; #01 jumping / #00 not jumping
         sta     Var_JumpSkipDamage 			; Var_JumpSomething = #00
         jsr     Sub_ReduceHealthBar 		; Reduce health while jumping
 _rts	rts
-
 + 		jmp     MoveHealthDec
 
         .fill   4,$ea
@@ -1335,105 +1333,102 @@ If_5A4F lda     #$0a
 
 L5A60   lda     #$02
         sta     Var_GoSlowRedZone
-        lda     #$00					; A = #00
-        sta     Var_RegisteredMovingLeftRight
+        lda     #$00						; A = #00
+        sta     Var_RegMovingLeftRight
         jmp     Jump_ScreenSetup
 
         .fill   3,$00
 
 Sub_NoHealthLeft
-        lda     #$01       ;A = #01
-        sta     LCF7D      ;Store #01 to $cf7d
-        lda     #$02       ;A = #02
-        sta     Var_GoSlowRedZone ;Store #02 to $450c
-        lda     #$00					; A = #00
-        sta     Var_RegisteredMovingLeftRight ;Store #00 to $cf07
-        lda     #$20       ;A = #20
-        sta     LCA18+1    ;Store #20 to $ca19
-        rts                ;Return from subroutine ($72bd)
+        lda     #$01       					;A = #01
+        sta     LCF7D      					;Store #01 to $cf7d
+        lda     #$02       					;A = #02
+        sta     Var_GoSlowRedZone 			;Store #02 to $450c
+        lda     #$00						; A = #00
+        sta     Var_RegMovingLeftRight 		;Store #00 to $cf07
+        lda     #$20       					;A = #20
+        sta     LCA18+1    					;Store #20 to $ca19
+        rts                					;Return from subroutine ($72bd)
 
         .fill   3,$ff
 
 Jump_5A88
-        lda     #$02       ;A = #02
-        sta     Var_GoSlowRedZone ;Var_GoSlowRedZone = #02 (Not slow)
-        lda     #$00					; A = #00
-        sta     Var_RegisteredMovingLeftRight
+        lda     #$02       					;A = #02
+        sta     Var_GoSlowRedZone 			;Var_GoSlowRedZone = #02 (Not slow)
+        lda     #$00						; A = #00
+        sta     Var_RegMovingLeftRight
         lda     #$20
         sta     LCA18+1
         rts
 
         .fill   2,$ea
 
-L5A9A   cmp     #$4d       ;Check if current character is complete bridge
-        bmi     RTS_BridgeRoutine
+L5A9A   cmp     #$4d       					;Check if current character is complete bridge
+        bmi     _rts
         cpy     #$50
-        beq     If_5AA5
+        beq     +
         jmp     Jump_PlayerGoingUp
-
-If_5AA5 dec     Counter_HealthIncLoop2+2
-        beq     If_UpdateBridge
-RTS_BridgeRoutine
-        rts
++ 		dec     Counter_HealthIncLoop2+2
+        beq     +
+_rts    rts
 
         .fill   2,$ea
 
-If_UpdateBridge
-        ldx     #$08
++       ldx     #$08
         stx     Counter_HealthIncLoop2+2
-        nop								; No operation.
-        cmp     #$53       ;Check if bridge block is #53
-        bne     If_ErrodeBridge ;Branch if not #53 (Gap)
-        lda     #$a0       ;If bridge block is #53 then set to blank space
-        sta     (Low_PlayerLocation),y ;Update bridge block
+        nop									; No operation.
+        cmp     #$53       					;Check if bridge block is #53
+        bne     If_ErrodeBridge 			;Branch if not #53 (Gap)
+        lda     #$a0       					;If bridge block is #53 then set to blank space
+        sta     (Low_PlayerLocation),y 		;Update bridge block
         rts
 
         .byte   $ea,$ea,$60
 
 If_ErrodeBridge
-        lda     (Low_PlayerLocation),y ;Load current value of bridge
-        tax                ;Transfer A to X
-        inx                ;Increase X
-        txa                ;Transfer X to A
-        sta     (Low_PlayerLocation),y ;Store updated value of bridge
-        rts                ;Return
+        lda     (Low_PlayerLocation),y 		;Load current value of bridge
+        tax                					;Transfer A to X
+        inx                					;Increase X
+        txa                					;Transfer X to A
+        sta     (Low_PlayerLocation),y 		;Store updated value of bridge
+        rts                					;Return
 
 Sub_GetMushroom
-        cmp     #$54       ;Check if character is health mushroom
-        bne     If_GetRedFlower ;Branch if not health mushroom
-        ldx     #$18       ;X = #18
+        cmp     #$54       					;Check if character is health mushroom
+        bne     If_GetRedFlower 			;Branch if not health mushroom
+        ldx     #$18       					;X = #18
         jsr     Sub_IncHealthIdx
-        lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     (Low_PlayerLocation),y ;Remove mushroom
+        lda     #$a0       					;A = #a0 (Blank sprite)
+        sta     (Low_PlayerLocation),y 		;Remove mushroom
         rts
 
 If_GetRedFlower
-        cmp     #$55       ;Check if character is poison red flower
+        cmp     #$55       					;Check if character is poison red flower
         bne     Sub_GetBasket
         ldx     #$19
         jsr     Update_DamageOccuring
-        lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     (Low_PlayerLocation),y ;Remove flower
+        lda     #$a0       					;A = #a0 (Blank sprite)
+        sta     (Low_PlayerLocation),y 		;Remove flower
         rts
 
 Sub_GetBasket
-        cmp     #$56       ;Check if character is basket
+        cmp     #$56       					;Check if character is basket
         bne     L5B57
         lda     #$64
         sta     Counter_ScoreUpdate1
-        lda     #$00					; A = #00
+        lda     #$00						; A = #00
         sta     Counter_ScoreUpdate2
         lda     #$11
         sta     Counter_ScoreUpdate3
         jsr     LCE42
-        lda     #$a0       ;A = #a0 (Blank sprite)
-        sta     (Low_PlayerLocation),y ;Remove basket
+        lda     #$a0       					;A = #a0 (Blank sprite)
+        sta     (Low_PlayerLocation),y 		;Remove basket
         rts
 
         .fill   2,$ea
 
 Sub_HealthBarUpdates
-        lda     Counter_HealthIncLoop2 ;This is increased when getting health back
+        lda     Counter_HealthIncLoop2 		;This is increased when getting health back
         beq     +						    ;Branch if not getting health back
         dec     Counter_HealthIncLoop2+1
         bne     +
@@ -1441,13 +1436,13 @@ Sub_HealthBarUpdates
         sta     Counter_HealthIncLoop2+1
         dec     Counter_HealthIncLoop2
         jsr     Sub_IncreaseHealthBlock
-+		jmp     If_CheckForDamage ;Jump to check for damage
++		jmp     If_CheckForDamage 			;Jump to check for damage
 
 Sub_IncHealthIdx
-        stx     Counter_HealthIncLoop ;Counter_HealthIncLoop = #18
+        stx     Counter_HealthIncLoop 		;Counter_HealthIncLoop = #18
 Loop_IncreaseHealth
-        dec     Counter_HealthIncLoop ;Decrease Counter_HealthIncLoop
-        beq     RTS_IncreaseHealth ;Branch if Counter_HealthIncLoop = #00
+        dec     Counter_HealthIncLoop 		;Decrease Counter_HealthIncLoop
+        beq     RTS_IncreaseHealth 			;Branch if Counter_HealthIncLoop = #00
         inc     Counter_HealthIncLoop2
         beq     RTS_IncreaseHealth
         jmp     Loop_IncreaseHealth
@@ -1459,83 +1454,79 @@ RTS_IncreaseHealth
 
 If_CheckForDamage
         lda     Var_DamageOccuring
-        beq     _rts					;RTS if damage is not occuring
-        dec     Var_DamageOccuring+1 	;Decrease value of Var_DamageOccuringLoop
-        bne     _rts					;RTS if DamageOccuring is not zero
-        lda     #$12       				;A = #12
-        sta     Var_DamageOccuring+1 	;Var_DamageOccuringLoop = #12
-        dec     Var_DamageOccuring 		;Decrease DamageOccuring
+        beq     _rts						;RTS if damage is not occuring
+        dec     Var_DamageOccuring+1 		;Decrease value of Var_DamageOccuringLoop
+        bne     _rts						;RTS if DamageOccuring is not zero
+        lda     #$12       					;A = #12
+        sta     Var_DamageOccuring+1 		;Var_DamageOccuringLoop = #12
+        dec     Var_DamageOccuring 			;Decrease DamageOccuring
         jsr     Sub_DamageRoutine
 _rts    rts
 
         .fill   2,$ea
 
 Update_DamageOccuring
-        stx     Unknown    ;Unknown = 2
+        stx     Unknown    					;Unknown = 2
 Loop_Update_DamageOccuring
-        dec     Unknown    ;Decrease Unknown
-        beq     _rts ;Return from subroutine
-        inc     Var_DamageOccuring ;Increase Var_DamageOccuring
-        beq     _rts ;Return from subroutine
+        dec     Unknown    					;Decrease Unknown
+        beq     _rts 						;Return from subroutine
+        inc     Var_DamageOccuring 			;Increase Var_DamageOccuring
+        beq     _rts 						;Return from subroutine
         jmp     Loop_Update_DamageOccuring
 _rts    rts
 
         .fill   2,$ea
 
-L5B57   cmp     #$57       ;Check if character is cross
-        bne     If_5B89    ;Branch if character is not cross
+L5B57   cmp     #$57       					;Check if character is cross
+        bne     If_5B89    					;Branch if character is not cross
         jmp     L7F50
 
 JMP_IncMagicCrossNumRight
-        nop								; No operation.
-        lda     Adr_MagicCrossNumRight ;A = Adr_MagicCrossNum1 (Score number)
-        cmp     #$b9       ;Check if Adr_MagicCrossNumRight is 9
+        nop									; No operation.
+        lda     Adr_MagicCrossNumRight 		;A = Adr_MagicCrossNum1 (Score number)
+        cmp     #$b9       					;Check if Adr_MagicCrossNumRight is 9
         beq     + 							;Branch if Adr_MagicCrossNumRight is 9
         inc     Adr_MagicCrossNumRight 		;Increase Adr_MagicCrossNumRight
         jmp     Jump_5B86
 +       lda     Adr_MagicCrossNumLeft 		;A = Adr_MagicCrossNumLeft (Score number)
         cmp     #$b9       					;Check if Adr_MagicCrossNumLeft is 9
-        bne     + 	;Branch if Adr_MagicCrossNumLeft not 9
+        bne     + 							;Branch if Adr_MagicCrossNumLeft not 9
         lda     #$b0       					;A = #b0
         sta     Adr_MagicCrossNumRight 		;Adr_MagicCrossNumRight = 0
         sta     Adr_MagicCrossNumLeft 		;Adr_MagicCrossNumLeft = 0
         jmp     Jump_5B86
-+       lda     #$b0       ;A = #b0
-        sta     Adr_MagicCrossNumRight ;Adr_MagicCrossNumRight = #b0 (Zero)
-        inc     Adr_MagicCrossNumLeft ;Increase Adr_MagicCrossNumLeft
++       lda     #$b0       					;A = #b0
+        sta     Adr_MagicCrossNumRight 		;Adr_MagicCrossNumRight = #b0 (Zero)
+        inc     Adr_MagicCrossNumLeft 		;Increase Adr_MagicCrossNumLeft
 Jump_5B86
         jmp     L7F00
 
 If_5B89 cmp     #$62
-        bpl     If_5B95
+        bpl     +
 L5B8D   cpy     #$50
-        beq     If_5B94
+        beq     _rts
         jmp     Jump_PlayerGoingUp
-
-If_5B94 rts
-
-If_5B95 cmp     #$66
-        bpl     If_5BAD
+_rts 	rts
++ 		cmp     #$66
+        bpl     +
         cpy     #$50
-        beq     If_5BA0
+        beq     +
         jmp     Jump_PlayerGoingUp
-
-If_5BA0 dec     Unknown+1
-        bne     If_5B94
++ 		dec     Unknown+1
+        bne     _rts
         lda     #$03
         sta     Unknown+1
         jmp     Jump_PlayerGoingUp
-
-If_5BAD jmp     L7673
++ 		jmp     L7673
 
 Sub_WaitForCurrentRaster
-        lda     CurrentRasterLine ;JSR from $576b
-        cmp     #$10       ;Check if rasterline is #10
-        bne     Sub_WaitForCurrentRaster ;Loop back two instructions if raster not #10
-        lda     ScreenControlRegister ;Would be #1b (0001 1011)
-        and     #$80       ;(1000 0000)
+        lda     CurrentRasterLine 			;JSR from $576b
+        cmp     #$10       					;Check if rasterline is #10
+        bne     Sub_WaitForCurrentRaster 	;Loop back two instructions if raster not #10
+        lda     ScreenControlRegister 		;Would be #1b (0001 1011)
+        and     #$80       					;(1000 0000)
         bne     Sub_WaitForCurrentRaster
-        rts                ;Return from subroutine
+        rts                					;Return from subroutine
 
         .byte   $00,$b2,$ff,$b5,$00,$30,$ea,$ea
 
@@ -1567,7 +1558,7 @@ L5BF4   .byte   $f0,$fb,$60,$ea,$ea,$ea,$ea,$6a,$00,$01,$00,$15
 L5C00   lda     #$e7
         sta     L5BF4+11
         jsr     L5CC5
-        tax
+        tax                					;Transfer A to X
         lda     #$45
         sta     Low_PlayerLocation
         lda     #$05
@@ -1584,27 +1575,27 @@ Jump_5C1B
 L5C21   sta     (Low_PlayerLocation),y
         lda     #$0a
         sta     (Var_SpriteCollision),y
-        inx
+        inx									; Increase X
         cpx     #$05
         beq     _L5C34
-        tya
-        clc
+        tya									; Transfer Y to A
+        clc									; Clear carry flag
         adc     #$28
-        tay
+        tay									; Transfer A to Y
         jmp     Jump_5C1B
 
 _L5C34  tya
         sec
         sbc     #$9f
-        tay
-        ldx     #$00
+        tay									; Transfer A to Y
+        ldx     #$00					; X = #00
         inc     L5BF4+10
         lda     L5BF4+10
         cmp     #$03
         bne     +
         lda     #$00					; A = #00
         sta     L5BF4+10
-        iny
+        iny								; Increase Y
 +  		jmp     Jump_5C1B
 
         .byte   $60
@@ -1622,12 +1613,12 @@ L5C4F   jsr     Sub_5CD8
         sta     Adr_ScreenControl
         lda     #$1c
         sta     Adr_MemorySetupRegister
-        ldx     #$00
+        ldx     #$00					; X = #00
 -		lda     RTS_5CFD+3,x
         sta     $04d6,x
         lda     #$02
         sta     $d8d6,x
-        inx
+        inx									; Increase X
         cpx     #$0e
         bne     -
         jsr     SetMastertronicApostrophe		; This will update the "Masteronic" text to include an apostrophe and also set top row. 						
@@ -1649,7 +1640,7 @@ Sub_5C87
         sta     L5BF4+11
         rts
 + 		lda     L5BF4+11
-        clc
+        clc									; Clear carry flag
         adc     #$19
         sta     L5BF4+11
         rts
@@ -1684,17 +1675,17 @@ Sub_5CD8
         sty     High_PlayerLocation
         ldy     #$00
         lda     (Low_PlayerLocation),y
-        tax
-        iny
+        tax                					;Transfer A to X
+        iny								; Increase Y
         lda     (Low_PlayerLocation),y
-        tay
-        clc
+        tay									; Transfer A to Y
+        clc									; Clear carry flag
         jsr     PLOT
         ldy     #$02
 -       lda     (Low_PlayerLocation),y
         cmp     #$01
         beq     RTS_5CFD
-        iny
+        iny								; Increase Y
         jsr     BSOUT
         jmp     -
 
@@ -1706,7 +1697,7 @@ RTS_5CFD
         .byte   $00,$00
 
 Sub_5D20
-        ldx     #$00
+        ldx     #$00					; X = #00
 L5D22   ldy     #$b0
         stx     Low_PlayerLocation
         sty     High_PlayerLocation
@@ -1717,7 +1708,7 @@ L5D22   ldy     #$b0
 -		ldy     #$00
         lda     (Low_PlayerLocation),y
         sta     (Var_SpriteCollision),y
-        iny
+        iny								; Increase Y
         lsr     a
         lsr     a
         lsr     a
@@ -1814,194 +1805,194 @@ Sub_SetupScreen
         ldy     Adr_MapHigh
         jsr     L72A4
         lda     Adr_MapLow
-        clc
+        clc									; Clear carry flag
         adc     #$06
-        tax
+        tax                					;Transfer A to X
         ldy     Adr_MapHigh
         jsr     Sub_2A80
         ldy     #$0c
         lda     (Adr_MapLow),y
         sta     Sub_5D20+1
-        iny
-        tya
+        iny								; Increase Y
+        tya									; Transfer Y to A
         pha
         lda     (Adr_MapLow),y
         sta     L5D22+1
         jsr     Sub_5D20
         pla
-        tay
-        iny
+        tay									; Transfer A to Y
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     ExtraBackgroundColor1
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     ExtraBackgroundColor2
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         jsr     L7F20
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         jsr     L7F27
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         jsr     L7F2E
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     SpritePointer0
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     Sprite1XPositionRegister
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     Sprite1YPosition
-        iny
+        iny								; Increase Y
         lda     Var_EnemyXPosition-1
         and     #$fd
         ora     (Adr_MapLow),y
         sta     SpriteXMSBRegister
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     SpritePointer1
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF68
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF69
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF6A
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF6B
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF6C
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF3D
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF3E
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF3F
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF40
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF41
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF38
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF39
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF3A
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF3B
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF3C
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     Var_Num01+2
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     Var_Num01+3
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L45AF
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L45B0
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L45B1
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     Var_Sprite3Speed
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     Var_Sprite3Speed+1
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     Var_Sprite3Speed+2
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     Var_Sprite3Speed+3
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCFA0
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L54E5
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L54E5+1
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L54E5+2
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L54E5+3
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L54E5+4
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L45E2
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L45E3
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L45E4
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L45E5
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L45E6
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L574A+20
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L574A+21
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L574A+22
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L574A+23
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     L574A+24
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF24
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF25
-        iny
+        iny								; Increase Y								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF26
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF27
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     LCF28
-        ldx     #$00
+        ldx     #$00					; X = #00
 -  		iny
         lda     (Adr_MapLow),y
         sta     Var_EnemyXPosition,x
-        inx
+        inx									; Increase X
         cpx     #$19
         bne     -
         lda     #$0e
@@ -2015,28 +2006,28 @@ Sub_SetupScreen
         .byte   $ea
 
 Sub_5FC0
-        ldx     #$00
+        ldx     #$00					; X = #00
 - 		iny
         lda     (Adr_MapLow),y
         sta     Low_PlayerLocation
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
         sta     High_PlayerLocation
-        tya
+        tya									; Transfer Y to A
         pha
         ldy     #$00
         lda     #$57
         sta     (Low_PlayerLocation),y
         lda     High_PlayerLocation
-        clc
+        clc									; Clear carry flag
         adc     #$d4
         sta     High_PlayerLocation
 SelfMod_5FDB
         lda     #$0a
         sta     (Low_PlayerLocation),y
         pla
-        tay
-        inx
+        tay									; Transfer A to Y
+        inx									; Increase X
         cpx     #$05
         bne     -
         rts
@@ -2174,7 +2165,7 @@ L7580   jsr     LC9F1      ;Sent from $776D
 +  		lda     ExtraBackgroundColor2
         eor     #$02
         sta     L7523
-        jmp     _rts     ;Jumps to an RTS
+        jmp     _rts     				;Jumps to an RTS
 
 _rts  rts
 
@@ -2193,13 +2184,13 @@ Branch_DamageBorderColour
         bne     +						;Branch if background colour not #00
         lda     #$06       				;A = $06 (blue)
         sta     Adr_BorderColor 		;Set background colour to blue
-        jmp     L7FAE
+        jmp     L7FAE					;
 +       lda     #$0a       				;A = #0a
         sta     Adr_BorderColor 		;Set background colour to pink
 Branch_NoDamage
-        jmp     L7FAE
+        jmp     L7FAE					;
 
-        .fill   22,$00
+        .fill   22,$00					;
 
 SetTitleScreenTopRow
 		lda     $da5c					; Check part of colour memory
@@ -2209,22 +2200,22 @@ SetTitleScreenTopRow
         jmp     JMP_SetTopChars			; Jump to code that sets the top line of the title screen
 +		rts								; Return from subroutine
 
-        .fill   19,$00
+        .fill   19,$00					;
 
-L7600   iny
-        lda     (Adr_MapLow),y
-        sta     Var_MagicCrossesLeft
-        lda     #$03
-        sta     SpriteEnableRegister
-        rts
+L7600   iny								;
+        lda     (Adr_MapLow),y			;
+        sta     Var_MagicCrossesLeft	;
+        lda     #$03					;
+        sta     SpriteEnableRegister	;
+        rts								;
 
         .fill   4,$00
 
 L7610   lda     $02ff      				;$02ff is either 00 or 01. 01 when transitioning to game or load screen.
         bne     _L7639     				;Branch if not in transition from/to game
-        jsr     LC9F1
+        jsr     LC9F1					;
         cpy     #$00       				;Returned with Y (C000 data) and X (#20)
-        bne     L7610
+        bne     L7610					;
         jsr     LC9F1
         cpy     #$40
         bpl     _L762E
@@ -2243,30 +2234,30 @@ _L7639  jsr     Sub_SIDSetup
 
         .fill   2,$00
 
-Sub_CopyTopRowStartScreen
+Sub_CopyTopStartScreen
         lda     #$00					; A = #00
-        sta     Low_PlayerLocation 		;$fb = #00
-        lda     #$04       				;A = #04
-        sta     High_PlayerLocation 	;$fc = #04
-        ldy     #$00       				;Y = #00
--       lda     (Low_PlayerLocation),y 	;A = $0400,00
-        sta     $0200,y    				;Store $0400,00 to $0200,00
-        iny                				;Increase Y
-        cpy     #$50       				;Compare Y to #50
-        bne     - 						;Loop to copy first two rows of start screen
-        jmp     L5BC7
+        sta     Low_PlayerLocation 		; $fb = #00
+        lda     #$04       				; A = #04
+        sta     High_PlayerLocation 	; $fc = #04
+        ldy     #$00       				; Y = #00
+-       lda     (Low_PlayerLocation),y 	; A = $0400,00
+        sta     $0200,y    				; Store $0400,00 to $0200,00
+        iny                				; Increase Y
+        cpy     #$50       				; Compare Y to #50
+        bne     - 						; Loop to copy first two rows of start screen
+        jmp     L5BC7					;
 
         .fill   3,$ea
 
-L7659   jsr     Sub_CopyTopRowStartScreen
+L7659   jsr     Sub_CopyTopStartScreen	;
         lda     #$00					; A = #00
-        sta     Low_PlayerLocation
-        lda     #$02
-        sta     High_PlayerLocation
-        ldy     #$00
-- 		lda     (Low_PlayerLocation),y
-        sta     $0400,y
-        iny
+        sta     Low_PlayerLocation		;
+        lda     #$02					;
+        sta     High_PlayerLocation		;
+        ldy     #$00					;
+- 		lda     (Low_PlayerLocation),y	;
+        sta     $0400,y					;
+        iny								; Increase Y
         cpy     #$50
         bne     -
         rts
@@ -2291,8 +2282,8 @@ L7680   stx     L767B+4
         ldy     #$7f
         jsr     Sub_2A80
 + 		ldx     L767B+4
-        inx
-        inx
+        inx									; Increase X
+        inx									; Increase X
         jsr     Sub_SetupScreen
         lda     Var_BorderColour
         beq     +
@@ -2358,7 +2349,7 @@ Sub_ResetToMenu
         sta     ExtraBackgroundColor2
         sta     Adr_BorderColor
         sta     Adr_BackgroundColor
-        ldx     #$00
+        ldx     #$00					; X = #00
         ldy     #$7c
         jsr     L5C4F
         jsr     Sub_SIDSetup
@@ -2419,7 +2410,7 @@ AllCrossesCollected
         sta     SpriteEnableRegister 	;Turn off all sprites other than boy and girl
         ldy     #$73       				;Y = #73
         lda     (Adr_MapLow),y 			;A = ($11),y - which is ($11),73
-        tax
+        tax                					;Transfer A to X
         cpx     #$12
         bne     _L7F19
         ldx     #$fe
@@ -2448,7 +2439,7 @@ L7F50   lda     High_PlayerLocation 	;A = #fc
         sta     High_PlayerLocation
         lda     (Low_PlayerLocation),y
         and     #$04
-        tax
+        tax                					;Transfer A to X
         lda     Var_BorderColour
         beq     _L7F67
         cpx     #$00
@@ -2478,12 +2469,12 @@ L7F80   dec     Var_5a16   ;Decrease $5a16
 -		iny                ;Increase Y
         lda     (Adr_MapLow),y
         sta     Low_PlayerLocation
-        iny
+        iny								; Increase Y
         lda     (Adr_MapLow),y
-        clc
+        clc									; Clear carry flag
         adc     #$d4
         sta     High_PlayerLocation
-        tya
+        tya									; Transfer Y to A
         pha
         ldy     #$00
         lda     (Low_PlayerLocation),y
@@ -2491,8 +2482,8 @@ L7F80   dec     Var_5a16   ;Decrease $5a16
         sbc     #$08
         sta     (Low_PlayerLocation),y
         pla
-        tay
-        inx
+        tay									; Transfer A to Y
+        inx									; Increase X
         cpx     #$0a
         bne     -
 +		rts
@@ -2585,15 +2576,15 @@ Var_CurrentEnemy
 
 Sub_UpdateEnemySprites
         jsr     Sub_VerticalMovingEnemies ;A = Active enemy index
-        jsr     Sub_EnemyMSB ;A = Active enemy index
-        lda     Var_CurrentEnemy ;A = C0e3 (Alternates between #00-04)
-        tax                ;Transfer A to X
-        lda     LCF46,x    ;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
-        ora     SpriteEnableRegister ;Enable/disable sprite in $d015
-        sta     SpriteEnableRegister ;Update sprite register
-        lda     LCF68,x
-        sta     SpritePointers,x
-        jmp     LC6E0
+        jsr     Sub_EnemyMSB 			;A = Active enemy index
+        lda     Var_CurrentEnemy 		;A = C0e3 (Alternates between #00-04)
+        tax                				;Transfer A to X
+        lda     LCF46,x    				;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
+        ora     SpriteEnableRegister 	;Enable/disable sprite in $d015
+        sta     SpriteEnableRegister 	;Update sprite register
+        lda     LCF68,x					;
+        sta     SpritePointers,x		;
+        jmp     LC6E0					;
 
         .byte   $80,$40,$20,$10,$08,$04,$02,$01,$a0,$00,$a9,$78,$85,$fb,$a9,$04
         .byte   $85,$fc,$a2,$00,$a9,$80,$91,$fb,$c8,$c0,$08,$d0,$f7,$a0,$00,$e8
@@ -2601,10 +2592,10 @@ Sub_UpdateEnemySprites
         .byte   $08,$d0,$e1,$60,$00,$00,$00,$60,$00,$a9,$00,$9d,$00,$d4,$e8,$e0
         .byte   $18,$d0,$f8,$60
 
-LC144   sta     Sprite0YPos
-        lda     L4516
-        sta     Sprite0XPosition
-        jmp     LC1E1
+LC144   sta     Sprite0YPos				;
+        lda     L4516					;
+        sta     Sprite0XPosition		;
+        jmp     LC1E1					;
 
         .byte   $a2,$00,$bd,$40,$3c,$8d,$be,$c1,$29,$55,$0a,$8d,$bd,$c1,$ad,$be
         .byte   $c1,$29,$aa,$4a,$0d,$bd,$c1,$9d,$40,$3c,$e8,$e0,$40,$d0,$e3,$60
@@ -2612,30 +2603,30 @@ LC144   sta     Sprite0YPos
         .byte   $d0,$f2,$60,$ea,$ea,$4c,$4a,$54,$00,$30,$00,$34,$e8,$03,$00,$4e
         .byte   $00,$52,$00,$30,$e8,$03,$e8,$07,$00,$4e,$ea
 Temp_Jumping
-        .byte   $01
+        .byte   $01 					;
 Var_JumpInput
-        .fill   1,$00      ;#01 jumping / #00 not jumping
+        .fill   1,$00      				; #01 jumping / #00 not jumping
 
 Jump_C19D
-        lda     L45FF      ;A = $45ff (#01)
-        bne     IfNot_45ffis00 ;Branch if not #00
-        lda     SpriteEnableRegister
-        jmp     LC7D4
+        lda     L45FF      				;A = $45ff (#01)
+        bne     IfNot_45ffis00 			;Branch if not #00
+        lda     SpriteEnableRegister	;
+        jmp     LC7D4					;
 
 IfNot_45ffis00
-        lda     Var_JumpInput ;#01 jumping / #00 not jumping
-        beq     If_NoJumpInput ;Branch if not jumping
-        jmp     Jump_Jumping
+        lda     Var_JumpInput 			;#01 jumping / #00 not jumping
+        beq     If_NoJumpInput 			;Branch if not jumping
+        jmp     Jump_Jumping			;
 
 If_NoJumpInput
-        jmp     L5418
+        jmp     L5418					;
 
-        .byte   $ea
+        .byte   $ea						;
 
 LC1B4   nop
         lda     #$00					; A = #00
-        sta     L2A7E
-        jmp     L2A72
+        sta     L2A7E					;
+        jmp     L2A72					;
 
         .byte   $00,$00,$00,$ad,$00,$dc,$a0,$00,$a2,$00,$4a,$b0,$01,$88,$4a,$b0
         .byte   $01,$c8,$4a,$b0,$01,$ca,$4a,$b0,$01,$e8,$4a,$8e,$ed,$c1,$8c,$ec
@@ -2730,36 +2721,36 @@ LC412   lda     $d828
         sta     LC410
         lda     $0428
         sta     LC410+1
-        ldx     #$00
+        ldx     #$00					; X = #00
 If_C420 lda     $0429,x
         sta     $0428,x
         lda     $d829,x
         sta     $d828,x
-        inx
+        inx									; Increase X
         cpx     #$d2
         bne     If_C420
-        ldx     #$00
+        ldx     #$00					; X = #00
 If_C433 lda     $04fa,x
         sta     $04f9,x
         lda     $d8fa,x
         sta     $d8f9,x
-        inx
+        inx									; Increase X
         cpx     #$fa
         bne     If_C433
-        ldx     #$00
+        ldx     #$00					; X = #00
 If_C446 lda     $05f4,x
         sta     $05f3,x
         lda     $d9f4,x
         sta     $d9f3,x
-        inx
+        inx									; Increase X
         cpx     #$fa
         bne     If_C446
-        ldx     #$00
+        ldx     #$00					; X = #00
 If_C459 lda     $06ee,x
         sta     $06ed,x
         lda     $daee,x
         sta     $daed,x
-        inx
+        inx									; Increase X
         cpx     #$fa
         bne     If_C459
         rts
@@ -2783,14 +2774,14 @@ Jump_C47F
         sta     $fe
 If_C48F ldy     #$00
         lda     (Low_PlayerLocation),y
-        tax
+        tax                					;Transfer A to X
         lda     (Var_SpriteCollision),y
         ldy     #$28
         sta     (Var_SpriteCollision),y
         txa
         sta     (Low_PlayerLocation),y
         lda     Low_PlayerLocation
-        clc
+        clc									; Clear carry flag
         sbc     #$27
         bcs     If_C4A8
         dec     High_PlayerLocation
@@ -2970,14 +2961,14 @@ If_C6AC jsr     LC032
         sta     $07ff
         lda     L45B2
         sta     $d028
-        ldx     #$00
+        ldx     #$00					; X = #00
         nop								; No operation.
         lda     #$00					; A = #00
 If_C6C9 sta     LCF1A,x
         sta     LCF29,x
         sta     LCF2E,x
         sta     LCF4F,x
-        inx
+        inx									; Increase X
         cpx     #$05
         bne     If_C6C9
         lda     Adr_SpriteCollision
@@ -2989,7 +2980,7 @@ LC6E0   lda     Var_Num01+2,x
         .byte   $60
 
 TimeWastingLoop
-        tya
+        tya									; Transfer Y to A
         pha
         txa
         pha
@@ -3000,13 +2991,13 @@ If_C6F1 dec     LCF67
         dec     LCF66
         bne     If_C6EB
         pla
-        tax
+        tax                					;Transfer A to X
         pla
-        tay
+        tay									; Transfer A to Y
         rts
 
 LC700   lda     SpritePointer1
-        clc
+        clc									; Clear carry flag
         sbc     #$df
         ldx     #$01
         jsr     Sub_UpdateSpritePositions ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
@@ -3031,7 +3022,7 @@ LC71B   lda     #$00       ;A = #00
         cmp     #$00
         beq     IfNot_DownInputFF
         lda     #$00					; A = #00
-        tax
+        tax                					;Transfer A to X
         jsr     Sub_2A04
         inc     Var_MovingLeftRight
         lda     Var_SlidingOnRope+1
@@ -3039,7 +3030,7 @@ LC71B   lda     #$00       ;A = #00
         beq     IfNot_DownInputFF
         lda     SpritePointer0
         and     #$01
-        clc
+        clc									; Clear carry flag
         adc     #$d8
         sta     SpritePointer0
 IfNot_DownInputFF
@@ -3050,7 +3041,7 @@ IfNot_DownInputFF
         cmp     #$00
         beq     +
         lda     #$01
-        ldx     #$00
+        ldx     #$00					; X = #00
         jsr     Sub_2A04
         inc     Var_MovingLeftRight
         lda     Var_SlidingOnRope+2
@@ -3058,7 +3049,7 @@ IfNot_DownInputFF
         beq     +
         lda     SpritePointer0
         and     #$01
-        clc
+        clc									; Clear carry flag
         adc     #$da
         sta     SpritePointer0
 +       lda     Var_LeftRightInput ;Left = #ff / Right = #01
@@ -3076,7 +3067,7 @@ IfNot_DownInputFF
         beq     +
         lda     SpritePointer0
         and     #$03
-        clc
+        clc									; Clear carry flag
 LC79B   adc     #$e8
         sta     SpritePointer0
 +       lda     Var_LeftRightInput ;Left = #ff / Right = #01
@@ -3094,25 +3085,25 @@ LC79B   adc     #$e8
         beq     +
         lda     SpritePointer0
         and     #$03
-        clc
+        clc									; Clear carry flag
 LC7C5   adc     #$ec
         sta     SpritePointer0
-+       lda     Var_UpInput ;A = Var_UpInput
-        cmp     #$00       ;Check if up input received
-        beq     Jump_Jumping ;Branch if no up input received
-        jmp     Jump_C19D  ;Jump as up input received
++       lda     Var_UpInput 				; A = Var_UpInput
+        cmp     #$00       					; Check if up input received
+        beq     Jump_Jumping 				; Branch if no up input received
+        jmp     Jump_C19D  					; Jump as up input received
 LC7D4   and     #$02
         cmp     #$00
         bne     Jump_Jumping
         lda     SpritePointer0
-        clc
+        clc									; Clear carry flag
         sbc     #$d7
         lsr     a
-        tax
+        tax                					; Transfer A to X
         lda     L4508,x
         cmp     #$ff
         beq     Jump_Jumping
-        clc
+        clc									; Clear carry flag
         adc     #$e0
         jsr     L2D8D
         lda     #$02
@@ -3124,11 +3115,11 @@ LC7D4   and     #$02
         sta     Sprite1YPosition
         lda     SpriteXMSBRegister
         and     #$01
-        tay
+        tay									; Transfer A to Y
         lda     SpriteXMSBRegister
         and     #$fd
         sta     SpriteXMSBRegister
-        tya
+        tya									; Transfer Y to A
         asl     a
         ora     SpriteXMSBRegister
         jsr     Sub_2F00
@@ -3139,12 +3130,12 @@ Jump_Jumping
         lda     Var_MovingLeftRight ;A = Var_MovingLeftRight
         cmp     #$00       ;Check if not moving left/right
         beq     RTS_Inputs
-_LC827  inc     Var_RegisteredMovingLeftRight ;Increase Var_RegisteredMovingLeftRight
-        lda     Var_RegisteredMovingLeftRight ;A = Var_RegisteredMovingLeftRight
+_LC827  inc     Var_RegMovingLeftRight ;Increase Var_RegMovingLeftRight
+        lda     Var_RegMovingLeftRight ;A = Var_RegMovingLeftRight
         cmp     Var_GoSlowRedZone ;#02 normal / #04 slow
         bne     RTS_Inputs ;RTS
         lda     #$00					; A = #00
-        sta     Var_RegisteredMovingLeftRight ;Reset Var_RegisteredMovingLeftRight
+        sta     Var_RegMovingLeftRight ;Reset Var_RegMovingLeftRight
         jmp     Jump_5980
 
         .byte   $29,$03,$aa,$e8,$8a
@@ -3257,7 +3248,7 @@ Sub_UpdateSpritePositions
         sta     Var_SpriteDirection ;Load request sprite movement direction
         stx     Var_SpriteNumber ;Update sprite number
         txa                ;Transfer X to A
-        clc                ;Clear carry
+        clc									; Clear carry flag                ;Clear carry
         asl     a          ;Multiply by 2
         tax                ;Transfer A to X
         lda     Var_SpriteDirection ;Load A with requested sprite direction
@@ -3382,7 +3373,7 @@ LC9F1   inc     LCF14      ;Increase $cf14
         ldx     LCF14      ;X = $cf14
         lda     LC000,x    ;A = $c000,x
         eor     $a2
-        tay                ;Transfer A to Y
+        tay									; Transfer A to Y
         ldx     #$20       ;X = #20
         rts
 
@@ -3509,7 +3500,7 @@ LCB5C   lda     #$00       ;A = #00
 Jump_CB61
         ldx     Counter_Enemy ;X = Active enemy
         lda     LCF0D,x
-        tax
+        tax                					;Transfer A to X
         lda     LCF12
         cmp     Adr_EnemyMSBXPosition+1,x
         beq     If_CB8B
@@ -3527,12 +3518,12 @@ Jump_CB61
         jmp     Jump_CB61
 
 If_CB8B lda     Counter_Enemy
-        tax
+        tax                					;Transfer A to X
         asl     a
         sty     LCF13
-        tay
+        tay									; Transfer A to Y
         lda     LCF0D,x
-        tax
+        tax                					;Transfer A to X
         lda     Var_EnemyXPosition,x
         sta     Adr_EnemyXPosition,y
         ldy     Counter_Enemy
@@ -3561,7 +3552,7 @@ LCBC5   lda     #$00
 Jump_CBCA
         ldx     Counter_Enemy
         lda     LCF0D,x
-        tax
+        tax                					;Transfer A to X
         lda     LCF12
         cmp     Adr_EnemyMSBXPosition+2,x
         beq     If_CBF4
@@ -3572,19 +3563,19 @@ Jump_CBCA
         lda     #$01
         sty     LCF13
         ldx     Counter_Enemy
-        inx
-        inx
-        jsr     Sub_UpdateSpritePositions ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
+        inx									; Increase X
+        inx									; Increase X
+        jsr     Sub_UpdateSpritePositions 	; A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         ldy     LCF13
         jmp     Jump_CBCA
 
 If_CBF4 lda     Counter_Enemy
-        tax
+        tax                					;Transfer A to X
         asl     a
         sty     LCF13
-        tay
+        tay									; Transfer A to Y
         lda     LCF0D,x
-        tax
+        tax                					;Transfer A to X
         lda     Var_EnemyYPosition,x
         sta     Adr_EnemyYPosition,y
         ldy     LCF13
@@ -3625,7 +3616,7 @@ If_CC3C lda     L574A+20,x
         lda     LCF24,x
         sta     High_PlayerLocation
         lda     LCF29,x
-        tay
+        tay									; Transfer A to Y
         inc     LCF29,x
         lda     (Low_PlayerLocation),y
         nop								; No operation.
@@ -3642,9 +3633,9 @@ If_CC61 sta     LCF15,x
 
 Jump_CC65
         jsr     LC9F1
-        tya
+        tya									; Transfer Y to A
         and     #$3f
-        tay
+        tay									; Transfer A to Y
         ldx     Temp_CurrentEnemy
         lda     L574A+20,x
         sta     Low_PlayerLocation
@@ -3657,10 +3648,10 @@ Jump_CC65
         .fill   2,$ea
 
 Jump_CC81
-        tay                ;Transfer A to Y
-        ldx     Temp_CurrentEnemy ;X = Temp_CurrentEnemy
-        inx                ;Increase X
-        inx                ;Increase X
+        tay									; Transfer A to Y
+        ldx     Temp_CurrentEnemy 			; X = Temp_CurrentEnemy
+        inx									; Increase X 
+        inx                					; Increase X
         jsr     LCA64
         cpy     #$ff
         bne     If_CCA4
@@ -3720,11 +3711,11 @@ If_CD01 jsr     LCD7B
         cpy     L4553
         bpl     If_CD55
 If_CD09 jsr     LC9F1
-        tya
+        tya									; Transfer Y to A
         and     #$07
         cmp     #$05
         bpl     If_CD09
-        tax
+        tax                					;Transfer A to X
         jmp     LC000
 
 LCD17   cmp     #$04
@@ -3737,71 +3728,69 @@ LCD17   cmp     #$04
         sta     $d02e
         txa
         asl     a
-        tax
+        tax                					;Transfer A to X
         lda     Adr_EnemyXPosition,x
         sta     $d00e
         lda     Adr_EnemyYPosition,x
         sta     SpriteXMSBRegister-1
         txa
         lsr     a
-        tax
-        lda     #$7f
-        and     SpriteXMSBRegister
-        sta     SpriteXMSBRegister
-        and     LCF46,x
-        cmp     #$00
-        beq     If_CD55
-        lda     #$80
-        ora     SpriteXMSBRegister
-        sta     SpriteXMSBRegister
-If_CD55 inc     LCF45
-        lda     LCF45
-        cmp     L4554
-        bne     RTS_CD79
-        lda     #$00					; A = #00
-        sta     LCF45
-        lda     LCF44
-        ldx     #$07
-        jsr     Sub_UpdateSpritePositions ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
-        cpy     #$ff
-        bne     RTS_CD79
-        lda     SpriteEnableRegister
-        and     #$7f
-        sta     SpriteEnableRegister
-RTS_CD79
-        rts
+        tax                					;Transfer A to X
+        lda     #$7f						;
+        and     SpriteXMSBRegister			;
+        sta     SpriteXMSBRegister			;
+        and     LCF46,x						;
+        cmp     #$00						;
+        beq     If_CD55						;
+        lda     #$80						;
+        ora     SpriteXMSBRegister			;
+        sta     SpriteXMSBRegister			;
+If_CD55 inc     LCF45						;
+        lda     LCF45						;
+        cmp     L4554						;
+        bne     _rts						;
+        lda     #$00						; A = #00
+        sta     LCF45						;
+        lda     LCF44						;
+        ldx     #$07						;
+        jsr     Sub_UpdateSpritePositions 	;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
+        cpy     #$ff						;
+        bne     _rts						;
+        lda     SpriteEnableRegister		;
+        and     #$7f						;
+        sta     SpriteEnableRegister		;
+_rts    rts
 
-        .byte   $ea
+        .byte   $ea							;
 
-LCD7B   jsr     LC9F1
-        tya
-        and     #$7f
-        sta     LCF4C
-        jsr     LC9F1
-        tya
-        and     #$7f
-        cmp     #$78
-        bpl     If_CD93
-        ldy     #$7f
-        jmp     RTS_CD96
-
-If_CD93 ldy     LCF4C
+LCD7B   jsr     LC9F1						;
+        tya									; Transfer Y to A
+        and     #$7f						;
+        sta     LCF4C						;
+        jsr     LC9F1						;
+        tya									; Transfer Y to A
+        and     #$7f						;
+        cmp     #$78						;
+        bpl     +							;
+        ldy     #$7f						;
+        jmp     RTS_CD96					;
++ 		ldy     LCF4C						;
 RTS_CD96
         rts
 
         .byte   $ea,$ea,$ea,$4c,$87,$ce
 
-LCD9D   lda     Var_SpriteCollision ;A = Var_SpriteCollision
-        and     #$02       ;Isolate second bit
-        bne     If_CDA6    ;Branch if collision is second bit
-        jmp     RTS_CD96   ;Jump and RTS
+LCD9D   lda     Var_SpriteCollision 		;A = Var_SpriteCollision
+        and     #$02       					;Isolate second bit
+        bne     If_CDA6    					;Branch if collision is second bit
+        jmp     RTS_CD96   					;Jump and RTS
 
-If_CDA6 ldx     #$00       ;X = #00
-        ldy     #$00       ;Y = #00
+If_CDA6 ldx     #$00       					;X = #00
+        ldy     #$00       					;Y = #00
 IF_CDAA lda     LCF46,x
         and     Var_SpriteCollision
         beq     If_CDB2
-        iny
+        iny									; Increase Y
 If_CDB2 inx
         cpx     #$05
         bne     IF_CDAA
@@ -3817,10 +3806,10 @@ If_CDBE ldx     #$02
         .byte   $4e,$cf,$bd,$56,$45,$f0,$0d,$4c,$fa,$cd,$a2,$02,$20,$44,$5b,$60
         .byte   $01,$4c,$02,$ce,$60
 
-LCDE9   tax                						;Trasnfer A to X (Will rotate between #00-#04)
-        lda     LCF4F,x    						;A = $cf4f,x
-        cmp     #$01       						;Values are always #00
-        beq     +    							;Never taken
+LCDE9   tax                					;Trasnfer A to X (Will rotate between #00-#04)
+        lda     LCF4F,x    					;A = $cf4f,x
+        cmp     #$01       					;Values are always #00
+        beq     +    						;Never taken
         jmp     LCCAB
 
 + 		jmp     LC607
@@ -3831,23 +3820,23 @@ LCE00   .byte   $dd,$60,$9d,$4f,$cf,$a9,$fd,$2d,$15,$d0,$8d,$15,$d0,$4c,$6b,$ce
 
 Sub_UpdateScore
         ldx     #$06       ;X = #06
--       inc     $0405,x    						;Update score character
-        lda     $0405,x    						;A = updated score character value
-        cmp     #$ba       						;Check if character is over 9
-        bne     + 								;Exit if not over 9
-        lda     #$b0       						;A = #b0
-        sta     $0405,x    						;Update character to 0
-        dex                						;Decrease X (Go to next character in score)
-        cpx     #$00       						;Check if character is 0
-        bne     - 								;Branch if not equal 0
+-       inc     $0405,x    					;Update score character
+        lda     $0405,x    					;A = updated score character value
+        cmp     #$ba       					;Check if character is over 9
+        bne     + 							;Exit if not over 9
+        lda     #$b0       					;A = #b0
+        sta     $0405,x    					;Update character to 0
+        dex                					;Decrease X (Go to next character in score)
+        cpx     #$00       					;Check if character is 0
+        bne     - 							;Branch if not equal 0
 +       rts
 
         .byte   $a2,$06,$de,$05,$04,$bd,$05,$04,$c9,$af,$d0,$0d,$a9,$b9,$9d,$05
         .byte   $04,$ca,$e0,$00,$d0,$ec,$20,$11,$ce,$60
 
-LCE42   lda     Counter_ScoreUpdate3 ;A = $cf5c
-        sta     Temp_Something1+1 ;$ce53 = $cf5c (#11)
--       lda     Counter_ScoreUpdate1 ;A = $cf5a
+LCE42   lda     Counter_ScoreUpdate3 		;A = $cf5c
+        sta     Temp_Something1+1 			;$ce53 = $cf5c (#11)
+-       lda     Counter_ScoreUpdate1 		;A = $cf5a
         cmp     #$00
         beq     +
         dec     Counter_ScoreUpdate1
@@ -3866,66 +3855,66 @@ Temp_Something1
         .byte   $ae,$4e,$cf,$bd,$60,$45,$8d,$5a,$cf,$bd,$65,$45,$8d,$5b,$cf,$bd
         .byte   $6a,$45,$8d,$5c,$cf,$20,$42,$ce,$60,$ea,$ea,$ea
 
-LCE87   lda     Adr_SpriteCollision 			;A = Adr_SpriteCollision
-        sta     Var_SpriteCollision 			;Var_SpriteCollision = Adr_SpriteCollision
-        and     #$01       						;Isolate boy
-        bne     +    							;Branch if boy has collision
+LCE87   lda     Adr_SpriteCollision 		;A = Adr_SpriteCollision
+        sta     Var_SpriteCollision 		;Var_SpriteCollision = Adr_SpriteCollision
+        and     #$01       					;Isolate boy
+        bne     +    						;Branch if boy has collision
         jmp     LCD9D
-+ 		lda     Var_SpriteCollision 			;A = Var_SpriteCollision
-        and     #$02       						;Isolate girl
-        beq     + 								;Branch if girl does not have collision
-        rts                						;Return from subroutine
-+       ldx     #$00       						;X = #00
-        ldy     #$00       						;Y = #00
--       lda     LCF46,x    						;Will increase through each enemy (#04, #08, #10, #20, #40)
-        and     Var_SpriteCollision 			;Check if selected sprite caused collision
-        beq     + ;Branch if select enemy caused collision
-        iny                ;Increase Y. Used to confirm enemy found.
-+       inx                ;Increase X
-        cpx     #$06       ;Compare X to #06 (As there are only 5 enemies)
-        bne     - ;Loop as not at final enemy
-        cpy     #$01       ;Compare Y to #01 (Check if enemy found).
-        beq     +    ;Branch if enemy found.
++ 		lda     Var_SpriteCollision 		;A = Var_SpriteCollision
+        and     #$02       					;Isolate girl
+        beq     + 							;Branch if girl does not have collision
+        rts                					;Return from subroutine
++       ldx     #$00       					;X = #00
+        ldy     #$00       					;Y = #00
+-       lda     LCF46,x    					;Will increase through each enemy (#04, #08, #10, #20, #40)
+        and     Var_SpriteCollision 		;Check if selected sprite caused collision
+        beq     + 							;Branch if select enemy caused collision
+        iny                					;Increase Y. Used to confirm enemy found.
++       inx                					;Increase X
+        cpx     #$06       					;Compare X to #06 (As there are only 5 enemies)
+        bne     - 							; Loop as not at final enemy
+        cpy     #$01       					;Compare Y to #01 (Check if enemy found).
+        beq     +    						;Branch if enemy found.
         rts
-+ 		lda     Var_SpriteCollision ;A = Var_SpriteCollision
-        and     #$fc       ;Isolate enemy sprites only
-        sta     Temp_EnemyCollidedBin ;A = Temp_EnemyThatCollided
-        ldx     #$00       ;X = #00
--       cmp     #$04       ;Check enemy number
-        beq     +    ;Branch if enemy selected
-        inx                ;Increase X (Enemy number)
-        lsr     a          ;Divide by 2
++ 		lda     Var_SpriteCollision 		;A = Var_SpriteCollision
+        and     #$fc       					;Isolate enemy sprites only
+        sta     Temp_EnemyCollidedBin 		;A = Temp_EnemyThatCollided
+        ldx     #$00       					;X = #00
+-       cmp     #$04       					;Check enemy number
+        beq     +    						;Branch if enemy selected
+        inx                					;Increase X (Enemy number)
+        lsr     a          					;Divide by 2
         jmp     -
-+ 		stx     Temp_EnemyCollidedInt ;Temp_EnemyCollidedInt = X
-        ldx     #$02       ;X = #02
-        jsr     Update_DamageOccuring
-        jmp     LCD9D
++ 		stx     Temp_EnemyCollidedInt 		;Temp_EnemyCollidedInt = X
+        ldx     #$02       					;X = #02
+        jsr     Update_DamageOccuring		;
+        jmp     LCD9D						;
 
         .byte   $6f,$45,$29,$01,$d0,$04,$60,$4c,$7b,$2f,$4c,$a7,$2f,$20,$ed,$ca
         .byte   $ce,$1a,$04,$ad,$1a,$04,$c9,$b0,$f0,$01,$60,$a9,$01,$8d,$7d,$cf
         .byte   $60
 
-LCEEE   inc     LCF76,x
-        lda     Var_BinaryEnemyNum,x
+LCEEE   inc     LCF76,x						;
+        lda     Var_BinaryEnemyNum,x		;
         rts
 
-        .byte   $ea
+        .byte   $ea							;
 
-LCEF6   sta     $d027
-        lda     L45EC
-        jmp     Jump_CAED
+LCEF6   sta     $d027						;
+        lda     L45EC						;
+        jmp     Jump_CAED					;
 
 Var_CurrentEnemyIndex
-        .byte   $05
-        .byte   $00
-        .byte   $ea
+        .byte   $05							;
+        .byte   $00							;
+        .byte   $ea							;
 Var_SomethingRandom
-        .byte   $7f
+        .byte   $7f							;
 Var_SomethingElseRandom
-        .byte   $06,$00,$06
+        .byte   $06,$00,$06					;
 Var_MovingLeftRight
-        .byte   $00
-Var_RegisteredMovingLeftRight
+        .byte   $00							;
+Var_RegMovingLeftRight
         .byte   $00
 Var_BinaryEnemyNum
         .byte   $04

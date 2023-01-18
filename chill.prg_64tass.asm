@@ -62,46 +62,43 @@ _L0829  lda     L08D0,x
         bne     _L0829
         jmp     L2DFA
 
-		.include "X_0837.asm"
-		.include "L08D0.asm"
-		.include "L0900.asm"
-		.include "L0A00.asm"
-		.include "X_0B00.asm"
-;*****************************
-;*       Enemy sprites       *
-;*****************************
+		.include "Data/X_0837.asm"
+		.include "Data/L08D0.asm"
+		.include "Data/L0900.asm"
+		.include "Data/L0A00.asm"
+		.include "Data/X_0B00.asm"
         .include "Sprites/enemysprites.asm"
 
 L2A00   lsr     a
-        clc                ;Clear carry
-        bcc     If_2A29
+        clc                				; Clear carry
+        bcc     L2A29
 
 Sub_2A04
-        sta     Var_PlayerDirection ;Set Var_PlayerDirection to up (00 = up / 01 = down / 02 = left / 03 = right).
-        lda     Sprite0YPos ;A = Sprite0YPos
-        sec                ;Set carry
-L2A0B   sbc     #$2c       ;Subtract with carry #2c (44)
-        lsr     a          ;Divide by 2
-        lsr     a          ;Divide by 2
-        lsr     a          ;Divide by 2
-        tay                ;Transfer A to Y.
-        lda     Sprite0XPosition ;A = Sprite0XPosition
-        sec                ;Set carry
-        sbc     #$0c       ;Subtract with carry #0c (12)
-        bcc     L2A00      ;Branch if carry clear
-        lsr     a          ;Divide by 2
-        sta     Var_CharacterXPosLow ;Update Var_CharacterXPosLow
-        lda     SpriteXMSBRegister
-        and     #$01       ;Isolate the first bit
-        beq     If_2A26
-        lda     #$80
-If_2A26 ora     Var_CharacterXPosLow
-If_2A29 lsr     a          ;Divide by 2
-        lsr     a          ;Divide by 2
-        tax                ;Transfer A to X
-        tya                ;Transfer Y to A. Y = (Y Pos - #2c) / 8 
-        asl     a          ;Multiply by 2
-        tay                ;Transfer A to Y
+        sta     Var_PlayerDirection 	; Set Var_PlayerDirection to up (00 = up / 01 = down / 02 = left / 03 = right).
+        lda     Sprite0YPos 			; A = Sprite0YPos
+        sec                				; Set carry
+L2A0B   sbc     #$2c       				; Subtract with carry #2c (44)
+        lsr     a          				; Divide by 2
+        lsr     a          				; Divide by 2
+        lsr     a          				; Divide by 2
+        tay                				; Transfer A to Y.
+        lda     Sprite0XPosition 		; A = Sprite0XPosition
+        sec                				; Set carry
+        sbc     #$0c       				; Subtract with carry #0c (12)
+        bcc     L2A00      				; Branch if carry clear
+        lsr     a          				; Divide by 2
+        sta     Var_CharacterXPosLow 	; Update Var_CharacterXPosLow
+        lda     SpriteXMSBRegister 		; A = SpriteXMSBRegister
+        and     #$01       				; Isolate the first bit
+        beq     + 						; Branch something something
+        lda     #$80 					; A = #80
++		ora     Var_CharacterXPosLow
+L2A29 	lsr     a          				; Divide by 2
+        lsr     a          				; Divide by 2
+        tax                				; Transfer A to X
+        tya                				; Transfer Y to A. Y = (Y Pos - #2c) / 8 
+        asl     a          				; Multiply by 2
+        tay                				; Transfer A to Y
 ;*******************************************************************************
 ;* $5100 is the top left character. Y is the number of characters from $5100   *
 ;* from left to right. $fc is the high byte / $fb is the low byte.             *
@@ -304,7 +301,7 @@ Sub_SetInterruptsAndMem
         lda     #$ea       				;A = #ea
         sta     IRQVectorHigh 			;IRQVectorHigh = #ea
         cli                				;Clear interrupt flag
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     LCF7F      				;$cf7f = #00
         lda     #$05       				;A = #05
         sta     Adr_BorderColor 		;BorderColor = #05 (Green)
@@ -405,10 +402,10 @@ L2D8D   sta     SpritePointer1
 ;*      Main menu loop       *
 ;*****************************
 MainMenuLoop
-        lda     InputPortA ;Get Joystick input. At start screen will be 7A.
-        and     #$10       ;Isolate the 4th bit which checks if fire is pressed.
-        bne     Menu_FireNotPressed ;Branch if fire not pressed.
-        beq     Menu_FirePressed ;Branch as fire is pressed.
+        lda     InputPortA 				;Get Joystick input. At start screen will be 7A.
+        and     #$10       				;Isolate the 4th bit which checks if fire is pressed.
+        bne     Menu_FireNotPressed 	;Branch if fire not pressed.
+        beq     Menu_FirePressed 		;Branch as fire is pressed.
 
 ThisRunsAfterDeath
         lda     #$00					; A = #00
@@ -421,20 +418,20 @@ ThisRunsAfterDeath
         jsr     TimeWastingLoop
 		
 Menu_FireNotPressed
-        lda     LCF7F      ;Load A with $cf7f
-        cmp     #$00       ;Compare cf7f with #00
-        beq     ResetToMenuScreen ;Always #00
+        lda     LCF7F      				;Load A with $cf7f
+        cmp     #$00       				;Compare cf7f with #00
+        beq     ResetToMenuScreen 		;Always #00
         jmp     Sub_SetInterruptsAndMem ;Cant see this ever being triggered
 
 ResetToMenuScreen
         jsr     Sub_ResetToMenu
-        lda     Var_KeyboardInput ;Check for keyboard input received
-        cmp     #$40       ;#40 = No keyboard input
-        beq     MainMenuLoop ;Loop on main menu as no joystick or keyboard input received
+        lda     Var_KeyboardInput 		;Check for keyboard input received
+        cmp     #$40       				;#40 = No keyboard input
+        beq     MainMenuLoop 			;Loop on main menu as no joystick or keyboard input received
 Menu_FirePressed
-        lda     Adr_BorderColor ;At menu screen is #f0
-        and     #$0f       ;And on #f0 becomes #00
-        beq     _L2DD3     ;Jump to $2dd3
+        lda     Adr_BorderColor 		;At menu screen is #f0
+        and     #$0f       				;And on #f0 becomes #00
+        beq     _L2DD3     				;Jump to $2dd3
         jsr     CheckSetHighScore
 _L2DD3  jmp     JUMP_c646
 
@@ -551,42 +548,42 @@ Sub_StartEnemyUpdate
 ;*        Enemy positioning loop       *
 ;***************************************
 Sub_EnemyPositionLoop
-        lda     #$00					; A = #00       ;A = #00
-        sta     LCF75      ;$cf75 = #00
-        ldx     #$00       ;Start loop value at #00. Loops until #05.
+        lda     #$00					; A = #00
+        sta     LCF75      				;$cf75 = #00
+        ldx     #$00       				;Start loop value at #00. Loops until #05.
 Loop_NextEnemy
-        lda     Var_BinaryEnemyNum,x ;Isolate the enemy bit
-        and     SpriteEnableRegister ;Compare to the SpriteEnableRegister
-        cmp     #$00       ;Check if enemy is not visible
-        bne     IF_NextEnemy ;Branch if enemy is not visible
+        lda     Var_BinaryEnemyNum,x 	;Isolate the enemy bit
+        and     SpriteEnableRegister 	;Compare to the SpriteEnableRegister
+        cmp     #$00       				;Check if enemy is not visible
+        bne     IF_NextEnemy 			;Branch if enemy is not visible
         lda     LCF76,x
-        cmp     #$00       ;Compare A to #00
-        beq     IF_NextEnemy ;Branch if equal to #00
-        txa                ;Transfer X (Enemy index) to A
-        pha                ;Push accumulator to the stack
+        cmp     #$00       				;Compare A to #00
+        beq     IF_NextEnemy 			;Branch if equal to #00
+        txa                				;Transfer X (Enemy index) to A
+        pha                				;Push accumulator to the stack
         jsr     LC9F1
-        pla                ;Pull accumulator from the stack
-        tax                ;Transfer A to X
-        tya                ;Transfer Y to A
+        pla                				;Pull accumulator from the stack
+        tax                				;Transfer A to X
+        tya                				;Transfer Y to A
         and     #$7f
         cmp     L45E2,x
         bpl     IF_NextEnemy
-        txa                ;A will be used for enemy index in later subroutines
-        jsr     Sub_UpdateEnemySprites ;Will use A for the enemy index
+        txa                				;A will be used for enemy index in later subroutines
+        jsr     Sub_UpdateEnemySprites 	;Will use A for the enemy index
         dec     LCF76,x
         lda     #$01
         sta     LCF29,x
         lda     #$00					; A = #00
         sta     LCF1A,x
 IF_NextEnemy
-        inx                ;Increase loop
-        cpx     #$05       ;Check if loop is at #05 which is max enemy index
-        bne     Loop_NextEnemy ;Loop if not at the end of the enemy index
+        inx                				;Increase loop
+        cpx     #$05       				;Check if loop is at #05 which is max enemy index
+        bne     Loop_NextEnemy 			;Loop if not at the end of the enemy index
         rts
 
         .include "Charsets/charactersets.asm"
 		.include "Sprites/sprites.asm"
-        .include "data.asm"
+        .include "Data/data.asm"
 		
 IF_InputNotJumping
         lda     L45FF      ;A = $45ff (Always seems to be #01)
@@ -632,7 +629,7 @@ L538E   inc     Var_SomethingRandom ;Increase Var_SomethingRandom
 
 If_539E jsr     Sub_SetPosTemps
         bne     IF_NotJumping ;Branch if not jumping (#01 Not jumping / #00 Jumping)
-        lda     #$00					; A = #00       ;A = #00. Used to set player direction which is up.
+        lda     #$00					; A = #00. Used to set player direction which is up.
         jsr     Sub_2A04
         jsr     L5437
         ldx     L2A7E
@@ -1052,7 +1049,7 @@ Sub_CheckXMovement
         stx     Var_JumpDirection+1 ;Update $5a02 with Boy x position
         cmp     Var_JumpDirection+1 ;Compare current position to previous position
         beq     If_5864    ;Branch if no movement change
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_JumpDirection+2 ;Store #00 to $5a03
 RTS_5863
         rts
@@ -1073,7 +1070,7 @@ JMP_UpdateLRSprite
         rts
 
 Sub_5880
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_5a00   ;Var_5a00 = #00
         lda     Var_LeftRightInput ;Left = #ff / Right = #01
         sta     Var_JumpDirection ;Left = #ff / Right = #01 / Up = #00
@@ -1115,7 +1112,7 @@ If_58C7 lda     Var_KeyboardInput ;A = $c5
         ldx     #$01       ;X = 01
 If_58cf cpx     #$00       ;Compare X to X = #01
         bne     Sub_FireButtonEvent ;Branch if fire received
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_StartGame ;Reset Var_StartGame
         jmp     Jump_5844
 
@@ -1272,7 +1269,7 @@ L59E6   lda     Var_JumpInput 				; #01 jumping / #00 not jumping
         jsr     Sub_ReduceHealthBar 		; Reduce health while jumping
 _rts	rts
 
-+ 		jmp     Jump_5A20
++ 		jmp     MoveHealthDec
 
         .fill   4,$ea
 Var_5a00
@@ -1287,9 +1284,9 @@ Var_BorderColour
         .byte   $01
 Var_JumpSkipDamage
         .byte   $64
-Var_SomethingMovement1
+Var_MoveCounter1
         .byte   $96
-Var_SomethingMovement2
+Var_MoveCounter2
         .byte   $02,$12
 Counter_HealthIncLoop2
         .byte   $00
@@ -1307,20 +1304,19 @@ Var_MagicCrossesLeft
 Var_5a16
         .byte   $09,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 
-Jump_5A20
-        lda     Var_LeftRightInput ;Left = #ff / Right = #01
-        beq     RTS_5A3C   ;Branch if no input
-        dec     Var_SomethingMovement1
-        bne     RTS_5A3C
-        lda     #$ff
-        sta     Var_SomethingMovement1
-        dec     Var_SomethingMovement2
-        bne     RTS_5A3C
-        lda     #$03
-        sta     Var_SomethingMovement2
-        jsr     Sub_ReduceHealthBar
-RTS_5A3C
-        rts
+MoveHealthDec
+        lda     Var_LeftRightInput 			; Left = #ff / Right = #01
+        beq     _rts   						; Branch to RTS if no input
+        dec     Var_MoveCounter1 			; Decrease first move counter. Uses 1023 loops before initiates Sub_ReduceHealthBar
+        bne     _rts						; RTS if not #00
+        lda     #$ff 						; A = #ff
+        sta     Var_MoveCounter1			; Since Var_MoveCounter1 = #00, set to #ff
+        dec     Var_MoveCounter2 			; Decrease Var_MoveCounter2
+        bne     _rts 						; RTS if not #00
+        lda     #$03 						; A = #03
+        sta     Var_MoveCounter2 			; Since Var_MoveCounter2 = #00, set to #03
+        jsr     Sub_ReduceHealthBar 		; Reduce health since 1023 loops have been done.
+_rts    rts
 
         .byte   $ff,$ff,$ff,$f6
 
@@ -1350,7 +1346,7 @@ Sub_NoHealthLeft
         sta     LCF7D      ;Store #01 to $cf7d
         lda     #$02       ;A = #02
         sta     Var_GoSlowRedZone ;Store #02 to $450c
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_RegisteredMovingLeftRight ;Store #00 to $cf07
         lda     #$20       ;A = #20
         sta     LCA18+1    ;Store #20 to $ca19
@@ -1361,7 +1357,7 @@ Sub_NoHealthLeft
 Jump_5A88
         lda     #$02       ;A = #02
         sta     Var_GoSlowRedZone ;Var_GoSlowRedZone = #02 (Not slow)
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_RegisteredMovingLeftRight
         lda     #$20
         sta     LCA18+1
@@ -2401,7 +2397,7 @@ _jump  	jmp     ++						; Jump to ending operations.
 
         .fill   13,$00
 L77C0	.include "TitleScreen/toprowoftitle.asm"
-		.include "77e8.asm"		
+		.include "Data/77e8.asm"		
 L7EF0   .byte   $00
 
 L7EF1   sta     L7EF0
@@ -2544,7 +2540,7 @@ L7FE9   .byte   $78,$00,$e0,$00,$e4,$00,$e8,$00,$ec,$00,$00,$00,$00,$00,$00,$4e
 ;***************************************
 ;* End Levels, charsets, and colors  *
 ;***************************************
-		.include "b5ff.asm"				; Basic junk data
+		.include "Data/b5ff.asm"				; Basic junk data
 
 LC000   lda     LCF46,x					;
         and     SpriteEnableRegister	;
@@ -2906,7 +2902,7 @@ JUMP_c646
         lda     #$08
         jsr     BSOUT      ;Not sure why this exists
         nop								; No operation.
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     SpriteEnableRegister ;Disable all sprites
         nop								; No operation.
         nop								; No operation.
@@ -3147,7 +3143,7 @@ _LC827  inc     Var_RegisteredMovingLeftRight ;Increase Var_RegisteredMovingLeft
         lda     Var_RegisteredMovingLeftRight ;A = Var_RegisteredMovingLeftRight
         cmp     Var_GoSlowRedZone ;#02 normal / #04 slow
         bne     RTS_Inputs ;RTS
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_RegisteredMovingLeftRight ;Reset Var_RegisteredMovingLeftRight
         jmp     Jump_5980
 
@@ -3162,18 +3158,18 @@ RTS_Inputs
 ;* Get Inputs                *
 ;*****************************
 Sub_GetKeyboardInputs
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_UpInput 			;Var_UpInput = #00
         lda     L4511      				;Cant see this ever being set
         cmp     #$01       				;Compare $4511 = #01
         beq     If_C861
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_DownInput 			;Var_DownInput = #00
         sta     Var_LeftRightInput 		;Var_LeftRightInput = #00
 If_C861 lda     Var_KeyboardInput 		;A = KeyboardInput
         cmp     #$40       				;Compare A = #40
         beq     If_C8AB    				;Branch if no keyboard input
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_DownInput 			;Var_DownInput = #00
         sta     Var_LeftRightInput 		;Var_LeftRightInput = #00
         lda     Var_KeyboardInput 		;A = Var_KeyboardInput
@@ -3355,7 +3351,7 @@ Sub_ResetMovementVars
         lda     Var_KeyboardInput ;Not sure what $c5 is used for
         cmp     #$40
         bne     If_C9DB
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_DownInput ;Reset down input
         sta     Var_LeftRightInput ;Reset left/right input
 If_C9DB lda     InputPortA ;Load port A inputs
@@ -3394,7 +3390,7 @@ LCA00   jsr     Branch_DamageBorderColour
         jsr     L5800
 LCA06   cmp     #$08
         bne     If_CA12
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     Var_SomethingRandom ;Var_SomethingRandom = #00
         jsr     LC700
 If_CA12 inc     Var_SomethingElseRandom
@@ -3686,7 +3682,7 @@ LCCAB   inc     LCF2E,x    ;Increase $cf2e,x (#00-#04)
         lda     LCF2E,x    ;A = $cf2e,x 
         cmp     Var_Sprite3Speed,x ;Compare cf2e,x to Var_Sprite3Speed
         bne     If_CCBF    ;Branch if $cf2e,x != Var_Sprite3Speed
-        lda     #$00					; A = #00       ;A = #00
+        lda     #$00					; A = #00
         sta     LCF2E,x    ;$cf2e = #00
         txa                ;Transfer X to A (Enemy index)
         jsr     Sub_CC12

@@ -70,11 +70,11 @@ _L0829  lda     L08D0,x
         .include "Sprites/enemysprites.asm"
 
 L2A00   lsr     a
-        clc                				; Clear carry
+        clc                					; Clear carry
         bcc     L2A29
 
 Sub_2A04
-        sta     Var_PlayerDirection 		; Set Var_PlayerDirection to up (00 = up / 01 = down / 02 = left / 03 = right).
+        sta     Var_PlayerDirection			; Set Var_PlayerDirection to up (00 = up / 01 = down / 02 = left / 03 = right).
         lda     Sprite0YPos 				; A = Sprite0YPos
         sec                					; Set carry
 L2A0B   sbc     #$2c       					; Subtract with carry #2c (44)

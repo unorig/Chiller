@@ -220,27 +220,27 @@ Sub_SetScreenControl
         .byte   $ea,$1d
 
 L2C00   ldx     #$00
-If_2C02 lda     L4542,x
+- 		lda     L4542,x
         jsr     L56B2
         inx
         cpx     #$05
-        bne     If_2C02
+        bne     -
         jsr     L2E62
         rts
 
         .fill   8,$ea
 
 L2C19   ldx     #$03
-If_2C1B inc     LCFA6,x
+- 		inc     LCFA6,x
         lda     LCFA6,x
         cmp     #$ba
-        bne     If_2C2F
+        bne     +
         lda     #$b0
         sta     LCFA6,x
         dex								; Decrease X
         cpx     #$00
-        bne     If_2C1B
-If_2C2F jsr     L5681
+        bne     -
++ 		jsr     L5681
         jmp     Jump_2C44
 
         .byte   $a9,$60,$8d,$fc,$ca,$20,$86,$ca,$a9,$4c,$8d,$fc,$ca,$60,$ea
@@ -333,11 +333,11 @@ L2CF3   sta     L2E87
         .fill   2,$ea
 
 L2D00   ldx     #$00
-If_2D02 lda     L45E7,x
+- 		lda     L45E7,x
         sta     LCF76,x
         inx
         cpx     #$05
-        bne     If_2D02
+        bne     -
         lda     L45F5
         sta     $d025
         lda     L45F6
@@ -356,14 +356,12 @@ If_2D02 lda     L45E7,x
 
 L2D4B   ldx     #$00
 L2D4D   lda     LCF76,x
-        beq     If_2D5A
+        beq     +
 L2D52   lda     L45F7,x
-        beq     If_2D5D
+        beq     ++
         jmp     Jump_2D60
-
-If_2D5A jmp     L2EB7
-
-If_2D5D jmp     L2EC4
++ 		jmp     L2EB7
++ 		jmp     L2EC4
 
 Jump_2D60
         lda     Adr_BorderColor-1
@@ -3767,7 +3765,7 @@ _rts    rts
 LCD9D   lda     Var_SpriteCollision 		; A = Var_SpriteCollision
         and     #$02       					; Isolate second bit
         bne     +    						; Branch if collision is second bit
-        jmp     _rts   					; Jump and RTS
+        jmp     _rts   						; Jump and RTS
 + 		ldx     #$00       					; X = #00
         ldy     #$00       					; Y = #00
 - 		lda     LCF46,x
@@ -3782,7 +3780,7 @@ LCD9D   lda     Var_SpriteCollision 		; A = Var_SpriteCollision
         jmp     _rts
 + 		ldx     #$02
         jsr     Update_DamageOccuring
-        rts
+_rts    rts
 
         .byte   $da,$da,$da,$ad,$4d,$cf,$c9,$04,$f0,$05,$e8,$4a,$4c,$ca,$cd,$8e
         .byte   $4e,$cf,$bd,$56,$45,$f0,$0d,$4c,$fa,$cd,$a2,$02,$20,$44,$5b,$60

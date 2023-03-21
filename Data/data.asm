@@ -1296,11 +1296,10 @@ L4508   .byte   $00
         .byte   $03
 Var_GoSlowRedZone
         .byte   $02
-Var_450d
-        .byte   $00
-        .byte   $f6
-        .byte   $f0
-        .byte   $0a
+L450D   .byte   $00
+L450E   .byte   $f6
+L450F   .byte   $f0
+L4510   .byte   $0a
 L4511   .byte   $00
 L4512   .byte   $3c
 L4513   .byte   $3c
@@ -1529,12 +1528,16 @@ L45ED   .byte   $b3
 L45EE   .byte   $01
 L45EF   .byte   $01
         .byte   $05
-L45F1   .byte   $00
+Const_SprDoubleWidth
+		.byte   $00
         .byte   $ff
         .byte   $00
-L45F4   .byte   $ff
-L45F5   .byte   $f9
-L45F6   .byte   $f1
+Const_SprMulticolorMode
+		.byte   $ff
+Const_SprExtraCol1
+		.byte   $f9
+Const_SprExtraCol2
+		.byte   $f1
 L45F7   .byte   $00
         .byte   $01
         .byte   $00

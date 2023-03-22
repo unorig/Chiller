@@ -763,7 +763,7 @@ L5418   lda     Var_Falling			; Counts up when falling. Can be short when on a r
         lda     #$01       			; A = #01
         sta     Var_Jumping 			; Var_Jumping = #01 (#01 jumping / #00 not jumping)
         jmp     LC1B4
-+ 	jmp     Jump_Jumping
++ 	jmp     CheckLeftRightInput
 
         .fill   2,$ea
 
@@ -868,7 +868,7 @@ L54EA   lda     #$00
         sta     L54F7+2
         lda     #$08
         sta     L54F7+3
-        jmp     Jump_Jumping
+        jmp     CheckLeftRightInput
 
 L54F7   .byte   $ea,$ea,$00,$08,$ea
 
@@ -2768,9 +2768,8 @@ Jump_C19D
 
 +       lda     Var_Jumping                     ; Load the value at Var_Jumping into the accumulator (A) (#01 jumping / #00 not jumping)
         beq     +                               ; Branch if A is equal to #00 (not jumping)
-        jmp     Jump_Jumping                    ; Jump to the label Jump_Jumping if jumping
-
-+       jmp     L5418                      ; Jump to the label L5418
+        jmp     CheckLeftRightInput             ; Jump to the label CheckLeftRightInput if jumping
++       jmp     L5418                           ; Jump to the label L5418
 
 
         .byte   $ea
@@ -3253,11 +3252,11 @@ LC7C5   adc     #$ec       			;Add the value #$ec to the accumulator (which cont
         sta     SpritePointer0 			;Store the result in the variable called SpritePointer0.
 +       lda     Var_UpInput 			;Load the value of a variable called Var_UpInput into the accumulator.
         cmp     #$00       			;Compare it to the value #$00.
-        beq     Jump_Jumping 			;If it's equal to #$00, branch to a label called Jump_Jumping.
+        beq     CheckLeftRightInput 		;If it's equal to #$00, branch to a label called CheckLeftRightInput.
         jmp     Jump_C19D  			;Otherwise, jump to a label called Jump_C19D.
 LC7D4   and     #$02       			;Perform a bitwise AND operation with the value #$02 on the accumulator.
         cmp     #$00       			;Compare the result to the value #$00.
-        bne     Jump_Jumping 			;If it's not equal to #$00, branch to a label called Jump_Jumping.
+        bne     CheckLeftRightInput 		;If it's not equal to #$00, branch to a label called CheckLeftRightInput.
         lda     SpritePointer0 			;Load the value of a variable called SpritePointer0 into the accumulator.
         clc                 			;Clear the carry flag.
         sbc     #$d7       			;Subtract the value #$d7 from the accumulator with borrow.
@@ -3265,7 +3264,7 @@ LC7D4   and     #$02       			;Perform a bitwise AND operation with the value #$
         tax                 			;Transfer the value in the accumulator to the X register.
         lda     L4508,x    			;Load the value at address L4508+x into the accumulator.
         cmp     #$ff       			;Compare the result to the value #$ff.
-        beq     Jump_Jumping 			;If it's equal to #$ff, branch to a label called Jump_Jumping.
+        beq     CheckLeftRightInput 		;If it's equal to #$ff, branch to a label called CheckLeftRightInput.
         clc                 			;Clear the carry flag.
         adc     #$e0       			;Add the value #$e0 to the accumulator with carry.
         jsr     L2D8D      			;Jump to a subroutine called L2D8D.
@@ -3287,24 +3286,22 @@ LC7D4   and     #$02       			;Perform a bitwise AND operation with the value #$
         ora     SpriteXMSBRegister 		;Perform a bitwise OR operation with the value of the variable called SpriteXMSBRegister.
         jsr     Sub_2F00   			;Jump to a subroutine called Sub_2F00.
 
-Jump_Jumping					; $c819
+CheckLeftRightInput				; $c819
         lda     L450d   			; Load the value at address $450d into the accumulator.
         cmp     #$01       			; Compare it to the value #$01. Seems to always be #00.
         beq     +    				; If it's equal to #$01, branch to a label called +.
         lda     Var_MovingLeftRight 		; Load the value of a variable called Var_MovingLeftRight into the accumulator.
         cmp     #$00       			; Compare it to the value #$00 (#01 moving left or right / #00 not moving left or right).
-        beq     RTS_Inputs 			; If it's equal to #$00, return from the subroutine.
+        beq     _rts 			        ; If no left/right input, return from the subroutine.
 +  	inc     Var_RegMovingLeftRight 	        ; Increment the value of a variable called Var_RegMovingLeftRight.
         lda     Var_RegMovingLeftRight 		; Load the value of a variable called Var_RegMovingLeftRight into the accumulator.
         cmp     Var_GoSlowRedZone 		; Compare it to the value of a variable called Var_GoSlowRedZone.
-        bne     RTS_Inputs 			; If it's not equal, return from the subroutine.
+        bne     _rts 			        ; If it's not equal, return from the subroutine.
         lda     #$00       			; Load the value #$00 into the accumulator.
         sta     Var_RegMovingLeftRight 		; Store it in a variable called Var_RegMovingLeftRight.
         jmp     Jump_5980  			; Jump to a label called Jump_5980.
         .byte   $29,$03,$aa,$e8,$8a 		; Undocumented instructions.
-
-RTS_Inputs
-        rts               			;Return from the subroutine.
+_rts    rts               			; Return from the subroutine.
 
         .byte   $ea,$ea,$ea,$ad,$3c,$03,$ae,$3d,$03,$20,$00,$c9,$60 ;Undocumented instructions.
 

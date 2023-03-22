@@ -60,18 +60,18 @@ PLOT    =       $fff0      ;read/set cursor X/Y position
         sta     Var_CurrentEnemyIndex+1,x
         inx
         bne     -
-- 		lda     L08D0,x
+-       lda     L08D0,x
         sta     Sprite0XPosition,x
         inx
         cpx     #$30
         bne     -
         jmp     L2DFA
 
-		.include "Data/X_0837.asm"
-		.include "Data/L08D0.asm"
-		.include "Data/L0900.asm"
-		.include "Data/L0A00.asm"
-		.include "Data/X_0B00.asm"
+        .include "Data/X_0837.asm"
+        .include "Data/L08D0.asm"
+        .include "Data/L0900.asm"
+        .include "Data/L0A00.asm"
+        .include "Data/X_0B00.asm"
         .include "Sprites/enemysprites.asm"
 
 L2A00   lsr     a

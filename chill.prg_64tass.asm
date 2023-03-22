@@ -75,43 +75,43 @@ PLOT    =       $fff0      ;read/set cursor X/Y position
         .include "Sprites/enemysprites.asm"
 
 L2A00   lsr     a
-        clc                					; Clear carry
+        clc                			; Clear carry
         bcc     L2A29
 
 Sub_PlayerPosition
         sta     Var_PlayerDirection 		; Set Var_PlayerDirection - default is down (00 = up / 01 = down / 02 = left / 03 = right).
-        lda     Sprite0YPos 				; A = Sprite0YPos
-        sec                					; Set carry
-L2A0B   sbc     #$2c       					; Subtract with carry. Removing top border height.
-        lsr     a          					; Divide by 2
-        lsr     a          					; Divide by 2
-        lsr     a          					; Divide by 2. This is to devide by 8 to work out number of characters from the top of the screen.
-        tay                					; Transfer A to Y.
-        lda     Sprite0XPosition 			; A = Sprite0XPosition
-        sec                					; Set carry
-        sbc     #$0c       					; Subtract with carry #0c (12)
-        bcc     L2A00      					; Branch if carry clear
-        lsr     a          					; Divide by 2
+        lda     Sprite0YPos 			; A = Sprite0YPos
+        sec                			; Set carry
+L2A0B   sbc     #$2c       			; Subtract with carry. Removing top border height.
+        lsr     a          			; Divide by 2
+        lsr     a          			; Divide by 2
+        lsr     a          			; Divide by 2. This is to devide by 8 to work out number of characters from the top of the screen.
+        tay                			; Transfer A to Y.
+        lda     Sprite0XPosition 		; A = Sprite0XPosition
+        sec                			; Set carry
+        sbc     #$0c       			; Subtract with carry #0c (12)
+        bcc     L2A00      			; Branch if carry clear
+        lsr     a          			; Divide by 2
         sta     Var_CharacterXPosLow 		; Update Var_CharacterXPosLow
-        lda     SpriteXMSBRegister 			; A = SpriteXMSBRegister
-        and     #$01       					; Isolate the first bit
-        beq     + 							; Branch something something
-        lda     #$80 						; A = #80
-+		ora     Var_CharacterXPosLow 		; 
-L2A29 	lsr     a          					; Divide by 2
-        lsr     a          					; Divide by 2
-        tax                					; Transfer A to X
-        tya                					; Transfer Y to A. Y = (Y Pos - #2c) / 8 
-        asl     a          					; Multiply by 2. This is to get the 
-        tay                					; Transfer A to Y
-											; *******************************************************************************
-											; * $5100 is the top left character. Y is the number of characters from $5100   *
-											; * from left to right. $fc is the high byte / $fb is the low byte.             *
-											; *******************************************************************************
+        lda     SpriteXMSBRegister 		; A = SpriteXMSBRegister
+        and     #$01       			; Isolate the first bit
+        beq     + 				; Branch something something
+        lda     #$80 				; A = #80
++		ora     Var_CharacterXPosLow 	; 
+L2A29 	lsr     a          			; Divide by 2
+        lsr     a          			; Divide by 2
+        tax                			; Transfer A to X
+        tya                			; Transfer Y to A. Y = (Y Pos - #2c) / 8 
+        asl     a          			; Multiply by 2. This is to get the 
+        tay                			; Transfer A to Y
+        ; *******************************************************************************
+        ; * $5100 is the top left character. Y is the number of characters from $5100   *
+        ; * from left to right. $fc is the high byte / $fb is the low byte.             *
+        ; *******************************************************************************
         lda     Low_ScreenMap,y
-        sta     Low_tempvar 				; Player position
+        sta     Low_tempvar 			; Player position
         lda     High_ScreenMap,y
-        sta     High_tempvar 				; Player position
+        sta     High_tempvar 			; Player position
         txa
         clc
         adc     Low_tempvar
@@ -120,43 +120,47 @@ L2A29 	lsr     a          					; Divide by 2
         inc     High_tempvar
 + 		lda     High_tempvar
         clc
-        adc     #$04       					; Add #04 to the current value of $fc. This equates to the screen high byte.
-        sta     High_tempvar 				; Set player position high byte
+        adc     #$04       			; Add #04 to the current value of $fc. This equates to the screen high byte.
+        sta     High_tempvar 			; Set player position high byte
         ldx     Var_PlayerDirection 		; X = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
 		
-;*******************************************************************************
-;* This is getting the codes to find what character is next.                   *
-;* The player position ($fb/$fc) is considered a row above the platform.       *
-;* $5145 = #00 (00) characters from current position. Checking above.          *
-;* $5146 = #50 (80) characters from current position. Checking below.          *
-;* $5147 = #27 (39) characters from current position. Checking left.           *
-;* $5148 = #29 (41) characters from current position. Checking right.          *
-;*******************************************************************************
+        ;*******************************************************************************
+        ;* This is getting the codes to find what character is next.                   *
+        ;* The player position ($fb/$fc) is considered a row above the platform.       *
+        ;* $5145 = #00 (00) characters from current position. Checking above.          *
+        ;* $5146 = #50 (80) characters from current position. Checking below.          *
+        ;* $5147 = #27 (39) characters from current position. Checking left.           *
+        ;* $5148 = #29 (41) characters from current position. Checking right.          *
+        ;*******************************************************************************
         
-		lda     L5145,x    					; A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
-        tay                					; Transfer A to Y
-        lda     (Low_tempvar),y 			; ($fb),y = Get character based on direction.
-        cmp     #$a0       					; Check if current character is blank
+		lda     L5145,x    		; A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
+        tay                			; Transfer A to Y
+        lda     (Low_tempvar),y 		; ($fb),y = Get character based on direction.
+        cmp     #$a0       			; Check if current character is blank
         bne     Sub_WhatIsPlayerTouching 	; Branch if not a blank space
 		
 Jump_PlayerMidAir
-        ldx     #$00       					; X = #00. Set direction to Up
-        lda     Var_PlayerDirection 		; A = Var_PlayerDirection (00 = up / 01 = down / 02 = left / 03 = right)
-        jsr     Sub_UpdateSpritePositions 	; X = Sprite / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)
-        rts
+        ldx     #$00                       	; Set X register to #00, representing the Up direction.
+        lda     Var_PlayerDirection        	; Load the value of Var_PlayerDirection (player's current direction) into the accumulator (A).
+        jsr     Sub_UpdateSpritePositions  	; Call the subroutine Sub_UpdateSpritePositions with X representing the sprite and A holding the direction (00 = up / 01 = down / 02 = left / 03 = right).
+        rts                               	; Return from the subroutine.
+
 
 Sub_WhatIsPlayerTouching
-        cmp     #$2a       					; Check if current character is a platform
-        bpl     If_NotPlatform 				; Branch if not a platform (e.g. mushroom)
-        jmp     Jump_PlayerMidAir
+        cmp     #$2a                    	; Compare the value in the accumulator (A) with #$2a (check if the current character is a platform).
+        bpl     If_NotPlatform         		; Branch to If_NotPlatform if the comparison result is positive or zero (the character is not a platform).
+        jmp     Jump_PlayerMidAir       	; Jump to the label Jump_PlayerMidAir if the comparison result is negative (the character is a platform, and the player is mid-air).
+
 
 If_NotPlatform
-        cmp     #$54       					; Check if current character is mushroom
-        bpl     If_TouchingMushroom 		; Branch if current character is mushroom
-        jmp     L5A9A
+        cmp     #$54                    	; Compare the value in the accumulator (A) with #$54 (check if the current character is a mushroom).
+        bpl     If_TouchingMushroom     	; Branch to If_TouchingMushroom if the comparison result is positive or zero (the player is touching a mushroom).
+        jmp     L5A9A                   	; Jump to the label L5A9A if the comparison result is negative (the player is not touching a mushroom).
+
 
 If_TouchingMushroom
-        jmp     Sub_GetMushroom
+        jmp     Sub_GetMushroom         	; Jump to the subroutine Sub_GetMushroom if the player is touching a mushroom.
+
 
         .byte   $60
 
@@ -646,7 +650,7 @@ NextEnemy
 		.include "Sprites/sprites.asm"
         .include "Data/data.asm"
 		
-IF_InputNotJumping
+InputNotJumping
         lda     L45FF      					;A = $45ff (Always seems to be #01)
         beq     _rts   						;Branch if equal zero
         dec     Temp_534c  					;Decrease #534c
@@ -678,15 +682,15 @@ If_537E jsr     L54AC
 
         .byte   $ea
 
-L538E   inc     Var_SomethingRandom       ; Increment Var_SomethingRandom by 1
-        lda     Var_JumpInput             ; Load the value of Var_JumpInput into the accumulator (A). This variable holds the jump input state (#01 for jumping, #00 for not jumping).
+L538E   inc     Var_SomethingRandom       	; Increment Var_SomethingRandom by 1
+        lda     Var_JumpInput             	; Load the value of Var_JumpInput into the accumulator (A). This variable holds the jump input state (#01 for jumping, #00 for not jumping).
 
-        beq     IF_InputNotJumping        ; If the value in the accumulator (A) is zero (not jumping), branch to IF_InputNotJumping.
+        beq     InputNotJumping        		; If the value in the accumulator (A) is zero (not jumping), branch to InputNotJumping.
 
-        dec     L2A7F                     ; Decrement the value at memory address L2A7F by 1.
-        beq     If_539E                   ; If the value at memory address L2A7F becomes zero after decrementing, branch to If_539E.
+        dec     L2A7F                     	; Decrement the value at memory address L2A7F by 1.
+        beq     If_539E                   	; If the value at memory address L2A7F becomes zero after decrementing, branch to If_539E.
 
-        rts                               ; Return from the subroutine.
+        rts                               	; Return from the subroutine.
 
         .fill   2,$ea
 
@@ -1097,7 +1101,7 @@ L5800   inc     Var_SomethingRandom 		; Increase Var_SomethingRandom
         cmp     #$00       					; Compare Var_JumpInput
         bne     If_5836    					; Branch if jumping
         lda     #$a9
-        sta     Sub_GetKeyboardInputs
+        sta     Sub_GetInputs
         lda     #$ad
         sta     Jump_5980
         jsr     Sub_CheckSlidingOnRope
@@ -1147,7 +1151,7 @@ Sub_5880
         lda     Var_LeftRightInput 			; Left = #ff / Right = #01
         sta     Var_JumpDirection 			; Left = #ff / Right = #01 / Up = #00
         lda     #$60       					; A = #60
-        sta     Sub_GetKeyboardInputs 		; $c84d = #60
+        sta     Sub_GetInputs 				; $c84d = #60
         sta     Jump_5980  					; $5980 = #60
         lda     SpritePointer0 				; Load SpritePointer0
         and     #$04       					; Isolate 4th bit
@@ -1470,36 +1474,51 @@ If_ErrodeBridge
         rts                					;Return
 
 Sub_GetMushroom
-        cmp     #$54       					;Check if character is health mushroom
-        bne     If_GetRedFlower 			;Branch if not health mushroom
-        ldx     #$18       					;X = #18
-        jsr     Sub_IncHealthIdx
-        lda     #$a0       					;A = #a0 (Blank sprite)
-        sta     (Low_tempvar),y 			;Remove mushroom
-        rts
+        cmp     #$54                    ; Compare the value in the accumulator (A) with #$54 (check if the character is a health mushroom).
+        bne     If_GetRedFlower         ; Branch to If_GetRedFlower if the values are not equal (if the character is not a health mushroom).
+
+        ldx     #$18                    ; X = #$18
+        jsr     Sub_IncHealthIdx        ; Call the subroutine Sub_IncHealthIdx to handle increasing the health index when a health mushroom is collected.
+
+        lda     #$a0                    ; A = #$a0 (Blank sprite)
+        sta     (Low_tempvar),y         ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the mushroom.
+
+        rts                             ; Return from the subroutine.
+
 
 If_GetRedFlower
-        cmp     #$55       					;Check if character is poison red flower
-        bne     Sub_GetBasket
-        ldx     #$19
-        jsr     Update_DamageOccuring
-        lda     #$a0       					;A = #a0 (Blank sprite)
-        sta     (Low_tempvar),y 			;Remove flower
-        rts
+        cmp     #$55                    ; Compare the value in the accumulator (A) with #$55 (check if the character is a poison red flower).
+        bne     Sub_GetBasket           ; Branch to subroutine Sub_GetBasket if the values are not equal (if the character is not a poison red flower).
+
+        ldx     #$19                    ; X = #$19
+        jsr     Update_DamageOccuring   ; Call the subroutine Update_DamageOccuring to handle damage from the poison red flower.
+
+        lda     #$a0                    ; A = #$a0 (Blank sprite)
+        sta     (Low_tempvar),y         ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the flower.
+
+        rts                             ; Return from the subroutine.
+
 
 Sub_GetBasket
-        cmp     #$56       					;Check if character is basket
-        bne     L5B57
-        lda     #$64
-        sta     Counter_ScoreUpdate1
-        lda     #$00						; A = #00
-        sta     Counter_ScoreUpdate2
-        lda     #$11
-        sta     Counter_ScoreUpdate3
-        jsr     LCE42
-        lda     #$a0       					;A = #a0 (Blank sprite)
-        sta     (Low_tempvar),y 			;Remove basket
-        rts
+        cmp     #$56                    ; Compare the value in the accumulator (A) with #$56 (check if the character is a basket).
+        bne     L5B57                  	; Branch to label L5B57 if the values are not equal (if the character is not a basket).
+
+        lda     #$64                    ; A = #$64
+        sta     Counter_ScoreUpdate1    ; Store the value of A into Counter_ScoreUpdate1.
+
+        lda     #$00                    ; A = #00
+        sta     Counter_ScoreUpdate2    ; Store the value of A into Counter_ScoreUpdate2.
+
+        lda     #$11                    ; A = #$11
+        sta     Counter_ScoreUpdate3    ; Store the value of A into Counter_ScoreUpdate3.
+
+        jsr     LCE42                  	; Call the subroutine at label LCE42.
+
+        lda     #$a0                    ; A = #$a0 (Blank sprite)
+        sta     (Low_tempvar),y         ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the basket.
+
+        rts                             ; Return from the subroutine.
+
 
         .fill   2,$ea
 
@@ -2268,17 +2287,19 @@ L75A7   lda     #$ea
         .byte   $00
 
 Branch_DamageBorderColour
-        lda     Var_DamageOccuring 		;#00 No damage / #01 Damage
-        bne     Branch_NoDamage 		;Branch if damage received
-        lda     Var_BorderColour 		;Load border colour
-        bne     +						;Branch if background colour not #00
-        lda     #$06       				;A = $06 (blue)
-        sta     Adr_BorderColor 		;Set background colour to blue
-        jmp     L7FAE
-+       lda     #$0a       				;A = #0a
-        sta     Adr_BorderColor 		;Set background colour to pink
-Branch_NoDamage
-        jmp     L7FAE
+        lda     Var_DamageOccuring         	; Load the value of Var_DamageOccuring (#00 No damage / #01 Damage) into the accumulator (A).
+        bne     Branch_Damage            	; Branch if damage has been received (not equal to #00).
+        lda     Var_BorderColour           	; Load the value of Var_BorderColour into the accumulator (A).
+        bne     +                          	; Branch if the background color is not #00 (to the code block marked as '+').
+        lda     #$06                       	; Set the accumulator (A) to #$06 (blue).
+        sta     Adr_BorderColor            	; Store the value in the accumulator (A) into Adr_BorderColor (set background color to blue).
+        jmp     L7FAE                      	; Jump to the label L7FAE.
+
++       lda     #$0a                       	; Set the accumulator (A) to #$0a (pink).
+        sta     Adr_BorderColor            	; Store the value in the accumulator (A) into Adr_BorderColor (set background color to pink).
+Branch_Damage
+        jmp     L7FAE                      	; Jump to the label L7FAE.
+
 
         .fill   22,$00
 
@@ -2615,9 +2636,10 @@ L7F80   dec     Var_5a16               	; Decrease the value at memory location 
 +       rts                             ; Return from subroutine
 
 
-L7FAE   jsr     L538E
-        jsr     L7F80
-        rts
+L7FAE   jsr     L538E                     ; Call the subroutine at the label L538E.
+        jsr     L7F80                     ; Call the subroutine at the label L7F80.
+        rts                               ; Return from the current subroutine.
+
 
         .fill 32,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$28,$04,$f0,$07
@@ -2670,19 +2692,20 @@ LC000   lda     LCF46,x					;
 
 _LC00E  jmp     If_CD55
 
-LC011   lda     L4555      ;A = $4555
-        cmp     #$ff       ;Compare A to #ff
-        beq     _LC031     ;Branch if A = #ff
-        dec     LCF43
-        jsr     LC525
-        bne     _LC031
-        lda     L4555
-        sta     LCF43
-        lda     Adr_ScreenControl
-        and     #$f7
-        sta     Adr_ScreenControl
-        jsr     If_C46B
-_LC031  rts
+LC011   lda     L4555      					; Load the value at memory address $4555 into the accumulator (A)
+        cmp     #$ff       					; Compare A with #ff
+        beq     _rts     					; Branch if A is equal to #ff (255)
+        dec     LCF43      					; Decrement the value at memory address $CF43
+        jsr     LC525      					; Jump to subroutine LC525
+        bne     _rts     					; Branch if the zero flag is not set (result of comparison in LC525 is not equal)
+        lda     L4555      					; Load the value at memory address $4555 into the accumulator (A)
+        sta     LCF43      					; Store the value in the accumulator (A) into memory address $CF43
+        lda     Adr_ScreenControl 			; Load the value at Adr_ScreenControl into the accumulator (A)
+        and     #$f7       					; Perform a bitwise AND operation with #$f7 to clear the 4th bit
+        sta     Adr_ScreenControl 			; Store the value in the accumulator (A) into Adr_ScreenControl
+        jsr     If_C46B    					; Jump to subroutine If_C46B
+_rts  	rts                					; Return from the subroutine
+
 
 LC032   lda     L4517
         jmp     LC144
@@ -2735,18 +2758,17 @@ Var_JumpInput
         .fill   1,$00      					;#01 jumping / #00 not jumping
 
 Jump_C19D
-        lda     L45FF      					;A = $45ff (#01)
-        bne     IfNot_45ffis00 				;Branch if not #00
-        lda     SpriteEnableRegister
-        jmp     LC7D4
+        lda     L45FF                      ; Load the value at memory address $45FF into the accumulator (A)
+        bne     +                          ; Branch if A is not equal to #00. Seems like $45ff is always #01.
+        lda     SpriteEnableRegister       ; Load the value at SpriteEnableRegister into the accumulator (A)
+        jmp     LC7D4                      ; Jump to the label LC7D4
 
-IfNot_45ffis00
-        lda     Var_JumpInput 				;#01 jumping / #00 not jumping
-        beq     If_NoJumpInput 				;Branch if not jumping
-        jmp     Jump_Jumping
++       lda     Var_JumpInput              ; Load the value at Var_JumpInput into the accumulator (A) (#01 jumping / #00 not jumping)
+        beq     +                          ; Branch if A is equal to #00 (not jumping)
+        jmp     Jump_Jumping               ; Jump to the label Jump_Jumping if jumping
 
-If_NoJumpInput
-        jmp     L5418
++       jmp     L5418                      ; Jump to the label L5418
+
 
         .byte   $ea
 
@@ -3151,7 +3173,7 @@ If_C717 nop
 
 LC71B   lda     #$00                		; A = #00
         sta     Var_MovingLeftRight 		; Reset Var_MovingLeftRight
-        jsr     Sub_GetKeyboardInputs 		; Call subroutine to get keyboard inputs
+        jsr     Sub_GetInputs 				; Call subroutine to get inputs
 
         lda     Var_DownInput       		; A = Var_DownInput. 01 = Down pressed / 00 = No input
         cmp     #$ff                		; Compare with #ff (unknown significance, possibly unused)
@@ -3198,8 +3220,8 @@ LC71B   lda     #$00                		; A = #00
         cmp     #$ff       					; Compare it to the value #$ff, which means "Left input received".
         bne     +          					; If it's not equal to #$ff, branch to the next line.
         lda     Var_RopeFall 				; Load the value of a variable called Var_RopeFall into the accumulator.
-        cmp     #$00       					;Compare it to the value #$00.
-        beq     +          					;If it's equal to #$00, branch to the next code block.
+        cmp     #$00       					; Compare it to the value #$00.
+        beq     +          					; If it's equal to #$00, branch to the next code block.
         lda     #$02       					; Load the value #$02 into the accumulator.
         ldx     #$00       					; Load the value #$00 into the X register.
         jsr     Sub_PlayerPosition 			; Jump to a subroutine called Sub_PlayerPosition to update the player's position.
@@ -3213,22 +3235,22 @@ LC71B   lda     #$00                		; A = #00
 
 LC79B   adc     #$e8       					;Add the value #$e8 to the accumulator (which contains a sprite pointer) with carry.
         sta     SpritePointer0 				;Store the result in the variable called SpritePointer0.
-+       lda     Var_LeftRightInput 			;Load the value of a variable called Var_LeftRightInput into the accumulator.
-        cmp     #$01       					;Compare it to the value #$01, which means "going right".
-        bne     +          					;If it's not equal to #$01, branch to the next code block (i.e. skip the code that follows).
-        lda     Var_SlidingOnRope 			;Load the value of a variable called Var_SlidingOnRope into the accumulator.
-        cmp     #$00       					;Compare it to the value #$00.
-        beq     +          					;If it's equal to #$00, branch to the next line.
-        lda     #$03       					;Load the value #$03 into the accumulator.
-        ldx     #$00       					;Load the value #$00 into the X register.
-        jsr     Sub_PlayerPosition 			;Jump to a subroutine called Sub_PlayerPosition to update the player's position.
-        inc     Var_MovingLeftRight 		;Increment a variable called Var_MovingLeftRight.
-        lda     L4507      					;Load the value of a variable called L4507 into the accumulator.
-        cmp     #$00       					;Compare it to the value #$00.
-        beq     +          					;If it's equal to #$00, branch to the next line.
-        lda     SpritePointer0 				;Load the value of a variable called SpritePointer0 into the accumulator.
-        and     #$03       					;Perform a bitwise AND operation with the value #$03.
-        clc                 				;Clear the carry flag.
++       lda     Var_LeftRightInput 			; Load the value of a variable called Var_LeftRightInput into the accumulator.
+        cmp     #$01       					; Compare it to the value #$01, which means "going right".
+        bne     +          					; If it's not equal to #$01, branch to the next code block (i.e. skip the code that follows).
+        lda     Var_SlidingOnRope 			; Load the value of a variable called Var_SlidingOnRope into the accumulator.
+        cmp     #$00       					; Compare it to the value #$00.
+        beq     +          					; If it's equal to #$00, branch to the next line.
+        lda     #$03       					; Load the value #$03 into the accumulator.
+        ldx     #$00       					; Load the value #$00 into the X register.
+        jsr     Sub_PlayerPosition 			; Jump to a subroutine called Sub_PlayerPosition to update the player's position.
+        inc     Var_MovingLeftRight 		; Increment a variable called Var_MovingLeftRight.
+        lda     L4507      					; Load the value of a variable called L4507 into the accumulator.
+        cmp     #$00       					; Compare it to the value #$00.
+        beq     +          					; If it's equal to #$00, branch to the next line.
+        lda     SpritePointer0 				; Load the value of a variable called SpritePointer0 into the accumulator.
+        and     #$03       					; Perform a bitwise AND operation with the value #$03.
+        clc                 				; Clear the carry flag.
 
 LC7C5   adc     #$ec       					;Add the value #$ec to the accumulator (which contains a sprite pointer) with carry.
         sta     SpritePointer0 				;Store the result in the variable called SpritePointer0.
@@ -3268,10 +3290,10 @@ LC7D4   and     #$02       					;Perform a bitwise AND operation with the value 
         ora     SpriteXMSBRegister 			;Perform a bitwise OR operation with the value of the variable called SpriteXMSBRegister.
         jsr     Sub_2F00   					;Jump to a subroutine called Sub_2F00.
 
-Jump_Jumping
-        lda     L450d   					;Load the value at address $450d into the accumulator.
-        cmp     #$01       					;Compare it to the value #$01.
-        beq     +    						;If it's equal to #$01, branch to a label called +.
+Jump_Jumping								; $c819
+        lda     L450d   					; Load the value at address $450d into the accumulator.
+        cmp     #$01       					; Compare it to the value #$01.
+        beq     +    						; If it's equal to #$01, branch to a label called +.
         lda     Var_MovingLeftRight 		;Load the value of a variable called Var_MovingLeftRight into the accumulator.
         cmp     #$00       					;Compare it to the value #$00.
         beq     RTS_Inputs 					;If it's equal to #$00, return from the subroutine.
@@ -3293,78 +3315,83 @@ RTS_Inputs
 ;*****************************
 ;* Get Inputs                *
 ;*****************************
-Sub_GetKeyboardInputs
-        lda     #$00					; A = #00
-        sta     Var_UpInput 			;Var_UpInput = #00
-        lda     L4511      				;Cant see this ever being set
-        cmp     #$01       				;Compare $4511 = #01
-        beq     If_C861
-        lda     #$00					; A = #00
-        sta     Var_DownInput 			;Var_DownInput = #00
-        sta     Var_LeftRightInput 		;Var_LeftRightInput = #00
-If_C861 lda     Var_KeyboardInput 		;A = KeyboardInput
-        cmp     #$40       				;Compare A = #40
-        beq     If_C8AB    				;Branch if no keyboard input
-        lda     #$00					; A = #00
-        sta     Var_DownInput 			;Var_DownInput = #00
-        sta     Var_LeftRightInput 		;Var_LeftRightInput = #00
-        lda     Var_KeyboardInput 		;A = Var_KeyboardInput
-        cmp     L4512      				;Compare $c5 = $4512
-        bne     If_C87B    				;Always taken from what I can see
-        lda     #$ff
-        sta     Var_DownInput
-If_C87B lda     Var_KeyboardInput
-        cmp     L4512
-        bne     If_C887
-        lda     #$ff
-        sta     Var_DownInput
-If_C887 lda     Var_KeyboardInput
-        cmp     L4513
-        bne     If_C893
-        lda     #$01
-        sta     Var_DownInput
-If_C893 lda     Var_KeyboardInput
-        cmp     L4514
-        bne     If_C89F
-        lda     #$ff
-        sta     Var_LeftRightInput
-If_C89F lda     Var_KeyboardInput
-        cmp     L4515
-        bne     If_C8AB
-        lda     #$01
-        sta     Var_LeftRightInput
-If_C8AB lda     $028d
-        cmp     #$00
-        beq     Sub_GetJoystickInputs
-        lda     #$01
-        sta     Var_UpInput
-Sub_GetJoystickInputs
-        jsr     Sub_ResetMovementVars ;Reset movement variables and get port A input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)
-        and     #$01       ;Isolate first bit
-        cmp     #$01       ;Compare to see if the bit is true
-        beq     If_C8C5    ;Branch if up is not pressed
-        lda     #$01       ;A = #01
-        sta     Var_UpInput ;Store #01 to Var_UpInput
-If_C8C5 lda     InputPortA ;Get Port A inputs
-        and     #$02       ;Isolate second bit
-        cmp     #$02       ;Check if second bit is set
-        beq     If_C8D3    ;Branch if down is not pressed
-        lda     #$01       ;A = #01
-        sta     Var_DownInput ;Store #01 to Var_DownInput
-If_C8D3 lda     InputPortA ;Get Port A inputs
-        and     #$04
-        cmp     #$04
-        beq     If_C8E1
-        lda     #$ff       ;A = #ff
-        sta     Var_LeftRightInput ;Store #ff (Left) to Var_LeftRightInput
-If_C8E1 lda     InputPortA ;Get Port A inputs
-        and     #$08
-        cmp     #$08
-        beq     RTS_C8EF   ;Branch to RTS
-        lda     #$01       ;A = #01
-        sta     Var_LeftRightInput ;Store #01 (Right) to Var_LeftRightInput
-RTS_C8EF
-        rts
+Sub_GetInputs
+        lda     #$00                    	; A = #00
+        sta     Var_UpInput             	; Set Var_UpInput to #00
+        lda     L4511                   	; Load the value at memory address $4511 into the accumulator (A)
+        cmp     #$01                    	; Compare A with #01
+        beq     If_C861                 	; Branch if A is equal to #01
+        lda     #$00                    	; A = #00
+        sta     Var_DownInput           	; Set Var_DownInput to #00
+        sta     Var_LeftRightInput      	; Set Var_LeftRightInput to #00
+If_C861 lda     Var_KeyboardInput      		; Load Var_KeyboardInput into the accumulator (A)
+        cmp     #$40                    	; Compare A with #40
+        beq     If_C8AB                 	; Branch if no keyboard input
+        lda     #$00                    	; A = #00
+        sta     Var_DownInput           	; Set Var_DownInput to #00
+        sta     Var_LeftRightInput      	; Set Var_LeftRightInput to #00
+        lda     Var_KeyboardInput       	; Load Var_KeyboardInput into the accumulator (A)
+        cmp     L4512                   	; Compare A with the value at memory address $4512
+        bne     If_C87B                 	; Branch if not equal
+        lda     #$ff                    	; A = #ff
+        sta     Var_DownInput           	; Set Var_DownInput to #ff
+If_C87B lda     Var_KeyboardInput      		; Load Var_KeyboardInput into the accumulator (A)
+        cmp     L4512                   	; Compare A with the value at memory address $4512
+        bne     If_C887                 	; Branch if not equal
+        lda     #$ff                    	; A = #ff
+        sta     Var_DownInput           	; Set Var_DownInput to #ff
+If_C887 lda     Var_KeyboardInput      		; Load Var_KeyboardInput into the accumulator (A)
+        cmp     L4513                   	; Compare A with the value at memory address $4513
+        bne     If_C893                 	; Branch if not equal
+        lda     #$01                    	; A = #01
+        sta     Var_DownInput           	; Store #01 to Var_DownInput
+If_C893 lda     Var_KeyboardInput      		; Load Var_KeyboardInput into the accumulator (A)
+        cmp     L4514                   	; Compare A with the value at memory address $4514
+        bne     If_C89F                 	; Branch if not equal
+        lda     #$ff                    	; A = #ff
+        sta     Var_LeftRightInput      	; Store #ff (Left) to Var_LeftRightInput
+If_C89F lda     Var_KeyboardInput      		; Load Var_KeyboardInput into the accumulator (A)
+        cmp     L4515                   	; Compare A with the value at memory address $4515
+        bne     If_C8AB                 	; Branch if not equal
+        lda     #$01                    	; A = #01
+        sta     Var_LeftRightInput      	; Store #01 (Right) to Var_LeftRightInput
+If_C8AB lda     $028d                  		; Load the value at memory address $028D into the accumulator (A)
+        cmp     #$00                    	; Compare A with #00
+        beq     CheckJoyUp   				; Branch if equal, go to CheckJoyUp
+        lda     #$01                    	; A = #01
+        sta     Var_UpInput             	; Set Var_UpInput to #01
+
+CheckJoyUp
+        jsr     Sub_ResetMovementVars   	; Reset movement variables and get port A input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)
+        and     #$01                    	; Isolate first bit
+        cmp     #$01                    	; Compare to see if the bit is true
+        beq     CheckJoyDown                ; Branch if up is not pressed
+        lda     #$01                    	; A = #01
+        sta     Var_UpInput             	; Store #01 to Var_UpInput
+CheckJoyDown 
+		lda     InputPortA             		; Get Port A inputs
+        and     #$02                    	; Isolate second bit
+        cmp     #$02                    	; Check if second bit is set
+        beq     CheckJoyLeft                ; Branch if down is not pressed
+        lda     #$01                    	; A = #01
+        sta     Var_DownInput           	; Store #01 to Var_DownInput
+CheckJoyLeft 
+		lda     InputPortA             		; Get Port A inputs
+        and     #$04                    	; Isolate third bit
+        cmp     #$04                    	; Check if third bit is set
+        beq     CheckJoyRight               ; Branch if left is not pressed
+        lda     #$ff                    	; A = #ff
+        sta     Var_LeftRightInput      	; Store #ff (Left) to Var_LeftRightInput
+CheckJoyRight 
+		lda     InputPortA             		; Get Port A inputs
+        and     #$08                    	; Isolate fourth bit
+        cmp     #$08                    	; Check if fourth bit is set
+        beq     _rts                		; Branch to RTS if right is not pressed
+        lda     #$01                    	; A = #01
+        sta     Var_LeftRightInput      	; Store #01 (Right) to Var_LeftRightInput
+_rts
+        rts                             	; Return from subroutine
+
 
 ;*****************************
 ;* End Get Inputs            *

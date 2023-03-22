@@ -97,7 +97,7 @@ L2A0B   sbc     #$2c       			; Subtract with carry. Removing top border height.
         and     #$01       			; Isolate the first bit
         beq     + 				; Branch something something
         lda     #$80 				; A = #80
-+		ora     Var_CharacterXPosLow 	; 
++	ora     Var_CharacterXPosLow 	        ; 
 L2A29 	lsr     a          			; Divide by 2
         lsr     a          			; Divide by 2
         tax                			; Transfer A to X
@@ -118,7 +118,7 @@ L2A29 	lsr     a          			; Divide by 2
         sta     Low_tempvar
         bcc     +
         inc     High_tempvar
-+ 		lda     High_tempvar
++ 	lda     High_tempvar
         clc
         adc     #$04       			; Add #04 to the current value of $fc. This equates to the screen high byte.
         sta     High_tempvar 			; Set player position high byte
@@ -133,7 +133,7 @@ L2A29 	lsr     a          			; Divide by 2
         ;* $5148 = #29 (41) characters from current position. Checking right.          *
         ;*******************************************************************************
         
-		lda     L5145,x    		; A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
+	lda     L5145,x    		; A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
         tay                			; Transfer A to Y
         lda     (Low_tempvar),y 		; ($fb),y = Get character based on direction.
         cmp     #$a0       			; Check if current character is blank
@@ -173,28 +173,28 @@ L2A7E   .byte   $07
 L2A7F   .byte   $09
 
 Sub_2A80
-        stx     Low_tempvar 				;X = $fb (From $2a80. Passed with X = #bf)
-        sty     High_tempvar 				;Y = $fc (From $2a80. Passed with Y = #5b)
-        ldy     #$00       					;Y = #00
-        lda     (Low_tempvar),y 			;A = 5bbf,00. Start of the index set.
-        sta     Sub_C29D+1 					;$C29E = #00
-        iny                					;Increase Y
-        lda     (Low_tempvar),y 			;A = #b2
-        sta     LC2A1+1    					;$C2A2 = #b2
-        iny                					;Increase Y
-        lda     (Low_tempvar),y 			;A = #ff
-        sta     LC2AD+1    					;$C2AE = #ff
-        iny                					;Increase Y
-        lda     (Low_tempvar),y 			;A = #b5
-        sta     LC2B2+1    					;$C2B3 = #b5
-        iny                					;Increase Y
-        lda     (Low_tempvar),y 			;A = 00
-        sta     LC2A5+1    					;$C2A6 = #00
-        iny                					;Increase Y
-        lda     (Low_tempvar),y 			;A = #30
-        sta     LC2A9+1    					;C2AA = #30
+        stx     Low_tempvar 			;X = $fb (From $2a80. Passed with X = #bf)
+        sty     High_tempvar 			;Y = $fc (From $2a80. Passed with Y = #5b)
+        ldy     #$00       			;Y = #00
+        lda     (Low_tempvar),y 		;A = 5bbf,00. Start of the index set.
+        sta     Sub_C29D+1 			;$C29E = #00
+        iny                			;Increase Y
+        lda     (Low_tempvar),y 		;A = #b2
+        sta     LC2A1+1    			;$C2A2 = #b2
+        iny                			;Increase Y
+        lda     (Low_tempvar),y 		;A = #ff
+        sta     LC2AD+1    			;$C2AE = #ff
+        iny                			;Increase Y
+        lda     (Low_tempvar),y 		;A = #b5
+        sta     LC2B2+1    			;$C2B3 = #b5
+        iny                			;Increase Y
+        lda     (Low_tempvar),y 		;A = 00
+        sta     LC2A5+1    			;$C2A6 = #00
+        iny                			;Increase Y
+        lda     (Low_tempvar),y 		;A = #30
+        sta     LC2A9+1    			;C2AA = #30
         jsr     Sub_C29D
-        rts                					;Return from subroutine
+        rts                				;Return from subroutine
 
         .byte   $dc,$9d,$bd,$a0,$2a,$20,$80,$2a,$a2,$c3,$a0,$2a,$20,$80,$2a,$60
         .byte   $28,$04,$ff,$07,$28,$41,$28,$d8,$ff,$db,$28,$46,$ea,$ea,$ea,$a8

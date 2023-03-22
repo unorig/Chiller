@@ -164,7 +164,7 @@ If_TouchingMushroom
 
         .byte   $60
 
-L2A72   sta     Temp_Jumping
+L2A72   sta     Var_FallingStanding
         lda     L544A
         sta     L2A7F
         jmp     Sub_5880
@@ -659,10 +659,10 @@ _rts	rts
 
         .fill   2,$ea
 
-If_535D lda     Temp_0c   					;A = $534b (Always seems to be #0c)
-        sta     Temp_534c  					;$534c = $53cb
-        lda     Sprite0YPos 				;A = SpriteMSBYPosition
-        sta     Temp_SpriteMSBYPosition 	;Temp_SpriteMSBYPosition = SpriteMSBYPosition
+If_535D lda     Temp_0c   		;A = $534b (Always seems to be #0c)
+        sta     Temp_534c  		;$534c = $53cb
+        lda     Sprite0YPos 		;A = SpriteMSBYPosition
+        sta     Temp_SpriteMSBYPosition 	                ;Temp_SpriteMSBYPosition = SpriteMSBYPosition
         lda     #$01       					;A = #01
         ldx     #$00       					;X = #00
         jsr     Sub_PlayerPosition
@@ -682,25 +682,25 @@ If_537E jsr     L54AC
 
         .byte   $ea
 
-L538E   inc     Var_SomethingRandom       	; Increment Var_SomethingRandom by 1
-        lda     Var_JumpInput             	; Load the value of Var_JumpInput into the accumulator (A). This variable holds the jump input state (#01 for jumping, #00 for not jumping).
+L538E   inc     Var_SomethingRandom     ; Increment Var_SomethingRandom by 1
+        lda     Var_Jumping           ; Load the value of Var_Jumping into the accumulator (A). This variable holds the jump input state (#01 for jumping, #00 for not jumping).
 
-        beq     InputNotJumping        		; If the value in the accumulator (A) is zero (not jumping), branch to InputNotJumping.
+        beq     InputNotJumping         ; If the value in the accumulator (A) is zero (not jumping), branch to InputNotJumping.
 
-        dec     L2A7F                     	; Decrement the value at memory address L2A7F by 1.
-        beq     If_539E                   	; If the value at memory address L2A7F becomes zero after decrementing, branch to If_539E.
+        dec     L2A7F                   ; Decrement the value at memory address L2A7F by 1.
+        beq     If_539E                 ; If the value at memory address L2A7F becomes zero after decrementing, branch to If_539E.
 
-        rts                               	; Return from the subroutine.
+        rts                             ; Return from the subroutine.
 
         .fill   2,$ea
 
-If_539E jsr     Sub_SetTempSprite0YPos
-        bne     IF_NotJumping 				;Branch if not jumping (#01 Not jumping / #00 Jumping)
-        lda     #$00						; A = #00. Used to set player direction which is up.
+If_539E jsr     Sub_SetTempSprite0YPos  ; Set Temp_Sprite0YPos to the Sprite 0 Y Position and load A with Var_FallingStanding (#01 Falling or Standing / #00 Jumping).
+        bne     NotJumping 		; Branch if Var_FallingStanding not #00 (Falling or Standing).
+        lda     #$00			; A = #00. Used to set player direction which is up.
         jsr     Sub_PlayerPosition
         jsr     Sub_UpdateYPosJumping
         ldx     L2A7E
-        cpx     #$18       					;Maximum jump height
+        cpx     #$18       		; Maximum jump height. Default is #18.
         bne     If_53B5
         jmp     Jump_53BE
 
@@ -710,12 +710,12 @@ If_53B5 lda     L544A,x
 
 Jump_53BE
         lda     #$01
-        sta     Temp_Jumping
+        sta     Var_FallingStanding
         rts
 
         .fill   2,$ea
 
-IF_NotJumping
+NotJumping
         lda     #$01
         jsr     L5467
         dec     L2A7E
@@ -732,7 +732,7 @@ If_53D8 lda     L544A,x
 
 Jump_53E2
         lda     #$00						; A = #00
-        sta     Var_JumpInput 				;#01 jumping / #00 not jumping
+        sta     Var_Jumping 				;#01 jumping / #00 not jumping
         lda     #$18
         sta     Var_Falling
         rts
@@ -761,7 +761,7 @@ L53EF   lda     #$01
 L5418   lda     Var_Falling					; Not really falling but happens after hitting enemy or rope
         bne     +    						; Branch if above is not #00
         lda     #$01       					; A = #01
-        sta     Var_JumpInput 				; Var_JumpInput = #01 (#01 jumping / #00 not jumping)
+        sta     Var_Jumping 				; Var_Jumping = #01 (#01 jumping / #00 not jumping)
         jmp     LC1B4
 + 		jmp     Jump_Jumping
 
@@ -769,23 +769,23 @@ L5418   lda     Var_Falling					; Not really falling but happens after hitting e
 Temp_Sprite0YPos
         .byte   $e3
 
-Sub_SetTempSprite0YPos
+Sub_SetTempSprite0YPos                  ; Set Temp_Sprite0YPos to the Sprite 0 Y Position and load A with Var_FallingStanding (#01 Falling or Standing / #00 Jumping)
         lda     Sprite0YPos
         sta     Temp_Sprite0YPos
-        lda     Temp_Jumping 				;#01 Not jumping / #00 Jumping
+        lda     Var_FallingStanding 	; #01 Not jumping / #00 Jumping
         rts
 
         .fill   2,$ea
 
 Sub_UpdateYPosJumping   
-		lda     Sprite0YPos          	; Load the Y position of Sprite0 into the accumulator (A)
+        lda     Sprite0YPos          	; Load the Y position of Sprite0 into the accumulator (A)
         cmp     Temp_Sprite0YPos     	; Compare the current Y position with the temporary Y position of Sprite0
-        bne     +              			; Branch if the positions are not equal (i.e., Sprite0 has moved vertically)
+        bne     +              		; Branch if the positions are not equal (i.e., Sprite0 has moved vertically)
 
         lda     #$01                 	; Load the value #01 into the accumulator (A)
-        sta     Temp_Jumping         	; Store the value #01 into Temp_Jumping, indicating that the sprite is jumping
+        sta     Var_FallingStanding     ; Store the value #01 into Var_FallingStanding, indicating that the sprite is jumping
 
-+ 		inc     L2A7E                	; Increment the value at memory location L2A7E by 1
++ 	inc     L2A7E                	; Increment the value at memory location L2A7E by 1
         rts                          	; Return from subroutine
 
 
@@ -805,7 +805,7 @@ L5467   lda     Sprite0YPos
         rts
 
 +		lda     #$00
-        sta     Var_JumpInput 				;#01 jumping / #00 not jumping
+        sta     Var_Jumping 				;#01 jumping / #00 not jumping
         rts
 
         .fill   2,$ea
@@ -1097,8 +1097,8 @@ L5800   inc     Var_SomethingRandom 		; Increase Var_SomethingRandom
         beq     +
         lda     Var_JumpDirection 			; Never taken (Left = #ff / Right = #01 / Up = #00)
         sta     Var_LeftRightInput 			; Never taken
-+ 		lda     Var_JumpInput 				; #01 jumping / #00 not jumping
-        cmp     #$00       					; Compare Var_JumpInput
++ 		lda     Var_Jumping 				; #01 jumping / #00 not jumping
+        cmp     #$00       					; Compare Var_Jumping
         bne     If_5836    					; Branch if jumping
         lda     #$a9
         sta     Sub_GetInputs
@@ -1336,7 +1336,7 @@ Sub_IncreaseHealthBlock
 
         .fill   3,$ea
 
-L59E6   lda     Var_JumpInput 				; #01 jumping / #00 not jumping
+L59E6   lda     Var_Jumping 				; #01 jumping / #00 not jumping
         beq     +    						; Branch if not jumping
         dec     Var_JumpSkipDamage 			; Var_JumpSkipDamage will be set to #00 in the loop
         bne     _rts				    	; Branch if not equal zero
@@ -2411,7 +2411,7 @@ L7680   stx     L767B+4
 Jump_76C0
         ldy     #$73
         lda     #$01
-        sta     Temp_Jumping
+        sta     Var_FallingStanding
         lda     (Adr_MapLow),y
         cmp     #$0a
         bmi     +
@@ -2752,9 +2752,9 @@ LC144   sta     Sprite0YPos
         .byte   $a2,$00,$a9,$20,$9d,$ee,$05,$9d,$ee,$06,$9d,$3c,$05,$e8,$e0,$00
         .byte   $d0,$f2,$60,$ea,$ea,$4c,$4a,$54,$00,$30,$00,$34,$e8,$03,$00,$4e
         .byte   $00,$52,$00,$30,$e8,$03,$e8,$07,$00,$4e,$ea
-Temp_Jumping
+Var_FallingStanding                            ; $C19B
         .byte   $01
-Var_JumpInput
+Var_Jumping                             ; $C19C
         .fill   1,$00      					;#01 jumping / #00 not jumping
 
 Jump_C19D
@@ -2763,7 +2763,7 @@ Jump_C19D
         lda     SpriteEnableRegister       ; Load the value at SpriteEnableRegister into the accumulator (A)
         jmp     LC7D4                      ; Jump to the label LC7D4
 
-+       lda     Var_JumpInput              ; Load the value at Var_JumpInput into the accumulator (A) (#01 jumping / #00 not jumping)
++       lda     Var_Jumping              ; Load the value at Var_Jumping into the accumulator (A) (#01 jumping / #00 not jumping)
         beq     +                          ; Branch if A is equal to #00 (not jumping)
         jmp     Jump_Jumping               ; Jump to the label Jump_Jumping if jumping
 
@@ -3416,22 +3416,22 @@ Var_SpriteNumber
         .byte   $05
 
 Sub_UpdateSpritePositions
-        ldy     #$ff       					; Y = #ff. X = Sprite Number / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)
-        sta     Var_SpriteDirection 		; Load request sprite movement direction
-        stx     Var_SpriteNumber 			; Update sprite number
-        txa                					; Transfer X to A
-        clc                					; Clear carry
-        asl     a          					; Multiply by 2
-        tax                					; Transfer A to X
-        lda     Var_SpriteDirection 		; Load A with requested sprite direction
-        cmp     #$00       					; Check if movement is up
-        beq     DecreaseYposition 			; Branch if sprite should move up
-        cmp     #$01       					; Check if movement is down
-        beq     IncreaseYposition 			; Branch if sprite should move down
-        cmp     #$02       					; Check if movement is left
-        beq     DecreaseXPosition 			; Branch if sprite should move left
-        cmp     #$03       					; Check if movement is right
-        beq     IncreaseXPosition 			; Branch if sprite should move right
+        ldy     #$ff       		; Y = #ff. X = Sprite Number / A = Direction (00 = up / 01 = down / 02 = left / 03 = right)
+        sta     Var_SpriteDirection 	; Load request sprite movement direction
+        stx     Var_SpriteNumber 	; Update sprite number
+        txa                		; Transfer X to A
+        clc                		; Clear carry
+        asl     a          		; Multiply by 2
+        tax                		; Transfer A to X
+        lda     Var_SpriteDirection 	; Load A with requested sprite direction
+        cmp     #$00       		; Check if movement is up
+        beq     DecreaseYposition 	; Branch if sprite should move up
+        cmp     #$01       		; Check if movement is down
+        beq     IncreaseYposition 	; Branch if sprite should move down
+        cmp     #$02       		; Check if movement is left
+        beq     DecreaseXPosition 	; Branch if sprite should move left
+        cmp     #$03       		; Check if movement is right
+        beq     IncreaseXPosition 	; Branch if sprite should move right
         rts                					; Return from subroutine
 
 DecreaseYposition

@@ -133,7 +133,7 @@ L2A29 	lsr     a          			; Divide by 2
         ;* $5148 = #29 (41) characters from current position. Checking right.          *
         ;*******************************************************************************
         
-	lda     L5145,x    		; A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
+	lda     L5145,x    		        ; A = $5145,x (Up = $5415 / Down = $5416 / Left = $5417 / Right = $5418)
         tay                			; Transfer A to Y
         lda     (Low_tempvar),y 		; ($fb),y = Get character based on direction.
         cmp     #$a0       			; Check if current character is blank
@@ -194,7 +194,7 @@ Sub_2A80
         lda     (Low_tempvar),y 		;A = #30
         sta     LC2A9+1    			;C2AA = #30
         jsr     Sub_C29D
-        rts                				;Return from subroutine
+        rts                			;Return from subroutine
 
         .byte   $dc,$9d,$bd,$a0,$2a,$20,$80,$2a,$a2,$c3,$a0,$2a,$20,$80,$2a,$60
         .byte   $28,$04,$ff,$07,$28,$41,$28,$d8,$ff,$db,$28,$46,$ea,$ea,$ea,$a8
@@ -232,35 +232,35 @@ Sub_SetScreenControl
         .byte   $ea,$1d
 
 L2C00
-		; Initialize X register as index
-		ldx     #$00                  ; Load #$00 into X register to use as an index
+        ; Initialize X register as index
+        ldx     #$00                    ; Load #$00 into X register to use as an index
 
-		; Loop 5 times through values stored at L4542 (indexed by X) and call subroutine L56B2
--   	lda     L4542,x               ; Load value from L4542 indexed by X into A register. This seems to be used for the frequency the sprite performs its path.	
-		jsr     L56B2                 ; Call subroutine L56B2 with the loaded value
-		inx                            ; Increment X register to move to the next index
-		cpx     #$05                  ; Compare X register (index) with #$05
-		bne     -                     ; Loop if X (index) not equal to #$05 (continue looping 5 times)
+        ; Loop 5 times through values stored at L4542 (indexed by X) and call subroutine L56B2
+-   	lda     L4542,x                 ; Load value from L4542 indexed by X into A register. This seems to be used for the frequency the sprite performs its path.	
+        jsr     L56B2                   ; Call subroutine L56B2 with the loaded value
+        inx                             ; Increment X register to move to the next index
+        cpx     #$05                    ; Compare X register (index) with #$05
+        bne     -                       ; Loop if X (index) not equal to #$05 (continue looping 5 times)
 
-		; Call subroutine L2E62 and return
-		jsr     L2E62                 ; Call subroutine L2E62
-		rts                            ; Return from subroutine
+        ; Call subroutine L2E62 and return
+        jsr     L2E62                   ; Call subroutine L2E62
+        rts                             ; Return from subroutine
 
 
 
         .fill   8,$ea
 
 L2C19   ldx     #$03
-- 		inc     LCFA6,x
+- 	inc     LCFA6,x
         lda     LCFA6,x
         cmp     #$ba
         bne     +
         lda     #$b0
         sta     LCFA6,x
-        dex									; Decrease X
+        dex				; Decrease X
         cpx     #$00
         bne     -
-+ 		jsr     L5681
++ 	jsr     L5681
         jmp     Jump_2C44
 
         .byte   $a9,$60,$8d,$fc,$ca,$20,$86,$ca,$a9,$4c,$8d,$fc,$ca,$60,$ea
@@ -269,7 +269,7 @@ Jump_2C44
         lda     #$01
         sta     SpriteEnableRegister
         ldx     #$00
-- 		lda     $05ef,x
+- 	lda     $05ef,x
         sta     $0345,x
         lda     $d9ef,x
         sta     $034e,x
@@ -287,7 +287,7 @@ Jump_2C44
         lda     #$04
         sta     L2E00+33
         sta     $a1
-- 		lda     $a1
+- 	lda     $a1
         cmp     #$06
         bne     -
         lda     #$05
@@ -297,7 +297,7 @@ Jump_2C44
         lda     #$00						; A = #00
         sta     LCF74
         ldx     #$00
-+ 		lda     $0345,x
++ 	lda     $0345,x
         sta     $05ef,x
         lda     $034e,x
         sta     $d9ef,x
@@ -307,17 +307,17 @@ Jump_2C44
         jmp     LC694
 
 Sub_SetRandomVariables
-    ; Set initial values for LCFA7 and LCFA8
-    lda     #$b0                  ; Load #$b0 into A register
-    sta     LCFA7                 ; Store A into LCFA7
-    sta     LCFA8                 ; Store A into LCFA8
+        ; Set initial values for LCFA7 and LCFA8
+        lda     #$b0                    ; Load #$b0 into A register
+        sta     LCFA7                   ; Store A into LCFA7
+        sta     LCFA8                   ; Store A into LCFA8
 
-    ; Set initial value for LCFA9
-    lda     #$b1                  ; Load #$b1 into A register
-    sta     LCFA9                 ; Store A into LCFA9
+        ; Set initial value for LCFA9
+        lda     #$b1                    ; Load #$b1 into A register
+        sta     LCFA9                   ; Store A into LCFA9
 
-    ; Jump to another subroutine
-    jmp     L2C00                 ; Jump to subroutine L2C00
+        ; Jump to another subroutine
+        jmp     L2C00                   ; Jump to subroutine L2C00
 
 
 Sub_SetInterruptsAndMem
@@ -744,8 +744,8 @@ L53EF   lda     #$01
         sta     Var_SlidingOnRope
         lda     Var_Falling
         cmp     L457A
-        bpl     If_53FF
-If_53FF nop
+        bpl     +
++       nop
         nop									; No operation.
         nop									; No operation.
         nop									; No operation.

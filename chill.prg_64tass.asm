@@ -163,14 +163,15 @@ If_TouchingMushroom
 
         .byte   $60
 
-L2A72   sta     Var_FallingStanding
-        lda     L544A
-        sta     Var_JumpAscDescTimer
+L2A72   sta     Var_FallingStanding             ; Set Var_FallingStanding to #00 (Jumping).
+        lda     L544A                           ; Load #05
+        sta     Var_JumpAscDescTimer            ; Update Var_JumpAscDescTimer to #05
         jmp     Sub_5880
 
 Var_JumpAscDesc   
         .byte   $07
-Var_JumpAscDescTimer   
+
+Var_JumpAscDescTimer                            ; $2a7f
         .byte   $09
 
 Sub_2A80
@@ -708,7 +709,7 @@ If_53B5 lda     L544A,x
 
 Jump_53BE
         lda     #$01
-        sta     Var_FallingStanding
+        sta     Var_FallingStanding             ; (#01 Falling or Standing / #00 Jumping)
         rts
 
         .fill   2,$ea
@@ -730,9 +731,9 @@ If_53D8 lda     L544A,x
         .byte   $ea
 
 Jump_53E2
-        lda     #$00						; A = #00
-        sta     Var_Jumping 				;#01 jumping / #00 not jumping
-        lda     #$18
+        lda     #$00				; A = #00
+        sta     Var_Jumping 			; Reset Var_Jumping to #00 (#01 jumping / #00 not jumping)
+        lda     #$18                            ; Reset Var_Falling to #18
         sta     Var_Falling
         rts
 
@@ -2405,12 +2406,13 @@ L7680   stx     L767B+4
         lda     #$0a
         sta     Adr_BorderColor
         jmp     Jump_76C0
-+ 		lda     #$06
++ 	lda     #$06
         sta     Adr_BorderColor
+
 Jump_76C0
         ldy     #$73
-        lda     #$01
-        sta     Var_FallingStanding
+        lda     #$01                            ; Set A to #01
+        sta     Var_FallingStanding             ; Set Var_FallingStanding to #01 (Falling or Standing).
         lda     (Adr_MapLow),y
         cmp     #$0a
         bmi     +
@@ -2418,7 +2420,7 @@ Jump_76C0
         sta     SpriteEnableRegister
         rts
         .fill   2,$ea
-+ 		lda     #$01
++ 	lda     #$01
         sta     SpriteEnableRegister
         rts
 
@@ -2751,20 +2753,22 @@ LC144   sta     Sprite0YPos
         .byte   $a2,$00,$a9,$20,$9d,$ee,$05,$9d,$ee,$06,$9d,$3c,$05,$e8,$e0,$00
         .byte   $d0,$f2,$60,$ea,$ea,$4c,$4a,$54,$00,$30,$00,$34,$e8,$03,$00,$4e
         .byte   $00,$52,$00,$30,$e8,$03,$e8,$07,$00,$4e,$ea
-Var_FallingStanding                            ; $C19B
-        .byte   $01
-Var_Jumping                             ; $C19C
-        .fill   1,$00      					;#01 jumping / #00 not jumping
+
+Var_FallingStanding                             ; $C19B
+        .byte   $01                             ; #01 Falling or Standing / #00 Jumping
+
+Var_Jumping                                     ; $C19C
+        .fill   1,$00      		        ; #01 jumping / #00 not jumping
 
 Jump_C19D
-        lda     L45FF                      ; Load the value at memory address $45FF into the accumulator (A)
-        bne     +                          ; Branch if A is not equal to #00. Seems like $45ff is always #01.
-        lda     SpriteEnableRegister       ; Load the value at SpriteEnableRegister into the accumulator (A)
-        jmp     LC7D4                      ; Jump to the label LC7D4
+        lda     L45FF                           ; Load the value at memory address $45FF into the accumulator (A)
+        bne     +                               ; Branch if A is not equal to #00. Seems like $45ff is always #01.
+        lda     SpriteEnableRegister            ; Load the value at SpriteEnableRegister into the accumulator (A)
+        jmp     LC7D4                           ; Jump to the label LC7D4
 
-+       lda     Var_Jumping              ; Load the value at Var_Jumping into the accumulator (A) (#01 jumping / #00 not jumping)
-        beq     +                          ; Branch if A is equal to #00 (not jumping)
-        jmp     Jump_Jumping               ; Jump to the label Jump_Jumping if jumping
++       lda     Var_Jumping                     ; Load the value at Var_Jumping into the accumulator (A) (#01 jumping / #00 not jumping)
+        beq     +                               ; Branch if A is equal to #00 (not jumping)
+        jmp     Jump_Jumping                    ; Jump to the label Jump_Jumping if jumping
 
 +       jmp     L5418                      ; Jump to the label L5418
 
@@ -2774,7 +2778,7 @@ Jump_C19D
 LC1B4   nop									
         lda     #$00			        ; A = #00
         sta     Var_JumpAscDesc                 ; Reset Var_JumpAscDesc to #00
-        jmp     L2A72                           ; 
+        jmp     L2A72                           ; Begin jump routine.
 
         .byte   $00,$00,$00,$ad,$00,$dc,$a0,$00,$a2,$00,$4a,$b0,$01,$88,$4a,$b0
         .byte   $01,$c8,$4a,$b0,$01,$ca,$4a,$b0,$01,$e8,$4a,$8e,$ed,$c1,$8c,$ec
@@ -3171,32 +3175,26 @@ If_C717 nop
         .fill   2,$ea
 
 LC71B   lda     #$00                		; A = #00
-        sta     Var_MovingLeftRight 		; Reset Var_MovingLeftRight
-        jsr     Sub_GetInputs 				; Call subroutine to get inputs
-
+        sta     Var_MovingLeftRight 		; Reset Var_MovingLeftRight (#01 moving left or right / #00 not moving left or right).
+        jsr     Sub_GetInputs 			; Call subroutine to get inputs
         lda     Var_DownInput       		; A = Var_DownInput. 01 = Down pressed / 00 = No input
         cmp     #$ff                		; Compare with #ff (unknown significance, possibly unused)
-        bne     +   						; Branch if Var_DownInput not equal #$ff
-
+        bne     +   				; Branch if Var_DownInput not equal #$ff
         lda     Var_4500            		; Load A with value at Var_4500
         cmp     #$00                		; Compare A with #00
-        beq     +   						; Branch if A is equal to #00
-
+        beq     +   				; Branch if A is equal to #00
         lda     #$00                		; 00 (Up) is passed to Sub_PlayerPosition as direction of player.
         tax                         		; Transfer A to X (X = #00)
         jsr     Sub_PlayerPosition  		; This will work out player position and suitable actions (E.g. mushroom, etc)
-
-        inc     Var_MovingLeftRight 		; Increment Var_MovingLeftRight
+        inc     Var_MovingLeftRight 		; Increment Var_MovingLeftRight (#01 moving left or right / #00 not moving left or right).
         lda     Var_SlidingOnRope+1 		; Load A with value at Var_SlidingOnRope+1
         cmp     #$00                		; Compare A with #00
-        beq     +   						; Branch if A is equal to #00
-
+        beq     +   				; Branch if A is equal to #00
         lda     SpritePointer0      		; Load A with value at SpritePointer0
         and     #$01                		; Perform bitwise AND with #01
         clc                         		; Clear carry flag
         adc     #$d8                		; Add #d8 to A with carry
         sta     SpritePointer0      		; Store updated value in SpritePointer0
-
 +       lda     Var_DownInput 			; Load the value of the Down input variable into the accumulator.
         cmp     #$01       			; Compare it to the value #$01, which means "Down pressed".
         bne     +          			; If it's not equal to #$01, branch to the next code block (i.e. skip the code that follows).
@@ -3206,7 +3204,7 @@ LC71B   lda     #$00                		; A = #00
         lda     #$01       			; 01 (Down) is passed to Sub_PlayerPosition as direction of player.
         ldx     #$00       			;Load the value #$00 into the X register.
         jsr     Sub_PlayerPosition 		; This will work out player position and suitable actions (E.g. mushroom, etc)
-        inc     Var_MovingLeftRight 		;Increment a variable called Var_MovingLeftRight.
+        inc     Var_MovingLeftRight 		;Increment a variable called Var_MovingLeftRight (#01 moving left or right / #00 not moving left or right).
         lda     Var_SlidingOnRope+2 		;Load the value of a variable called Var_SlidingOnRope+2 into the accumulator.
         cmp     #$00       			;Compare it to the value #$00.
         beq     +          			;If it's equal to #$00, branch to the next line.
@@ -3224,7 +3222,7 @@ LC71B   lda     #$00                		; A = #00
         lda     #$02       			; 02 (Left) is passed to Sub_PlayerPosition as direction of player.
         ldx     #$00       			; Load the value #$00 into the X register.
         jsr     Sub_PlayerPosition 		; This will work out player position and suitable actions (E.g. mushroom, etc)
-        inc     Var_MovingLeftRight 		;Increment a variable called Var_MovingLeftRight.
+        inc     Var_MovingLeftRight 		;Increment a variable called Var_MovingLeftRight (#01 moving left or right / #00 not moving left or right).
         lda     Var_SlidingOnRope+3 		;Load the value of a variable called Var_SlidingOnRope+3 into the accumulator.
         cmp     #$00       			;Compare it to the value #$00.
         beq     +          			;If it's equal to #$00, branch to the next line.
@@ -3243,7 +3241,7 @@ LC79B   adc     #$e8       			;Add the value #$e8 to the accumulator (which cont
         lda     #$03       			; 03 (Right) is passed to Sub_PlayerPosition as direction of player.
         ldx     #$00       			; Load the value #$00 into the X register.
         jsr     Sub_PlayerPosition 		; This will work out player position and suitable actions (E.g. mushroom, etc)
-        inc     Var_MovingLeftRight 		; Increment a variable called Var_MovingLeftRight.
+        inc     Var_MovingLeftRight 		; Increment a variable called Var_MovingLeftRight (#01 moving left or right / #00 not moving left or right).
         lda     L4507      			; Load the value of a variable called L4507 into the accumulator.
         cmp     #$00       			; Compare it to the value #$00.
         beq     +          			; If it's equal to #$00, branch to the next line.
@@ -3291,19 +3289,19 @@ LC7D4   and     #$02       			;Perform a bitwise AND operation with the value #$
 
 Jump_Jumping					; $c819
         lda     L450d   			; Load the value at address $450d into the accumulator.
-        cmp     #$01       			; Compare it to the value #$01.
+        cmp     #$01       			; Compare it to the value #$01. Seems to always be #00.
         beq     +    				; If it's equal to #$01, branch to a label called +.
-        lda     Var_MovingLeftRight 		;Load the value of a variable called Var_MovingLeftRight into the accumulator.
-        cmp     #$00       			;Compare it to the value #$00.
-        beq     RTS_Inputs 			;If it's equal to #$00, return from the subroutine.
-+  		inc     Var_RegMovingLeftRight 	;Increment the value of a variable called Var_RegMovingLeftRight.
-        lda     Var_RegMovingLeftRight 		;Load the value of a variable called Var_RegMovingLeftRight into the accumulator.
-        cmp     Var_GoSlowRedZone 		;Compare it to the value of a variable called Var_GoSlowRedZone.
-        bne     RTS_Inputs 			;If it's not equal, return from the subroutine.
-        lda     #$00       			;Load the value #$00 into the accumulator.
-        sta     Var_RegMovingLeftRight 		;Store it in a variable called Var_RegMovingLeftRight.
-        jmp     Jump_5980  			;Jump to a label called Jump_5980.
-        .byte   $29,$03,$aa,$e8,$8a 		;Undocumented instructions.
+        lda     Var_MovingLeftRight 		; Load the value of a variable called Var_MovingLeftRight into the accumulator.
+        cmp     #$00       			; Compare it to the value #$00 (#01 moving left or right / #00 not moving left or right).
+        beq     RTS_Inputs 			; If it's equal to #$00, return from the subroutine.
++  	inc     Var_RegMovingLeftRight 	        ; Increment the value of a variable called Var_RegMovingLeftRight.
+        lda     Var_RegMovingLeftRight 		; Load the value of a variable called Var_RegMovingLeftRight into the accumulator.
+        cmp     Var_GoSlowRedZone 		; Compare it to the value of a variable called Var_GoSlowRedZone.
+        bne     RTS_Inputs 			; If it's not equal, return from the subroutine.
+        lda     #$00       			; Load the value #$00 into the accumulator.
+        sta     Var_RegMovingLeftRight 		; Store it in a variable called Var_RegMovingLeftRight.
+        jmp     Jump_5980  			; Jump to a label called Jump_5980.
+        .byte   $29,$03,$aa,$e8,$8a 		; Undocumented instructions.
 
 RTS_Inputs
         rts               			;Return from the subroutine.
@@ -4128,7 +4126,7 @@ Var_SomethingRandom
         .byte   $7f
 Var_SomethingElseRandom
         .byte   $06,$00,$06
-Var_MovingLeftRight
+Var_MovingLeftRight                             ; $cf06 (#01 moving left or right / #00 not moving left or right).
         .byte   $00
 Var_RegMovingLeftRight
         .byte   $00

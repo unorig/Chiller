@@ -165,11 +165,13 @@ If_TouchingMushroom
 
 L2A72   sta     Var_FallingStanding
         lda     L544A
-        sta     L2A7F
+        sta     Var_JumpAscDescTimer
         jmp     Sub_5880
 
-L2A7E   .byte   $07
-L2A7F   .byte   $09
+Var_JumpAscDesc   
+        .byte   $07
+Var_JumpAscDescTimer   
+        .byte   $09
 
 Sub_2A80
         stx     Low_tempvar 			;X = $fb (From $2a80. Passed with X = #bf)
@@ -531,15 +533,15 @@ L2EB3   jmp     LCA27
 
 L2EB7   lda     Var_BinaryEnemyNum,x 		; Load the value at address Var_BinaryEnemyNum+x into the accumulator.
         and     SpriteEnableRegister 		; Perform a bitwise AND operation with the value of a variable called SpriteEnableRegister.
-        cmp     #$00       					; Compare the result to the value #$00.
-        beq     L2EC4      					; If it's equal to #$00, branch to a label called L2EC4.
-        jmp     L2D52      					; Otherwise, jump to a label called L2D52.
+        cmp     #$00       			; Compare the result to the value #$00.
+        beq     L2EC4      			; If it's equal to #$00, branch to a label called L2EC4.
+        jmp     L2D52      			; Otherwise, jump to a label called L2D52.
 
 
-L2EC4   inx          						;Increment the value in the X register.
-        cpx     #$05 						;Compare it to the value #$05.
-        beq     _L2ECC 						;If it's equal to #$05, branch to a label called _L2ECC.
-        jmp     L2D4D 						;Otherwise, jump to a label called L2D4D.
+L2EC4   inx          				;Increment the value in the X register.
+        cpx     #$05 				;Compare it to the value #$05.
+        beq     _L2ECC 				;If it's equal to #$05, branch to a label called _L2ECC.
+        jmp     L2D4D 				;Otherwise, jump to a label called L2D4D.
 
 
 _L2ECC  jmp     L2C19
@@ -594,66 +596,66 @@ L2F4D   jsr     Sub_SIDSetup
         .byte   $2e
 
 Sub_StartEnemyUpdate
-        inc     LCF75      					;Increment $cfb2
-        lda     LCF75      					;A = $cfb2
-        cmp     #$ff       					;Check if $cfb2 is up to 255 loops
+        inc     LCF75      			;Increment $cfb2
+        lda     LCF75      			;A = $cfb2
+        cmp     #$ff       			;Check if $cfb2 is up to 255 loops
         beq     Sub_EnemyPositionLoop 		;Branch if looped through 254 times
-        rts                					;Return from subroutine (Back to $ca57)
+        rts                			;Return from subroutine (Back to $ca57)
 
 ;***************************************
 ;*        Enemy positioning loop       *
 ;***************************************
 Sub_EnemyPositionLoop
-        lda     #$00                        ; Clear A register
+        lda     #$00                            ; Clear A register
         sta     LCF75                      	; Initialize LCF75 to 0
-        ldx     #$00                        ; Initialize loop index X to 0 (Enemy index)
+        ldx     #$00                            ; Initialize loop index X to 0 (Enemy index)
 Loop_NextEnemy
-        ; Check if the enemy is visible. If so, skip to next enemy.
-		lda     Var_BinaryEnemyNum,x        ; Load binary enemy number at index X
-        and     SpriteEnableRegister        ; AND with SpriteEnableRegister to check if the enemy is visible
-        cmp     #$00                        ; Compare the result to 0
+                                                ; Check if the enemy is visible. If so, skip to next enemy.
+	lda     Var_BinaryEnemyNum,x            ; Load binary enemy number at index X
+        and     SpriteEnableRegister            ; AND with SpriteEnableRegister to check if the enemy is visible
+        cmp     #$00                            ; Compare the result to 0
         bne     NextEnemy                  	; If enemy is visible, skip to NextEnemy
 		
-		; Load the value at LCF76+the loop index. If the value is zero, skip to next enemy.
-        lda     LCF76,x                     ; Load LCF76 value at index X
-        cmp     #$00                        ; Compare the value to 0
+		                                ; Load the value at LCF76+the loop index. If the value is zero, skip to next enemy.
+        lda     LCF76,x                         ; Load LCF76 value at index X
+        cmp     #$00                            ; Compare the value to 0
         beq     NextEnemy                  	; If equal to 0, skip to NextEnemy
 
-        txa                                 ; Transfer X (Current index) to A
-        pha                                 ; Push accumulator to the stack
-        jsr     LC9F1                       ; Call subroutine LC9F1
-        pla                                 ; Pull accumulator from the stack
-        tax                                 ; Transfer A back to X
+        txa                                     ; Transfer X (Current index) to A
+        pha                                     ; Push accumulator to the stack
+        jsr     LC9F1                           ; Call subroutine LC9F1
+        pla                                     ; Pull accumulator from the stack
+        tax                                     ; Transfer A back to X
 
-        tya                                 ; Transfer Y to A
-        and     #$7f                        ; AND A with $7F (masking upper bit)
-        cmp     L45E2,x                     ; Compare A to the value at L45E2 indexed by X
+        tya                                     ; Transfer Y to A
+        and     #$7f                            ; AND A with $7F (masking upper bit)
+        cmp     L45E2,x                         ; Compare A to the value at L45E2 indexed by X
         bpl     NextEnemy                  	; If result is positive, skip to NextEnemy
 
-        txa                                 ; Transfer X (Enemy index) to A
-        jsr     Sub_UpdateEnemySprites      ; Call subroutine to update enemy sprites using A as the enemy index
-        dec     LCF76,x                     ; Decrement the value at LCF76 indexed by X
+        txa                                     ; Transfer X (Enemy index) to A
+        jsr     Sub_UpdateEnemySprites          ; Call subroutine to update enemy sprites using A as the enemy index
+        dec     LCF76,x                         ; Decrement the value at LCF76 indexed by X
 
-        lda     #$01                        ; Load 1 into A
-        sta     LCF29,x                     ; Store A (1) at LCF29 indexed by X
-        lda     #$00                        ; Clear A register
-        sta     LCF1A,x                     ; Initialize LCF1A at index X to 0
+        lda     #$01                            ; Load 1 into A
+        sta     LCF29,x                         ; Store A (1) at LCF29 indexed by X
+        lda     #$00                            ; Clear A register
+        sta     LCF1A,x                         ; Initialize LCF1A at index X to 0
 NextEnemy
-        inx                                 ; Increment loop index X
-        cpx     #$05                        ; Check if X reached the maximum enemy index (5)
-        bne     Loop_NextEnemy              ; If not at the end of the enemy index, continue the loop
-        rts                                 ; Return from subroutine
+        inx                                     ; Increment loop index X
+        cpx     #$05                            ; Check if X reached the maximum enemy index (5)
+        bne     Loop_NextEnemy                  ; If not at the end of the enemy index, continue the loop
+        rts                                     ; Return from subroutine
 
 
         .include "Charsets/charactersets.asm"
-		.include "Sprites/sprites.asm"
+        .include "Sprites/sprites.asm"
         .include "Data/data.asm"
 		
 InputNotJumping
-        lda     L45FF      					;A = $45ff (Always seems to be #01)
-        beq     _rts   						;Branch if equal zero
-        dec     Temp_534c  					;Decrease #534c
-        beq     If_535D    					;Branch if equal zero
+        lda     L45FF      			;A = $45ff (Always seems to be #01)
+        beq     _rts   				;Branch if equal zero
+        dec     Temp_534c  			;Decrease #534c
+        beq     If_535D    			;Branch if equal zero
 _rts	rts
 
         .fill   2,$ea
@@ -662,9 +664,9 @@ If_535D lda     Temp_0c   		        ; A = $534b (Always seems to be #0c)
         sta     Temp_534c  		        ; $534c = $53cb
         lda     Sprite0YPos 		        ; A = SpriteMSBYPosition
         sta     Temp_SpriteMSBYPosition 	; Temp_SpriteMSBYPosition = SpriteMSBYPosition
-        lda     #$01       			; A = #01
+        lda     #$01       			; 01 (Down) is passed to Sub_PlayerPosition as direction of player.
         ldx     #$00       			; X = #00
-        jsr     Sub_PlayerPosition
+        jsr     Sub_PlayerPosition              ; This will work out player position and suitable actions (E.g. mushroom, etc)
         lda     Sprite0YPos
         cmp     Temp_SpriteMSBYPosition
         bne     If_537E
@@ -684,24 +686,24 @@ If_537E jsr     L54AC
 L538E   inc     Var_SomethingRandom             ; Increment Var_SomethingRandom by 1
         lda     Var_Jumping                     ; Load the value of Var_Jumping into the accumulator (A). This variable holds the jump input state (#01 for jumping, #00 for not jumping).
         beq     InputNotJumping                 ; If the value in the accumulator (A) is zero (not jumping), branch to InputNotJumping.
-        dec     L2A7F                           ; Decrement the value at memory address L2A7F by 1.
-        beq     If_539E                         ; If the value at memory address L2A7F becomes zero after decrementing, branch to If_539E.
+        dec     Var_JumpAscDescTimer            ; Decrement the value at memory address Var_JumpAscDescTimer by 1.
+        beq     If_539E                         ; If Var_JumpAscDescTimer = #00, begin to calculate direction of player and update position.
         rts                                     ; Return from the subroutine.
 
         .fill   2,$ea
 
 If_539E jsr     Sub_SetTempSprite0YPos          ; Set Temp_Sprite0YPos to the Sprite 0 Y Position and load A with Var_FallingStanding (#01 Falling or Standing / #00 Jumping).
-        bne     NotJumping 		        ; Branch if Var_FallingStanding not #00 (Falling or Standing).
-        lda     #$00			        ; A = #00. Used to set player direction which is up.
-        jsr     Sub_PlayerPosition
+        bne     BeginFall 		        ; Branch if Var_FallingStanding not #00 (Beginning to fall).
+        lda     #$00			        ; 00 (Up) is passed to Sub_PlayerPosition as direction of player.
+        jsr     Sub_PlayerPosition              ; This will work out player position and suitable actions (E.g. mushroom, etc)
         jsr     Sub_UpdateYPosJumping
-        ldx     L2A7E
+        ldx     Var_JumpAscDesc                 ; Load the value Var_JumpAscDesc. This counts up to the maximum of #18.
         cpx     #$18       		        ; Maximum jump height. Default is #18.
-        bne     If_53B5
+        bne     If_53B5                         ; Branch if Var_JumpAscDesc != #18.
         jmp     Jump_53BE
 
 If_53B5 lda     L544A,x
-        sta     L2A7F
+        sta     Var_JumpAscDescTimer
         jmp     L54FC
 
 Jump_53BE
@@ -711,18 +713,18 @@ Jump_53BE
 
         .fill   2,$ea
 
-NotJumping
+BeginFall
         lda     #$01                            ; Load accumulator with value 1
         jsr     L5467                           ; Call subroutine at address L5467
-        dec     L2A7E                           ; Decrement memory location L2A7E
-        ldx     L2A7E                           ; Load X register with value in L2A7E
+        dec     Var_JumpAscDesc                 ; Decrement memory location Var_JumpAscDesc
+        ldx     Var_JumpAscDesc                 ; Load X register with value in Var_JumpAscDesc
         cpx     #$00                            ; Compare X register to 0
-        bne     If_53D8                         ; Branch to If_53D8 if not equal (branch if NotJumping flag is set)
-        jmp     Jump_53E2                       ; Otherwise, jump to address Jump_53E2 (branch if NotJumping flag is not set)
+        bne     If_53D8                         ; Branch to If_53D8 if not equal (branch if BeginFall flag is set)
+        jmp     Jump_53E2                       ; Otherwise, jump to address Jump_53E2 (branch if BeginFall flag is not set)
 
 
 If_53D8 lda     L544A,x
-        sta     L2A7F
+        sta     Var_JumpAscDescTimer
         jmp     L5518
 
         .byte   $ea
@@ -763,6 +765,7 @@ L5418   lda     Var_Falling			; Counts up when falling. Can be short when on a r
 + 	jmp     Jump_Jumping
 
         .fill   2,$ea
+
 Temp_Sprite0YPos
         .byte   $e3
 
@@ -778,11 +781,9 @@ Sub_UpdateYPosJumping
         lda     Sprite0YPos          	; Load the Y position of Sprite0 into the accumulator (A)
         cmp     Temp_Sprite0YPos     	; Compare the current Y position with the temporary Y position of Sprite0
         bne     +              		; Branch if the positions are not equal (i.e., Sprite0 has moved vertically)
-
         lda     #$01                 	; Load the value #01 into the accumulator (A)
-        sta     Var_FallingStanding     ; Store the value #01 into Var_FallingStanding, indicating that the sprite is jumping
-
-+ 	inc     L2A7E                	; Increment the value at memory location L2A7E by 1
+        sta     Var_FallingStanding     ; Store the value #01 into Var_FallingStanding, indicating that the sprite is now falling.
++ 	inc     Var_JumpAscDesc         ; Increment the value at memory location Var_JumpAscDesc by 1
         rts                          	; Return from subroutine
 
 
@@ -794,8 +795,8 @@ L5466   .byte   $e3
 
 L5467   lda     Sprite0YPos                     ; Load accumulator with value in Sprite0YPos
         sta     L5466                           ; Store accumulator in memory location L5466
-        lda     #$01                            ; Load accumulator with value 1
-        jsr     Sub_PlayerPosition
+        lda     #$01                            ; 01 (Down) is passed to Sub_PlayerPosition as direction of player.
+        jsr     Sub_PlayerPosition              ; This will work out player position and suitable actions (E.g. mushroom, etc)
         lda     L5466                           ; Load accumulator with value in L5466
         cmp     Sprite0YPos                     ; Compare accumulator to value in Sprite0YPos
         beq     +                               ; If they are equal, branch to the next line
@@ -2771,9 +2772,9 @@ Jump_C19D
         .byte   $ea
 
 LC1B4   nop									
-        lda     #$00						; A = #00
-        sta     L2A7E
-        jmp     L2A72
+        lda     #$00			        ; A = #00
+        sta     Var_JumpAscDesc                 ; Reset Var_JumpAscDesc to #00
+        jmp     L2A72                           ; 
 
         .byte   $00,$00,$00,$ad,$00,$dc,$a0,$00,$a2,$00,$4a,$b0,$01,$88,$4a,$b0
         .byte   $01,$c8,$4a,$b0,$01,$ca,$4a,$b0,$01,$e8,$4a,$8e,$ed,$c1,$8c,$ec
@@ -2981,10 +2982,10 @@ LC525   lda     LCF43      ;A = $cf43
         and     #$07
         bne     If_C538
         ldx     #$01
-        lda     #$03
-        jsr     Sub_PlayerPosition
-        lda     #$02
-        jsr     Sub_PlayerPosition
+        lda     #$03                            ; 03 (Right) is passed to Sub_PlayerPosition as direction of player.
+        jsr     Sub_PlayerPosition              ; This will work out player position and suitable actions (E.g. mushroom, etc)
+        lda     #$02                            ; 02 (Left) is passed to Sub_PlayerPosition as direction of player.
+        jsr     Sub_PlayerPosition              ; This will work out player position and suitable actions (E.g. mushroom, etc)
 If_C538 lda     LCF43
         rts
 
@@ -3181,9 +3182,9 @@ LC71B   lda     #$00                		; A = #00
         cmp     #$00                		; Compare A with #00
         beq     +   						; Branch if A is equal to #00
 
-        lda     #$00                		; A = #00
+        lda     #$00                		; 00 (Up) is passed to Sub_PlayerPosition as direction of player.
         tax                         		; Transfer A to X (X = #00)
-        jsr     Sub_PlayerPosition  		; Call subroutine to update player position
+        jsr     Sub_PlayerPosition  		; This will work out player position and suitable actions (E.g. mushroom, etc)
 
         inc     Var_MovingLeftRight 		; Increment Var_MovingLeftRight
         lda     Var_SlidingOnRope+1 		; Load A with value at Var_SlidingOnRope+1
@@ -3202,9 +3203,9 @@ LC71B   lda     #$00                		; A = #00
         lda     Var_4501   			; Load the value of a variable called Var_4501 into the accumulator.
         cmp     #$00       			;Compare it to the value #$00.
         beq     +          			;If it's equal to #$00, branch to the next line.
-        lda     #$01       			;Load the value #$01 into the accumulator.
+        lda     #$01       			; 01 (Down) is passed to Sub_PlayerPosition as direction of player.
         ldx     #$00       			;Load the value #$00 into the X register.
-jsr     Sub_PlayerPosition 			;Jump to a subroutine called Sub_PlayerPosition to update the player's position.
+        jsr     Sub_PlayerPosition 		; This will work out player position and suitable actions (E.g. mushroom, etc)
         inc     Var_MovingLeftRight 		;Increment a variable called Var_MovingLeftRight.
         lda     Var_SlidingOnRope+2 		;Load the value of a variable called Var_SlidingOnRope+2 into the accumulator.
         cmp     #$00       			;Compare it to the value #$00.
@@ -3220,9 +3221,9 @@ jsr     Sub_PlayerPosition 			;Jump to a subroutine called Sub_PlayerPosition to
         lda     Var_RopeFall 			; Load the value of a variable called Var_RopeFall into the accumulator.
         cmp     #$00       			; Compare it to the value #$00.
         beq     +          			; If it's equal to #$00, branch to the next code block.
-        lda     #$02       			; Load the value #$02 into the accumulator.
+        lda     #$02       			; 02 (Left) is passed to Sub_PlayerPosition as direction of player.
         ldx     #$00       			; Load the value #$00 into the X register.
-        jsr     Sub_PlayerPosition 		; Jump to a subroutine called Sub_PlayerPosition to update the player's position.
+        jsr     Sub_PlayerPosition 		; This will work out player position and suitable actions (E.g. mushroom, etc)
         inc     Var_MovingLeftRight 		;Increment a variable called Var_MovingLeftRight.
         lda     Var_SlidingOnRope+3 		;Load the value of a variable called Var_SlidingOnRope+3 into the accumulator.
         cmp     #$00       			;Compare it to the value #$00.
@@ -3239,9 +3240,9 @@ LC79B   adc     #$e8       			;Add the value #$e8 to the accumulator (which cont
         lda     Var_SlidingOnRope 		; Load the value of a variable called Var_SlidingOnRope into the accumulator.
         cmp     #$00       			; Compare it to the value #$00.
         beq     +          			; If it's equal to #$00, branch to the next line.
-        lda     #$03       			; Load the value #$03 into the accumulator.
+        lda     #$03       			; 03 (Right) is passed to Sub_PlayerPosition as direction of player.
         ldx     #$00       			; Load the value #$00 into the X register.
-        jsr     Sub_PlayerPosition 		; Jump to a subroutine called Sub_PlayerPosition to update the player's position.
+        jsr     Sub_PlayerPosition 		; This will work out player position and suitable actions (E.g. mushroom, etc)
         inc     Var_MovingLeftRight 		; Increment a variable called Var_MovingLeftRight.
         lda     L4507      			; Load the value of a variable called L4507 into the accumulator.
         cmp     #$00       			; Compare it to the value #$00.

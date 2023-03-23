@@ -19,9 +19,9 @@ Scr_HealthBar = $042e
 SpritePointer0 = $07f8
 SpritePointer1 = $07f9
 SpritePointers = $07fa
-Sprite0XPosition = $d000
+Sprite0XCoords = $d000
 Sprite0YPos =   $d001
-Sprite1XPositionRegister = $d002
+Sprite1XCoords = $d002
 Sprite1YPosition = $d003
 Adr_EnemyXPosition = $d004
 Adr_EnemyYPosition = $d005
@@ -61,7 +61,7 @@ PLOT    =       $fff0      ;read/set cursor X/Y position
         inx
         bne     -
 -       lda     L08D0,x
-        sta     Sprite0XPosition,x
+        sta     Sprite0XCoords,x
         inx
         cpx     #$30
         bne     -
@@ -87,7 +87,7 @@ L2A0B   sbc     #$2c       			; Subtract with carry. Removing top border height.
         lsr     a          			; Divide by 2
         lsr     a          			; Divide by 2. This is to devide by 8 to work out number of characters from the top of the screen.
         tay                			; Transfer A to Y.
-        lda     Sprite0XPosition 		; A = Sprite0XPosition
+        lda     Sprite0XCoords 		; A = Sprite0XCoords
         sec                			; Set carry
         sbc     #$0c       			; Subtract with carry #0c (12)
         bcc     L2A00      			; Branch if carry clear
@@ -1120,7 +1120,7 @@ L5847   cmp     #$f1                            ; Compare the value in the accum
 L584B   lda     #$f6                            ; Load the value #$f6 into the accumulator.
         sta     SpritePointer0                  ; Store the value in the accumulator into memory location SpritePointer0.
 Sub_CheckXMovement
-        ldx     Sprite0XPosition                ; Load the value at memory location Sprite0XPosition into the X register.
+        ldx     Sprite0XCoords                ; Load the value at memory location Sprite0XCoords into the X register.
         lda     Var_JumpDirection+1             ; Load the value at memory location Var_JumpDirection+1 into the accumulator.
         stx     Var_JumpDirection+1             ; Store the value in the X register into memory location Var_JumpDirection+1.
         cmp     Var_JumpDirection+1             ; Compare the value in the accumulator with the value in memory location Var_JumpDirection+1.
@@ -1200,13 +1200,13 @@ Sub_FireButtonEvent
 
 
 SetupSpritePositions
-        lda     #$01       			;JSR from $5770
-        sta     Var_StartGame 			;Store #01 to $5A06
-        ldx     Sprite0XPosition 		;Load X with Sprite0_X_Position
-        lda     Sprite1XPositionRegister 	;Load A with Sprite1_X_Position
-        sta     Sprite0XPosition 		;Update Sprite0_X_Position with Sprite1_X_Position
-        stx     Sprite1XPositionRegister 	;Update Sprite1_X_Position with Sprite0_X_Position
-        ldx     Sprite0YPos 			;Load A with Sprite0_Y_Position
+        lda     #$01       			; JSR from $5770
+        sta     Var_StartGame 			; Store #01 to $5A06
+        ldx     Sprite0XCoords 		        ; Load X with Sprite0_X_Position
+        lda     Sprite1XCoords 	                ; Load A with Sprite1_X_Position ($d002)
+        sta     Sprite0XCoords 		        ; Update Sprite0_X_Position with Sprite1_X_Position
+        stx     Sprite1XCoords 	                ; Update Sprite1_X_Position with Sprite0_X_Position
+        ldx     Sprite0YPos 			; Load A with Sprite0_Y_Position
         jmp     ContSetupSpritePositions
 
         .byte   $8d,$f8,$07
@@ -1214,14 +1214,14 @@ SetupSpritePositions
 ResetGirl
         jsr     Sub_SetRandomVariables
         lda     #$e0
-        sta     Sprite1XPositionRegister 	;Set girl sprite position
-        sta     Sprite1YPosition 		;Set girl sprite position
-        lda     #$06       			;Value will be used to set border to blue
+        sta     Sprite1XCoords 	                ; Set girl sprite position
+        sta     Sprite1YPosition 		; Set girl sprite position
+        lda     #$06       			; Value will be used to set border to blue
         nop					; No operation.
-        sta     Adr_BorderColor 		;Set border colour to blue
+        sta     Adr_BorderColor 		; Set border colour to blue
         lda     #$ee
-        sta     SpritePointer1 			;Update sprite pointer for girl
-        rts                			;Return from subroutine
+        sta     SpritePointer1 			; Update sprite pointer for girl
+        rts                			; Return from subroutine
 
         .fill   2,$ea
 
@@ -1632,9 +1632,9 @@ Sub_WaitForCurrentRaster
 L5BC7   ldx     #$bf
         ldy     #$5b
         jsr     Sub_2A80   			; JSR $2a80 with Y = #5b / X = #bf
-        lda     #$00				; A = #00       ;A = #00
+        lda     #$00				; A = #00
         sta     SpriteEnableRegister 		; Disable all sprites
-        lda     #$00				; A = #00       ;A = #00
+        lda     #$00				; A = #00
         sta     ExtraBackgroundColor1 		; Extra Background Color 1 = Black
         sta     ExtraBackgroundColor2 		; Extra Background Color 2 = Black
         ldy     #$74       			; Y = #74
@@ -1940,7 +1940,7 @@ Sub_SetupScreen                                 ; X is the level select. 00=Fore
         sta     SpritePointer0
         iny
         lda     (Adr_MapLow),y
-        sta     Sprite1XPositionRegister
+        sta     Sprite1XCoords
         iny
         lda     (Adr_MapLow),y
         sta     Sprite1YPosition
@@ -2323,7 +2323,7 @@ L7600   iny
         .fill   4,$00
 
 L7610   lda     $02ff                          ; Load the value at memory address $02ff into the accumulator
-        bne     _L7639                         ; Branch to label _L7639 if the value in the accumulator is not equal to 0
+        bne     _L7639                         ; Branch if A not equal to 0
         jsr     LC9F1                          ; Call subroutine at address LC9F1
         cpy     #$00                           ; Compare the value in the Y register with 0
         bne     L7610                          ; Branch to label L7610 if the value in the Y register is not equal to 0
@@ -2346,7 +2346,7 @@ _L7639  jsr     Sub_SIDSetup
 
         .fill   2,$00
 
-Sub_CopyTopRows                                 ; Copies 0400,y to 0200,y. This will copy the first two rows.
+Sub_StoreTopRows                                ; Copies 0400,y to 0200,y. This will copy the first two rows.
         lda     #$00				; A = #00
         sta     Low_tempvar 			; $fb = #00
         lda     #$04       			; A = #04
@@ -2361,7 +2361,7 @@ Sub_CopyTopRows                                 ; Copies 0400,y to 0200,y. This 
 
         .fill   3,$ea
 
-L7659   jsr     Sub_CopyTopRows       
+L7659   jsr     Sub_StoreTopRows       
         lda     #$00				; A = #00
         sta     Low_tempvar                     ; Store A to Low_tempvar
         lda     #$02                            ; Load A with #02
@@ -2565,7 +2565,7 @@ AllCrossesCollected                             ; $7f06
         .byte   $70,$57,$60,$00
 
 L7F20   sta     L4516
-        sta     Sprite0XPosition
+        sta     Sprite0XCoords
         rts
 
 L7F27   sta     L4517
@@ -2745,7 +2745,7 @@ Sub_UpdateEnemySprites
 
 LC144   sta     Sprite0YPos
         lda     L4516
-        sta     Sprite0XPosition
+        sta     Sprite0XCoords
         jmp     LC1E1
 
         .byte   $a2,$00,$bd,$40,$3c,$8d,$be,$c1,$29,$55,$0a,$8d,$bd,$c1,$ad,$be
@@ -3271,8 +3271,8 @@ LC7D4   and     #$02       			;Perform a bitwise AND operation with the value #$
         lda     #$02       			;Load the value #$02 into the accumulator.
         ora     SpriteEnableRegister 		;Perform a bitwise OR operation with the value of a variable called SpriteEnableRegister.
         sta     SpriteEnableRegister 		;Store the result in the variable called SpriteEnableRegister.
-        lda     Sprite0XPosition 		;Load the value of a variable called Sprite0XPosition into the accumulator.
-        sta     Sprite1XPositionRegister 	;Store the result in a variable called Sprite1XPositionRegister.
+        lda     Sprite0XCoords 		;Load the value of a variable called Sprite0XCoords into the accumulator.
+        sta     Sprite1XCoords 	                ;Store the result in a variable called Sprite1XCoords.
         lda     Sprite0YPos 			;Load the value of a variable called Sprite0YPos into the accumulator.
         sta     Sprite1YPosition 		;Store the result in a variable called Sprite1YPosition.
         lda     SpriteXMSBRegister 		;Load the value of a variable called SpriteXMSBRegister into the accumulator.
@@ -3445,7 +3445,7 @@ IncreaseYposition
 _rts	rts                		        ;Return from subroutine
 
 DecreaseXPosition
-        lda     Sprite0XPosition,x 	        ;Load Sprite X position
+        lda     Sprite0XCoords,x 	        ;Load Sprite X position
         cmp     #$08       		        ;Compare sprite position to #08 (Left hand boundary).
         bne     IF_DecreaseXMSBPosition         ;Branch if not on left hand boundary
         ldy     Var_SpriteNumber
@@ -3457,8 +3457,8 @@ DecreaseXPosition
         rts                		        ;Return from subroutine
 
 IF_DecreaseXMSBPosition
-        dec     Sprite0XPosition,x 	        ;Move sprite left on screen
-        lda     Sprite0XPosition,x 	        ;Load X position
+        dec     Sprite0XCoords,x 	        ;Move sprite left on screen
+        lda     Sprite0XCoords,x 	        ;Load X position
         cmp     #$ff       		        ;Compare X position to #ff
         bne     _rts 			        ;Branch if not going over the MSB line
         ldy     Var_SpriteNumber 	        ;Load sprite number
@@ -3469,7 +3469,7 @@ _rts    ldy     #$00       		        ;Y = #00
         rts                		        ;Return from subroutine
 
 IncreaseXPosition
-        lda     Sprite0XPosition,x 	        ;Load Sprite X position
+        lda     Sprite0XCoords,x 	        ;Load Sprite X position
         cmp     #$4f       		        ;Compare sprite position to #4f (Right hand boundary).
         bne     IF_IncreaseXMSBPosition
         ldy     Var_SpriteNumber 	        ;Load sprite number
@@ -3481,8 +3481,8 @@ IncreaseXPosition
         rts                		        ;Return from subroutine
 
 IF_IncreaseXMSBPosition
-        inc     Sprite0XPosition,x 	        ;Move sprite right on screen
-        lda     Sprite0XPosition,x 	        ;Load X position
+        inc     Sprite0XCoords,x 	        ;Move sprite right on screen
+        lda     Sprite0XCoords,x 	        ;Load X position
         cmp     #$00       		        ;Compare X position to #00
         bne     _rts 			        ;Branch if not over the MSB line
         ldy     Var_SpriteNumber 	        ;Load sprite number

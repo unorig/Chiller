@@ -1631,20 +1631,20 @@ Sub_WaitForCurrentRaster
 
 L5BC7   ldx     #$bf
         ldy     #$5b
-        jsr     Sub_2A80   			;JSR $2a80 with Y = #5b / X = #bf
+        jsr     Sub_2A80   			; JSR $2a80 with Y = #5b / X = #bf
         lda     #$00				; A = #00       ;A = #00
-        sta     SpriteEnableRegister 		;Disable all sprites
+        sta     SpriteEnableRegister 		; Disable all sprites
         lda     #$00				; A = #00       ;A = #00
-        sta     ExtraBackgroundColor1 		;Extra Background Color 1 = Black
-        sta     ExtraBackgroundColor2 		;Extra Background Color 2 = Black
-        ldy     #$74       			;Y = #74
-        lda     (Adr_MapLow),y 			;A = 00
-        tax                			;Transfer A to X
-        iny                			;Increase Y
-        lda     (Adr_MapLow),y 			;A = #41
-        tay                			;Transfer A to Y
+        sta     ExtraBackgroundColor1 		; Extra Background Color 1 = Black
+        sta     ExtraBackgroundColor2 		; Extra Background Color 2 = Black
+        ldy     #$74       			; Y = #74
+        lda     (Adr_MapLow),y 			; A = 00
+        tax                			; Transfer A to X
+        iny                			; Increase Y
+        lda     (Adr_MapLow),y 			; A = #41
+        tay                			; Transfer A to Y
         jsr     L5C4F
-        sei                			;Set interrupts
+        sei                			; Set interrupts
         lda     #$18
         sta     $b7
         lda     #$6a
@@ -1890,11 +1890,11 @@ If_5E0A lda     $01
         .byte   $00
         .byte   $00
 
-Sub_SetupScreen
-        lda     Adr_7290,x
-        sta     Adr_MapLow 			; Low byte address for map to load
-        lda     Adr_7290+1,x
-        sta     Adr_MapHigh 			; High byte address for map to load
+Sub_SetupScreen                                 ; X is the level select. 00=Forest, 02=Cinema, 04=Ghetto, 06=Graveyard, 08=Haunted House.
+        lda     Adr_7290,x                      ; Load the low byte of the map address
+        sta     Adr_MapLow 			; Store the low byte address for map to load
+        lda     Adr_7290+1,x                    ; Load the high byte of the map address
+        sta     Adr_MapHigh 			; Store the high byte address for map to load
         nop					; No operation.
         nop					; No operation.
         jsr     L5A41
@@ -2346,7 +2346,7 @@ _L7639  jsr     Sub_SIDSetup
 
         .fill   2,$00
 
-Sub_CopyTopRowStartScreen
+Sub_CopyTopRows                                 ; Copies 0400,y to 0200,y. This will copy the first two rows.
         lda     #$00				; A = #00
         sta     Low_tempvar 			; $fb = #00
         lda     #$04       			; A = #04
@@ -2361,13 +2361,13 @@ Sub_CopyTopRowStartScreen
 
         .fill   3,$ea
 
-L7659   jsr     Sub_CopyTopRowStartScreen
+L7659   jsr     Sub_CopyTopRows       
         lda     #$00				; A = #00
-        sta     Low_tempvar
-        lda     #$02
-        sta     High_tempvar
-        ldy     #$00
-- 		lda     (Low_tempvar),y
+        sta     Low_tempvar                     ; Store A to Low_tempvar
+        lda     #$02                            ; Load A with #02
+        sta     High_tempvar                    ; Store A to High_tempvar
+        ldy     #$00                            ; Load Y with #00. This will be used as the index.
+- 	lda     (Low_tempvar),y                 ; Load from address $
         sta     $0400,y
         iny
         cpy     #$50
@@ -2383,20 +2383,20 @@ _rts    rts
 
 L767B   .byte   $00,$00,$00,$00,$08
 
-L7680   stx     L767B+4
-        cpx     #$0a
-        bpl     +
-        lda     L7FE8,x
-        sta     L7FE4
-        lda     L7FE9,x
-        sta     L7FE5
-        ldx     #$e0
-        ldy     #$7f
-        jsr     Sub_2A80
-+ 		ldx     L767B+4
-        inx
-        inx
-        jsr     Sub_SetupScreen
+L7680   stx     L767B+4                         ;
+        cpx     #$0a                            ;
+        bpl     +                               ;
+        lda     L7FE8,x                         ;
+        sta     L7FE4                           ;
+        lda     L7FE9,x                         ;
+        sta     L7FE5                           ;
+        ldx     #$e0                            ;
+        ldy     #$7f                            ;
+        jsr     Sub_2A80                        ;
++ 	ldx     L767B+4                         ;
+        inx                                     ; Increase X
+        inx                                     ; Increase X
+        jsr     Sub_SetupScreen                 ;
         lda     Var_BorderColour
         beq     +
         lda     SpritePointer0
@@ -2548,7 +2548,7 @@ L7F00   dec     Var_MagicCrossesLeft
         beq     AllCrossesCollected
         rts
 
-AllCrossesCollected
+AllCrossesCollected                             ; $7f06
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
@@ -2556,11 +2556,11 @@ AllCrossesCollected
         sta     SpriteEnableRegister 	        ; Turn off all sprites other than boy and girl
         ldy     #$73       			; Y = #73
         lda     (Adr_MapLow),y 			; A = ($11),y - which is ($11),73
-        tax
-        cpx     #$12
-        bne     +
-        ldx     #$fe
-+  		jmp     L7680
+        tax                                     ; Transfer A to X
+        cpx     #$12                            ; Compare X to #12
+        bne     +                               ; If X != #12 branch to +
+        ldx     #$fe                            ; Set X to #fe
++  	jmp     L7680                           ; Jump to L7680
 
         .byte   $70,$57,$60,$00
 
@@ -3039,17 +3039,17 @@ RTS_C645
 JUMP_c646
         jsr     ResetGirl
         jsr     Sub_SetupSpritesEtc
-        lda     L450F 				;Value is usually #f0 (Light grey)
-        sta     Adr_BackgroundColor             ;Set the background colour to light grey
+        lda     L450F 				; Value is usually #f0 (Light grey)
+        sta     Adr_BackgroundColor             ; Set the background colour to light grey
         lda     #$08
-        jsr     BSOUT                           ;Not sure why this exists
+        jsr     BSOUT                           ; Not sure why this exists
         nop					; No operation.
-        lda     #$00				; A = #00
-        sta     SpriteEnableRegister            ;Disable all sprites
+        lda     #$00				; 
+        sta     SpriteEnableRegister            ; Disable all sprites
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
-        ldx     #$00       ;X = #00
+        ldx     #$00                            ; This will set the start level. 00=Forest, 02=Cinema, 04=Ghetto, 06=Graveyard, 08=Haunted House
         jsr     Sub_SetupScreen
         nop					; No operation.
         nop					; No operation.

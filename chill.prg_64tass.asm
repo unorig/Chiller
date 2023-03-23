@@ -439,48 +439,48 @@ L2D8D   sta     SpritePointer1 			;Store the accumulator value into a variable c
 
         .byte   $ea
 
-;*****************************
-;*      Main menu loop       *
-;*****************************
+                                                ;*****************************
+                                                ;*      Main menu loop       *
+                                                ;*****************************
 MainMenuLoop
-        lda     InputPortA                 ; Load Joystick input into the accumulator (A). At the start screen, the value will be 7A.
-        and     #$10                       ; Isolate the 4th bit, which checks if the fire button is pressed.
-        bne     Menu_FireNotPressed        ; Branch to Menu_FireNotPressed if the fire button is not pressed.
-        beq     Menu_FirePressed           ; Branch to Menu_FirePressed if the fire button is pressed.
+        lda     InputPortA                      ; Load Joystick input into the accumulator (A). At the start screen, the value will be 7A.
+        and     #$10                            ; Isolate the 4th bit, which checks if the fire button is pressed.
+        bne     Menu_FireNotPressed             ; Branch to Menu_FireNotPressed if the fire button is not pressed.
+        beq     Menu_FirePressed                ; Branch to Menu_FirePressed if the fire button is pressed.
 
 ThisRunsAfterDeath
-        lda     #$00                       ; Set the accumulator (A) to #00.
-        sta     SpriteEnableRegister       ; Disable all sprites by storing #00 to the SpriteEnableRegister.
-        lda     L45EE                      ; Load A with the value at address L45EE, which is #01.
-        jsr     L2CF3                      ; Call subroutine at L2CF3. It appears to be abandoned code.
-        lda     #$ff                       ; Set the accumulator (A) to #ff.
-        sta     LCF65                      ; Store #ff at address LCF65.
-        sta     LCF66                      ; Store #ff at address LCF66.
-        jsr     TimeWastingLoop            ; Call a subroutine that performs a time-wasting loop.
+        lda     #$00                            ; Set the accumulator (A) to #00.
+        sta     SpriteEnableRegister            ; Disable all sprites by storing #00 to the SpriteEnableRegister.
+        lda     L45EE                           ; Load A with the value at address L45EE, which is #01.
+        jsr     L2CF3                           ; Call subroutine at L2CF3. It appears to be abandoned code.
+        lda     #$ff                            ; Set the accumulator (A) to #ff.
+        sta     LCF65                           ; Store #ff at address LCF65.
+        sta     LCF66                           ; Store #ff at address LCF66.
+        jsr     TimeWastingLoop                 ; Call a subroutine that performs a time-wasting loop.
 
 Menu_FireNotPressed
-        lda     LCF7F                      ; Load A with the value at address LCF7F.
-        cmp     #$00                       ; Compare the value in the accumulator (A) with #00.
-        beq     ResetToMenuScreen          ; If the value at LCF7F is equal to #00, branch to ResetToMenuScreen.
-        jmp     Sub_SetInterruptsAndMem    ; Jump to the Sub_SetInterruptsAndMem subroutine, though it's unlikely to be triggered.
+        lda     LCF7F                           ; Load A with the value at address LCF7F.
+        cmp     #$00                            ; Compare the value in the accumulator (A) with #00.
+        beq     ResetToMenuScreen               ; If the value at LCF7F is equal to #00, branch to ResetToMenuScreen.
+        jmp     Sub_SetInterruptsAndMem         ; Jump to the Sub_SetInterruptsAndMem subroutine, though it's unlikely to be triggered.
 
 ResetToMenuScreen
-        jsr     Sub_ResetToMenu            ; Call the subroutine to reset the menu screen.
-        lda     Var_KeyboardInput          ; Load A with the value of Var_KeyboardInput, which checks for keyboard input received.
-        cmp     #$40                       ; Compare the value in the accumulator (A) with #40 (No keyboard input).
-        beq     MainMenuLoop               ; If there's no joystick or keyboard input received, loop back to the main menu.
+        jsr     Sub_ResetToMenu                 ; Call the subroutine to reset the menu screen.
+        lda     Var_KeyboardInput               ; Load A with the value of Var_KeyboardInput, which checks for keyboard input received.
+        cmp     #$40                            ; Compare the value in the accumulator (A) with #40 (No keyboard input).
+        beq     MainMenuLoop                    ; If there's no joystick or keyboard input received, loop back to the main menu.
 
 Menu_FirePressed
-        lda     Adr_BorderColor            ; Load A with the current border color value (At menu screen, the value is #f0).
-        and     #$0f                       ; Perform an AND operation on the accumulator (A) with #0f. This will result in #00 for the menu screen border color.
-        beq     +                          ; If the result is #00, jump to address $2dd3.
-        jsr     CheckSetHighScore          ; Call the subroutine to check and set the high score.
-+       jmp     JUMP_c646                  ; Jump to address JUMP_c646.
+        lda     Adr_BorderColor                 ; Load A with the current border color value (At menu screen, the value is #f0).
+        and     #$0f                            ; Perform an AND operation on the accumulator (A) with #0f. This will result in #00 for the menu screen border color.
+        beq     +                               ; If the result is #00, jump to address $2dd3.
+        jsr     CheckSetHighScore               ; Call the subroutine to check and set the high score.
++       jmp     JUMP_c646                       ; Jump to address JUMP_c646.
 
 
-;*****************************
-;* Main menu loop end        *
-;*****************************
+                                                ;*****************************
+                                                ;* Main menu loop end        *
+                                                ;*****************************
         .fill   33,$00
 		.fill 	3,$ea
 
@@ -512,17 +512,17 @@ L2E87   .byte   $4c
         .byte   $31,$ea,$ea
 
 L2E8B
-        lda     L45EF       ; Load value from memory address L45EF into accumulator A
-        jsr     L2CF3       ; Jump to subroutine L2CF3
-        jsr     L2F4D       ; Jump to subroutine L2F4D
+        lda     L45EF                           ; Load value from memory address L45EF into accumulator A
+        jsr     L2CF3                           ; Jump to subroutine L2CF3
+        jsr     L2F4D                           ; Jump to subroutine L2F4D
 
 ; Load value from memory address Const_SprDoubleWidth into accumulator A, and store it in memory address $d01b
-        lda     Const_SprDoubleWidth       ; Load value from memory address Const_SprDoubleWidth into accumulator A
-        sta     $d01b       ; Store accumulator A into memory address $d01b
+        lda     Const_SprDoubleWidth            ; Load value from memory address Const_SprDoubleWidth into accumulator A
+        sta     $d01b                           ; Store accumulator A into memory address $d01b
 
 ; Load value from memory address L450E into accumulator A, and return from subroutine
-        lda     L450E       ; Load value from memory address L450E into accumulator A
-        rts                 ; Return from subroutine
+        lda     L450E                           ; Load value from memory address L450E into accumulator A
+        rts                                     ; Return from subroutine
 
 
         .byte   $ea,$ea,$ad,$01,$d0,$c9,$b0,$d0,$0c,$ad,$15,$d0,$ee,$01,$d0,$ea
@@ -539,10 +539,10 @@ L2EB7   lda     Var_BinaryEnemyNum,x 		; Load the value at address Var_BinaryEne
         jmp     L2D52      			; Otherwise, jump to a label called L2D52.
 
 
-L2EC4   inx          				;Increment the value in the X register.
-        cpx     #$05 				;Compare it to the value #$05.
-        beq     _L2ECC 				;If it's equal to #$05, branch to a label called _L2ECC.
-        jmp     L2D4D 				;Otherwise, jump to a label called L2D4D.
+L2EC4   inx          				; Increment the value in the X register.
+        cpx     #$05 				; Compare it to the value #$05.
+        beq     _L2ECC 				; If it's equal to #$05, branch to a label called _L2ECC.
+        jmp     L2D4D 				; Otherwise, jump to a label called L2D4D.
 
 
 _L2ECC  jmp     L2C19
@@ -561,7 +561,7 @@ L2EE3   lda     L45FE
 
 Sub_2F00
         sta     SpriteXMSBRegister
-        lda     #$00					; A = #00
+        lda     #$00				; A = #00
         sta     Adr_Voice3Control
         ldx     #$00
 If_2F0A lda     L45B3,x
@@ -597,11 +597,11 @@ L2F4D   jsr     Sub_SIDSetup
         .byte   $2e
 
 Sub_StartEnemyUpdate
-        inc     LCF75      			;Increment $cfb2
-        lda     LCF75      			;A = $cfb2
-        cmp     #$ff       			;Check if $cfb2 is up to 255 loops
-        beq     Sub_EnemyPositionLoop 		;Branch if looped through 254 times
-        rts                			;Return from subroutine (Back to $ca57)
+        inc     LCF75      			; Increment $cfb2
+        lda     LCF75      			; A = $cfb2
+        cmp     #$ff       			; Check if $cfb2 is up to 255 loops
+        beq     Sub_EnemyPositionLoop 		; Branch if looped through 254 times
+        rts                			; Return from subroutine (Back to $ca57)
 
 ;***************************************
 ;*        Enemy positioning loop       *
@@ -653,10 +653,10 @@ NextEnemy
         .include "Data/data.asm"
 		
 InputNotJumping
-        lda     L45FF      			;A = $45ff (Always seems to be #01)
-        beq     _rts   				;Branch if equal zero
-        dec     Temp_534c  			;Decrease #534c
-        beq     If_535D    			;Branch if equal zero
+        lda     L45FF      			; A = $45ff (Always seems to be #01)
+        beq     _rts   				; Branch if equal zero
+        dec     Temp_534c  			; Decrease #534c
+        beq     If_535D    			; Branch if equal zero
 _rts	rts
 
         .fill   2,$ea
@@ -1157,7 +1157,7 @@ Sub_5880
         and     #$04       					; Isolate 4th bit
         bne     If_58a3    					; Branch if facing left
 L589A   lda     #$f0       					; A = #f0
-        nop									; No operation.
+        nop					; No operation.
         sta     SpritePointer0 				; SprintPointer0 = #f0
         jmp     Jump_58A8
 
@@ -2552,9 +2552,9 @@ AllCrossesCollected
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
-        lda     #$03       				; A = #03
-        sta     SpriteEnableRegister 	; Turn off all sprites other than boy and girl
-        ldy     #$73       				; Y = #73
+        lda     #$03       			; A = #03
+        sta     SpriteEnableRegister 	        ; Turn off all sprites other than boy and girl
+        ldy     #$73       			; Y = #73
         lda     (Adr_MapLow),y 			; A = ($11),y - which is ($11),73
         tax
         cpx     #$12
@@ -2580,8 +2580,8 @@ L7F2E   sta     Var_EnemyXPosition-1
 
 L7F50   lda     High_tempvar 			; A = #fc
         nop					; No operation.
-        clc                				; Clear carry
-        adc     #$d4       				; Add 
+        clc                			; Clear carry
+        adc     #$d4       			; Add 
         sta     High_tempvar
         lda     (Low_tempvar),y
         and     #$04
@@ -2649,9 +2649,9 @@ L7FE5   .byte   $ec,$00,$00
 L7FE8   .byte   $00
 L7FE9   .byte   $78,$00,$e0,$00,$e4,$00,$e8,$00,$ec,$00,$00,$00,$00,$00,$00,$4e
         .byte   $3a,$41,$49,$50,$2c,$44,$24
-;***************************************
-;* Start Levels, charsets, and colors  *
-;***************************************
+                                                ;***************************************
+                                                ;* Start Levels, charsets, and colors  *
+                                                ;***************************************
         .include "Level1/level1charset.asm"
         .include "Level1/level1map.asm"
         .fill 	16,$a0
@@ -2678,13 +2678,13 @@ L7FE9   .byte   $78,$00,$e0,$00,$e4,$00,$e8,$00,$ec,$00,$00,$00,$00,$00,$00,$4e
  		.include "Level5/level5color.asm"        
 		.byte	$bb,$00,$00,$00,$00,$00,$00,$00		
         .include "TitleScreen/titlecharset.asm"
-;***************************************
-;* End Levels, charsets, and colors  *
-;***************************************
-		.include "Data/b5ff.asm"				; Basic junk data
+                                                ;***************************************
+                                                ;* End Levels, charsets, and colors    *
+                                                ;***************************************
+		.include "Data/b5ff.asm"	; Basic junk data
 
-LC000   lda     LCF46,x					;
-        and     SpriteEnableRegister	;
+LC000   lda     LCF46,x				;
+        and     SpriteEnableRegister	        ;
         beq     _LC00E
         nop					; No operation.								;
         nop					; No operation.
@@ -3645,25 +3645,25 @@ Counter_Enemy
 
 Sub_EnemyMSB
         sta     Counter_Enemy                   ;Rotates between #00-04
-;*****************************
-;* Level 1                   *
-;* Spider 1 = 1              *
-;* Spider 2 = 2              *
-;* Spider 3 = 3              *
-;* Skeleton = 4              *
-;* Climber  = 5              *
-;*****************************
+                                                ;*****************************
+                                                ;* Level 1                   *
+                                                ;* Spider 1 = 1              *
+                                                ;* Spider 2 = 2              *
+                                                ;* Spider 3 = 3              *
+                                                ;* Skeleton = 4              *
+                                                ;* Climber  = 5              *
+                                                ;*****************************
         tax                                     ;Transfer A to X (Enemy counter)
         asl     a                               ;Multiply A by 2 (Allows for offset for X/Y sets)
         tay                                     ;Transfer A to Y (Enemy counter X2)
-;*****************************
-;* Level 1                   *
-;* Enemy 00 (Spider)   = #00 *
-;* Enemy 01 (Spider)   = #05 *
-;* Enemy 02 (Spider)   = #0a *
-;* Enemy 03 (Skeleton) = #0f *
-;* Enemy 00 (Climber)  = #14 *
-;*****************************
+                                                ;*****************************
+                                                ;* Level 1                   *
+                                                ;* Enemy 00 (Spider)   = #00 *
+                                                ;* Enemy 01 (Spider)   = #05 *
+                                                ;* Enemy 02 (Spider)   = #0a *
+                                                ;* Enemy 03 (Skeleton) = #0f *
+                                                ;* Enemy 00 (Climber)  = #14 *
+                                                ;*****************************
         lda     LCF0D,x                         ;A = cf0d,x (X is the enemy counter)
         tax                                     ;Transfer A to X (A reference to the data)
         lda     Var_EnemyXPosition,x            ;Get X starting position

@@ -551,9 +551,9 @@ _L2ECC  jmp     L2C19
         .byte   $d0,$4c,$94,$c6
 
 L2EE3   lda     L45FE
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
         jmp     JUMP_c646
 
         .byte   $a9,$60,$8d,$94,$c6,$20,$cd,$c4,$a9,$ad,$8d,$94,$c6,$a9,$1c,$8d
@@ -1700,8 +1700,8 @@ _L5C34  tya
         .byte   $60
 
 L5C4F   jsr     Sub_5CD8
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.
+        nop					; No operation.
         lda     #$00					; A = #00
         sta     Adr_BorderColor
         sta     Adr_BackgroundColor
@@ -2549,9 +2549,9 @@ L7F00   dec     Var_MagicCrossesLeft
         rts
 
 AllCrossesCollected
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
         lda     #$03       				; A = #03
         sta     SpriteEnableRegister 	; Turn off all sprites other than boy and girl
         ldy     #$73       				; Y = #73
@@ -2579,7 +2579,7 @@ L7F2E   sta     Var_EnemyXPosition-1
         .fill   27,$00
 
 L7F50   lda     High_tempvar 			; A = #fc
-        nop								; No operation.
+        nop					; No operation.
         clc                				; Clear carry
         adc     #$d4       				; Add 
         sta     High_tempvar
@@ -2686,9 +2686,9 @@ L7FE9   .byte   $78,$00,$e0,$00,$e4,$00,$e8,$00,$ec,$00,$00,$00,$00,$00,$00,$4e
 LC000   lda     LCF46,x					;
         and     SpriteEnableRegister	;
         beq     _LC00E
-        nop								; No operation.								;
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.								;
+        nop					; No operation.
+        nop					; No operation.
         jmp     LCA70
 
 _LC00E  jmp     If_CD55
@@ -3012,11 +3012,11 @@ LC607   dec     LCF82,x
         bne     RTS_C645
         lda     #$0a
         sta     LCF82,x
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
         dec     LCF54,x
         lda     LCF54,x
         cmp     #$00
@@ -3046,54 +3046,54 @@ JUMP_c646
         nop					; No operation.
         lda     #$00				; A = #00
         sta     SpriteEnableRegister            ;Disable all sprites
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
         ldx     #$00       ;X = #00
         jsr     Sub_SetupScreen
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
         ldx     #$c0
         ldy     #$56
         jsr     Sub_2A80
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
+        nop					; No operation.
 		
 LC694   lda     Var_Num01               ; Load the value at Var_Num01 into the accumulator (A).
         bne     If_C6AC                 ; Branch to label If_C6AC if A is not equal to 0 (if Var_Num01 is not 0).
@@ -3644,7 +3644,7 @@ Counter_Enemy
         .byte   $01
 
 Sub_EnemyMSB
-        sta     Counter_Enemy ;Rotates between #00-04
+        sta     Counter_Enemy                   ;Rotates between #00-04
 ;*****************************
 ;* Level 1                   *
 ;* Spider 1 = 1              *
@@ -3734,7 +3734,7 @@ If_CB8B lda     Counter_Enemy
 LCBBB   lda     Adr_EnemyMSBXPosition+2,x
         cmp     #$00
         beq     RTS_CC0D
-        jsr     LC9F1      ;Doesnt seem to be executed
+        jsr     LC9F1                           ;Doesnt seem to be executed
 LCBC5   lda     #$00
         sta     LCF12
 Jump_CBCA
@@ -3779,10 +3779,10 @@ Temp_CurrentEnemy
         .byte   $03
 
 Sub_CC12
-        sta     Temp_CurrentEnemy ;A = Enemy index
-        tax                ;Transfer A to X
-        lda     LCF15,x    ;A = $cf15,x (Not sure what A is loaded with)
-        ldx     Temp_CurrentEnemy ;X = Temp_CurrentEnemy
+        sta     Temp_CurrentEnemy               ;A = Enemy index
+        tax                                     ;Transfer A to X
+        lda     LCF15,x                         ;A = $cf15,x (Not sure what A is loaded with)
+        ldx     Temp_CurrentEnemy               ;X = Temp_CurrentEnemy
         jmp     Jump_CC81
 
 LCC1F   ldx     Temp_CurrentEnemy
@@ -3807,8 +3807,8 @@ If_CC3C lda     L574A+20,x
         tay
         inc     LCF29,x
         lda     (Low_tempvar),y
-        nop								; No operation.
-        nop								; No operation.
+        nop					; No operation.
+        nop					; No operation.
         cmp     #$ff
         bne     If_CC61
         lda     #$01
@@ -3836,10 +3836,10 @@ Jump_CC65
         .fill   2,$ea
 
 Jump_CC81
-        tay                ;Transfer A to Y
-        ldx     Temp_CurrentEnemy ;X = Temp_CurrentEnemy
-        inx                ;Increase X
-        inx                ;Increase X
+        tay                                     ;Transfer A to Y
+        ldx     Temp_CurrentEnemy               ;X = Temp_CurrentEnemy
+        inx                                     ;Increase X
+        inx                                     ;Increase X
         jsr     LCA64
         cpy     #$ff
         bne     If_CCA4
@@ -3859,7 +3859,7 @@ If_CCA4 jmp     LCC1F
 
 LCCAB   inc     LCF2E,x        			; Increment the value at address LCF2E+x. The index ranges from #00 to #04 (possibly iterating through enemy indices).
         lda     LCF2E,x        			; Load the value at address LCF2E+x into the accumulator (A).
-        cmp     Var_Sprite3Speed,x  	; Compare the value in the accumulator with the value in Var_Sprite3Speed indexed by X.
+        cmp     Var_Sprite3Speed,x  	        ; Compare the value in the accumulator with the value in Var_Sprite3Speed indexed by X.
         bne     If_CCBF        			; Branch to label If_CCBF if the values are not equal ($cf2e,x != Var_Sprite3Speed).
         lda     #$00           			; Load the value #$00 into the accumulator (A).
         sta     LCF2E,x        			; Store the value in the accumulator (0) at address LCF2E+x, effectively resetting it.
@@ -3872,7 +3872,7 @@ If_CCBF inc     LCF97,x        			; Increment the value at address LCF97+x.
         bne     RTS_CCF2       			; Branch to label RTS_CCF2 if the values are not equal.
         lda     #$00           			; Load the value #$00 into the accumulator (A).
         sta     LCF97,x        			; Store the value in the accumulator (0) at address LCF97+x, effectively resetting it.
-        ldx     Var_CurrentEnemyIndex   ; Load the value of Var_CurrentEnemyIndex into the X register.
+        ldx     Var_CurrentEnemyIndex           ; Load the value of Var_CurrentEnemyIndex into the X register.
         inc     LCF33,x        			; Increment the value at address LCF33+x.
         lda     LCF33,x        			; Load the value at address LCF33+x into the accumulator (A).
         cmp     L54E5,x        			; Compare the value in the accumulator with the value at address L54E5 indexed by X.
@@ -3892,10 +3892,10 @@ RTS_CCF2
 
         .fill   2,$ea
 
-LCCF5   lda     SpriteEnableRegister ;A = SpriteEnableRegister
-        and     #$80       ;Isolate girl
-        cmp     #$00       ;Check if girl is visible
-        beq     If_CD01    ;Branch if girl not visible
+LCCF5   lda     SpriteEnableRegister            ;A = SpriteEnableRegister
+        and     #$80                            ;Isolate girl
+        cmp     #$00                            ;Check if girl is visible
+        beq     If_CD01                         ;Branch if girl not visible
         jmp     If_CD55
 
 If_CD01 jsr     LCD7B
@@ -3940,7 +3940,7 @@ If_CD55 inc     LCF45
         lda     LCF45
         cmp     L4554
         bne     RTS_CD79
-        lda     #$00					; A = #00
+        lda     #$00				; A = #00
         sta     LCF45
         lda     LCF44
         ldx     #$07
@@ -3973,14 +3973,14 @@ RTS_CD96
 
         .byte   $ea,$ea,$ea,$4c,$87,$ce
 
-LCD9D   lda     Var_SpriteCollision 	; Load the value at Var_SpriteCollision into the accumulator (A).
-        and     #$02       				; Perform a bitwise AND operation with #$02 to isolate the second bit, which might represent the girl's collision information.
-        bne     If_CDA6    				; Branch to label If_CDA6 if the collision is related to the second bit (Girl's collision).
-        jmp     RTS_CD96   				; Jump to the label RTS_CD96 and return from the subroutine if the collision is not related to the second bit.
+LCD9D   lda     Var_SpriteCollision 	        ; Load the value at Var_SpriteCollision into the accumulator (A).
+        and     #$02       			; Perform a bitwise AND operation with #$02 to isolate the second bit, which might represent the girl's collision information.
+        bne     If_CDA6    			; Branch to label If_CDA6 if the collision is related to the second bit (Girl's collision).
+        jmp     RTS_CD96   			; Jump to the label RTS_CD96 and return from the subroutine if the collision is not related to the second bit.
 
 
-If_CDA6 ldx     #$00       ;X = #00
-        ldy     #$00       ;Y = #00
+If_CDA6 ldx     #$00                            ;X = #00
+        ldy     #$00                            ;Y = #00
 IF_CDAA lda     LCF46,x
         and     Var_SpriteCollision
         beq     If_CDB2
@@ -4000,12 +4000,12 @@ If_CDBE ldx     #$02
         .byte   $4e,$cf,$bd,$56,$45,$f0,$0d,$4c,$fa,$cd,$a2,$02,$20,$44,$5b,$60
         .byte   $01,$4c,$02,$ce,$60
 
-LCDE9   tax                                 ; Transfer the value in the accumulator (A) to the X register. This will rotate between #00-#04 (possibly iterating through enemy indices).
-        lda     LCF4F,x                     ; Load the value at address LCF4F+x into the accumulator (A). This might represent a property or status of the enemy indexed by X.
-        cmp     #$01                        ; Compare the value in the accumulator with #$01 (1 in decimal).
-        beq     +                           ; If the value in the accumulator is equal to 1, branch to the next code block (marked as '+'). However, this branch is never taken as the values are always #00.
-        jmp     LCCAB                       ; If the value in the accumulator is not equal to 1, jump to the label LCCAB, which could represent an alternative set of operations.
-+       jmp     LC607                       ; '+' - Jump to the label LC607. This part of the code is never executed, as the branch condition is never met (values are always #00).
+LCDE9   tax                                     ; Transfer the value in the accumulator (A) to the X register. This will rotate between #00-#04 (possibly iterating through enemy indices).
+        lda     LCF4F,x                         ; Load the value at address LCF4F+x into the accumulator (A). This might represent a property or status of the enemy indexed by X.
+        cmp     #$01                            ; Compare the value in the accumulator with #$01 (1 in decimal).
+        beq     +                               ; If the value in the accumulator is equal to 1, branch to the next code block (marked as '+'). However, this branch is never taken as the values are always #00.
+        jmp     LCCAB                           ; If the value in the accumulator is not equal to 1, jump to the label LCCAB, which could represent an alternative set of operations.
++       jmp     LC607                           ; '+' - Jump to the label LC607. This part of the code is never executed, as the branch condition is never met (values are always #00).
 
 
         .byte   $ea,$ea,$ea,$bd,$4f,$cf,$c9,$01,$d0
@@ -4013,24 +4013,24 @@ LCE00   .byte   $dd,$60,$9d,$4f,$cf,$a9,$fd,$2d,$15,$d0,$8d,$15,$d0,$4c,$6b,$ce
         .byte   $60
 
 Sub_UpdateScore
-        ldx     #$06       ;X = #06
--       inc     $0405,x    						;Update score character
-        lda     $0405,x    						;A = updated score character value
-        cmp     #$ba       						;Check if character is over 9
-        bne     + 								;Exit if not over 9
-        lda     #$b0       						;A = #b0
-        sta     $0405,x    						;Update character to 0
-        dex                						;Decrease X (Go to next character in score)
-        cpx     #$00       						;Check if character is 0
-        bne     - 								;Branch if not equal 0
+        ldx     #$06                            ;X = #06
+-       inc     $0405,x    			;Update score character
+        lda     $0405,x    			;A = updated score character value
+        cmp     #$ba       			;Check if character is over 9
+        bne     + 				;Exit if not over 9
+        lda     #$b0       			;A = #b0
+        sta     $0405,x    			;Update character to 0
+        dex                			;Decrease X (Go to next character in score)
+        cpx     #$00       			;Check if character is 0
+        bne     - 				;Branch if not equal 0
 +       rts
 
         .byte   $a2,$06,$de,$05,$04,$bd,$05,$04,$c9,$af,$d0,$0d,$a9,$b9,$9d,$05
         .byte   $04,$ca,$e0,$00,$d0,$ec,$20,$11,$ce,$60
 
-LCE42   lda     Counter_ScoreUpdate3 ;A = $cf5c
-        sta     Temp_Something1+1 ;$ce53 = $cf5c (#11)
--       lda     Counter_ScoreUpdate1 ;A = $cf5a
+LCE42   lda     Counter_ScoreUpdate3            ;A = $cf5c
+        sta     Temp_Something1+1               ;$ce53 = $cf5c (#11)
+-       lda     Counter_ScoreUpdate1            ;A = $cf5a
         cmp     #$00
         beq     +
         dec     Counter_ScoreUpdate1
@@ -4049,55 +4049,55 @@ Temp_Something1
         .byte   $ae,$4e,$cf,$bd,$60,$45,$8d,$5a,$cf,$bd,$65,$45,$8d,$5b,$cf,$bd
         .byte   $6a,$45,$8d,$5c,$cf,$20,$42,$ce,$60,$ea,$ea,$ea
 
-LCE87   lda     Adr_SpriteCollision   	; Load the value at Adr_SpriteCollision into the accumulator (A).
-        sta     Var_SpriteCollision     ; Store the value in the accumulator (A) into Var_SpriteCollision.
+LCE87   lda     Adr_SpriteCollision   	        ; Load the value at Adr_SpriteCollision into the accumulator (A).
+        sta     Var_SpriteCollision             ; Store the value in the accumulator (A) into Var_SpriteCollision.
 
-        and     #$01                    ; Perform a bitwise AND operation with #$01 to isolate the boy's collision information.
-        bne     +                       ; Branch as the boy has had a collision.
+        and     #$01                            ; Perform a bitwise AND operation with #$01 to isolate the boy's collision information.
+        bne     +                               ; Branch as the boy has had a collision.
 
-        jmp     LCD9D                   ; Jump to check if the girl has a collision.
+        jmp     LCD9D                           ; Jump to check if the girl has a collision.
 
-+       lda     Var_SpriteCollision     ; Load the value at Var_SpriteCollision into the accumulator (A).
++       lda     Var_SpriteCollision             ; Load the value at Var_SpriteCollision into the accumulator (A).
 
-        and     #$02                    ; Perform a bitwise AND operation with #$02 to isolate the girl's collision information.
-        beq     +                       ; Branch to the next code block (marked as '+') since the girl does not have a collision.
+        and     #$02                            ; Perform a bitwise AND operation with #$02 to isolate the girl's collision information.
+        beq     +                               ; Branch to the next code block (marked as '+') since the girl does not have a collision.
 
-        rts                             ; Return from the subroutine if the girl has a collision.
+        rts                                     ; Return from the subroutine if the girl has a collision.
 
-+       ldx     #$00                    ; Set the X register to #00, initializing it.
-        ldy     #$00                    ; Set the Y register to #00, initializing it.
++       ldx     #$00                            ; Set the X register to #00, initializing it.
+        ldy     #$00                            ; Set the Y register to #00, initializing it.
 
--       lda     LCF46,x                 ; Load the value at address LCF46+x into the accumulator (A). This will increase through each enemy (#04, #08, #10, #20, #40).
-        and     Var_SpriteCollision     ; Perform a bitwise AND operation with Var_SpriteCollision to check if the selected sprite caused a collision.
-        beq     +                       ; Branch to the next code block (marked as '+') if the selected enemy caused a collision.
+-       lda     LCF46,x                         ; Load the value at address LCF46+x into the accumulator (A). This will increase through each enemy (#04, #08, #10, #20, #40).
+        and     Var_SpriteCollision             ; Perform a bitwise AND operation with Var_SpriteCollision to check if the selected sprite caused a collision.
+        beq     +                               ; Branch to the next code block (marked as '+') if the selected enemy caused a collision.
 
-        iny                             ; Increment the Y register. This is used to confirm that an enemy was found.
+        iny                                     ; Increment the Y register. This is used to confirm that an enemy was found.
 
-+       inx                             ; Increment the X register.
++       inx                                     ; Increment the X register.
         cpx     #$06					; Compare the value in the X register to #$06 (6 in decimal), since there are only 5 enemies.
-        bne     -                       ; Loop back to '-' if not at the final enemy.
+        bne     -                               ; Loop back to '-' if not at the final enemy.
 
-        cpy     #$01                    ; Compare the value in the Y register to #$01 (1 in decimal) to check if an enemy was found.
-        beq     +                       ; Branch to the next code block (marked as '+') if an enemy was found.
+        cpy     #$01                            ; Compare the value in the Y register to #$01 (1 in decimal) to check if an enemy was found.
+        beq     +                               ; Branch to the next code block (marked as '+') if an enemy was found.
 
-        rts                             ; Return from the subroutine if no enemy was found.
+        rts                                     ; Return from the subroutine if no enemy was found.
 
-+       lda     Var_SpriteCollision     ; Load the value at Var_SpriteCollision into the accumulator (A).
-        and     #$fc                    ; Perform a bitwise AND operation with #$fc to isolate enemy sprites only.
-        sta     Temp_EnemyCollidedBin   ; Store the value in the accumulator (A) into Temp_EnemyCollidedBin.
++       lda     Var_SpriteCollision             ; Load the value at Var_SpriteCollision into the accumulator (A).
+        and     #$fc                            ; Perform a bitwise AND operation with #$fc to isolate enemy sprites only.
+        sta     Temp_EnemyCollidedBin           ; Store the value in the accumulator (A) into Temp_EnemyCollidedBin.
 
-        ldx     #$00                    ; Set the X register to #00, initializing it.
+        ldx     #$00                            ; Set the X register to #00, initializing it.
 
--       cmp     #$04                    ; Compare the value in the accumulator (A) to #$04 (4 in decimal) to check the enemy number.
-        beq     +                       ; Branch to the next code block (marked as '+') if the selected enemy is found.
+-       cmp     #$04                            ; Compare the value in the accumulator (A) to #$04 (4 in decimal) to check the enemy number.
+        beq     +                               ; Branch to the next code block (marked as '+') if the selected enemy is found.
 
-        inx                             ; Increment the X register (enemy number).
-        lsr     a                       ; Perform a logical shift right operation on the accumulator (A), effectively dividing the value by 2.
-        jmp     -                       ; Loop back to '-'.
+        inx                                     ; Increment the X register (enemy number).
+        lsr     a                               ; Perform a logical shift right operation on the accumulator (A), effectively dividing the value by 2.
+        jmp     -                               ; Loop back to '-'.
 
-+       stx     Temp_EnemyCollidedInt   ; Store the value in the X register into Temp_EnemyCollidedInt.
-        ldx     #$02                    ; Set the X register to #02.
-        jsr     Update_DamageOccuring   ; Perform damage routine.
++       stx     Temp_EnemyCollidedInt           ; Store the value in the X register into Temp_EnemyCollidedInt.
+        ldx     #$02                            ; Set the X register to #02.
+        jsr     Update_DamageOccuring           ; Perform damage routine.
 
         jmp     LCD9D
 
@@ -4111,7 +4111,7 @@ LCEEE   inc     LCF76,x
 
         .byte   $ea
 
-LCEF6   sta     $d027 					; Sprite #0 color
+LCEF6   sta     $d027 		                ; Sprite #0 color
         lda     L45EC
         jmp     Jump_CAED
 
@@ -4243,21 +4243,21 @@ Txt_GameOver
 		.byte   $87,$81,$8d,$85,$a0,$8f,$96,$85,$92
 		.byte	$ec,$ec,$ec,$ed,$ec,$ec,$ec,$ed,$ec,$ed,$ed,$ed,$ed
 
-Sub_GameOverText 						; Run when game over
+Sub_GameOverText 				; Run when game over
         jsr     Sub_5733
         ldx     #$00
-- 		lda     LCFA1,x					; Pointless code.
-        lda     $0617,x					; Pointless code.
-        lda     $d81a					; Pointless code.
-        lda     #$01 					; A = #01 (Will be used to change character to white).
-        nop								; No operation.								; No operation.
-        sta     $d838,x					; Change color of character to white.
+- 		lda     LCFA1,x			; Pointless code.
+        lda     $0617,x				; Pointless code.
+        lda     $d81a				; Pointless code.
+        lda     #$01 				; A = #01 (Will be used to change character to white).
+        nop					; No operation.								; No operation.
+        sta     $d838,x				; Change color of character to white.
         lda     Txt_GameOver,x 			; Load text for "Game Over" text.
-        sta     $0438,x					; Store "Game Over" text to screen.
-        inx								; Increase X for loop.
-        cpx     #$09					; Check if up to ninth character
-        bne     -						; Continue loop if not completed.
-        rts								; Return from subroutine.
+        sta     $0438,x				; Store "Game Over" text to screen.
+        inx					; Increase X for loop.
+        cpx     #$09				; Check if up to ninth character
+        bne     -				; Continue loop if not completed.
+        rts					; Return from subroutine.
 
         .byte   $33,$57,$00,$00,$ee,$ec,$ed,$ee,$ed,$ed,$ed,$ed,$ed,$ed,$ed,$ed
         .byte   $ee,$f2,$f2,$f2,$32,$f1,$f1,$f1,$20,$f1,$f1,$f0,$f1,$ef,$ef,$01

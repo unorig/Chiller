@@ -603,9 +603,9 @@ Sub_StartEnemyUpdate
         beq     Sub_EnemyPositionLoop 		; Branch if looped through 254 times
         rts                			; Return from subroutine (Back to $ca57)
 
-;***************************************
-;*        Enemy positioning loop       *
-;***************************************
+                                                ;***************************************
+                                                ;*        Enemy positioning loop       *
+                                                ;***************************************
 Sub_EnemyPositionLoop
         lda     #$00                            ; Clear A register
         sta     LCF75                      	; Initialize LCF75 to 0
@@ -1146,67 +1146,67 @@ JMP_UpdateLRSprite
 
 
 Sub_5880
-        lda     #$00						; A = #00
-        sta     Var_5a00   					; Var_5a00 = #00
-        lda     Var_LeftRightInput 			; Left = #ff / Right = #01
-        sta     Var_JumpDirection 			; Left = #ff / Right = #01 / Up = #00
-        lda     #$60       					; A = #60
-        sta     Sub_GetInputs 				; $c84d = #60
-        sta     Jump_5980  					; $5980 = #60
-        lda     SpritePointer0 				; Load SpritePointer0
-        and     #$04       					; Isolate 4th bit
-        bne     If_58a3    					; Branch if facing left
-L589A   lda     #$f0       					; A = #f0
+        lda     #$00				; A = #00
+        sta     Var_5a00   			; Var_5a00 = #00
+        lda     Var_LeftRightInput 		; Left = #ff / Right = #01
+        sta     Var_JumpDirection 		; Left = #ff / Right = #01 / Up = #00
+        lda     #$60       			; A = #60
+        sta     Sub_GetInputs 			; $c84d = #60
+        sta     Jump_5980  			; $5980 = #60
+        lda     SpritePointer0 			; Load SpritePointer0
+        and     #$04       			; Isolate 4th bit
+        bne     If_58a3    			; Branch if facing left
+L589A   lda     #$f0       			; A = #f0
         nop					; No operation.
-        sta     SpritePointer0 				; SprintPointer0 = #f0
+        sta     SpritePointer0 			; SprintPointer0 = #f0
         jmp     Jump_58A8
 
-If_58a3 lda     #$f1       					; A = #f1
-        sta     SpritePointer0 				; SpritePointer0 = #f1
+If_58a3 lda     #$f1       			; A = #f1
+        sta     SpritePointer0 			; SpritePointer0 = #f1
 Jump_58A8
-        lda     #$f0       					; A = #f0
-        sta     LC79B+1   					; #c79b = #f0
-        sta     LC7C5+1   					; #c7c5 = #f0
+        lda     #$f0       			; A = #f0
+        sta     LC79B+1   			; #c79b = #f0
+        sta     LC7C5+1   			; #c7c5 = #f0
         jmp     Jump_JumpSound
 
 Sub_CheckSlidingOnRope
         lda     Var_SlidingOnRope
-        bne     If_58bb   					; Branch if not sliding down rope
+        bne     If_58bb   			; Branch if not sliding down rope
         rts
 
         .fill   2,$ea
 
-If_58bb ldx     #$00       					; X = #00
-        lda     InputPortA 					; A = $dc00
-        and     #$10       					; Isolate 5th bit. (Port 2 joystick fire pressed)
-        bne     +   						; Branch if fire not received
-        nop									; No operation.
-        ldx     #$01       					; X = 01
-+ 		lda     Var_KeyboardInput 			; A = $c5
-        cmp     #$37     					; Compare to #37 (Keyboard fire pressed).
-        bne     +    						; Branch if fire not received
-        ldx     #$01      					; X = 01
-+ 		cpx     #$00       					; Compare X to X = #01
+If_58bb ldx     #$00       			; X = #00
+        lda     InputPortA 			; A = $dc00
+        and     #$10       			; Isolate 5th bit. (Port 2 joystick fire pressed)
+        bne     +   				; Branch if fire not received
+        nop					; No operation.
+        ldx     #$01       			; X = 01
++ 		lda     Var_KeyboardInput 	; A = $c5
+        cmp     #$37     			; Compare to #37 (Keyboard fire pressed).
+        bne     +    				; Branch if fire not received
+        ldx     #$01      			; X = 01
++ 		cpx     #$00       		; Compare X to X = #01
         bne     Sub_FireButtonEvent 		; Branch if fire received
-        lda     #$00						; A = #00
-        sta     Var_StartGame 				; Reset Var_StartGame
+        lda     #$00				; A = #00
+        sta     Var_StartGame 			; Reset Var_StartGame
         jmp     Jump_5844
 
 Sub_FireButtonEvent
-        lda     Var_StartGame   			; Load the value at memory location Var_StartGame into the accumulator.
-        beq     +              				; If the value in the accumulator is equal to zero, skip the next instruction (i.e., fall through to the following instruction).
-        jmp     Jump_5844      				; Otherwise, jump to the address indicated by the label Jump_5844.
-+       jmp     L5768          				; If the previous instruction was skipped (i.e., the value in Var_StartGame was zero), jump to the address indicated by the label L5768.
+        lda     Var_StartGame   		; Load the value at memory location Var_StartGame into the accumulator.
+        beq     +              			; If the value in the accumulator is equal to zero, skip the next instruction (i.e., fall through to the following instruction).
+        jmp     Jump_5844      			; Otherwise, jump to the address indicated by the label Jump_5844.
++       jmp     L5768          			; If the previous instruction was skipped (i.e., the value in Var_StartGame was zero), jump to the address indicated by the label L5768.
 
 
 SetupSpritePositions
-        lda     #$01       					;JSR from $5770
-        sta     Var_StartGame 				;Store #01 to $5A06
-        ldx     Sprite0XPosition 			;Load X with Sprite0_X_Position
+        lda     #$01       			;JSR from $5770
+        sta     Var_StartGame 			;Store #01 to $5A06
+        ldx     Sprite0XPosition 		;Load X with Sprite0_X_Position
         lda     Sprite1XPositionRegister 	;Load A with Sprite1_X_Position
-        sta     Sprite0XPosition 			;Update Sprite0_X_Position with Sprite1_X_Position
+        sta     Sprite0XPosition 		;Update Sprite0_X_Position with Sprite1_X_Position
         stx     Sprite1XPositionRegister 	;Update Sprite1_X_Position with Sprite0_X_Position
-        ldx     Sprite0YPos 				;Load A with Sprite0_Y_Position
+        ldx     Sprite0YPos 			;Load A with Sprite0_Y_Position
         jmp     ContSetupSpritePositions
 
         .byte   $8d,$f8,$07
@@ -1215,67 +1215,67 @@ ResetGirl
         jsr     Sub_SetRandomVariables
         lda     #$e0
         sta     Sprite1XPositionRegister 	;Set girl sprite position
-        sta     Sprite1YPosition 			;Set girl sprite position
-        lda     #$06       					;Value will be used to set border to blue
-        nop									; No operation.
-        sta     Adr_BorderColor 			;Set border colour to blue
+        sta     Sprite1YPosition 		;Set girl sprite position
+        lda     #$06       			;Value will be used to set border to blue
+        nop					; No operation.
+        sta     Adr_BorderColor 		;Set border colour to blue
         lda     #$ee
-        sta     SpritePointer1 				;Update sprite pointer for girl
-        rts                					;Return from subroutine
+        sta     SpritePointer1 			;Update sprite pointer for girl
+        rts                			;Return from subroutine
 
         .fill   2,$ea
 
 ContSetupSpritePositions
-        lda     Sprite1YPosition 			;Load A with Sprite1_Y_Position
-        sta     Sprite0YPos 				;Update Sprite0_Y_Position with Sprite1_Y_Position
-        stx     Sprite1YPosition 			;Update Sprite1_Y_Position with Sprite0_Y_Position
+        lda     Sprite1YPosition 		;Load A with Sprite1_Y_Position
+        sta     Sprite0YPos 			;Update Sprite0_Y_Position with Sprite1_Y_Position
+        stx     Sprite1YPosition 		;Update Sprite1_Y_Position with Sprite0_Y_Position
         lda     SpriteXMSBRegister
-        and     #$01       					;Isolate first bit in SpriteXMSBRegister
-        tax                					;Store boy X-MSB flag in X
+        and     #$01       			;Isolate first bit in SpriteXMSBRegister
+        tax                			;Store boy X-MSB flag in X
         lda     SpriteXMSBRegister
-        and     #$02       					;Isolate second bit in SpriteXMSBRegister
-        tay                					;Store girl X-MSB flag in Y
+        and     #$02       			;Isolate second bit in SpriteXMSBRegister
+        tay                			;Store girl X-MSB flag in Y
         lda     SpriteXMSBRegister
-        and     #$fc       					;Get remaining bits (Exlcuding 1 and 2)
-        sta     Temp_SpiteXMSBReg 			;Store enemy X-MSB values
-        cpy     #$00       					;Compare girl X-MSB values to #00
-        beq     + 							;Branch if girl X-MSB flag not set
-        lda     #$01       					;Load A with #01
-        ora     Temp_SpiteXMSBReg 			;Turn on first byte for MSB-X register
-        sta     Temp_SpiteXMSBReg 			;Store girl into SpriteXMSBReg
-+       cpx     #$00       					;Branch if girl X-MSB flag not set
+        and     #$fc       			;Get remaining bits (Exlcuding 1 and 2)
+        sta     Temp_SpiteXMSBReg 		;Store enemy X-MSB values
+        cpy     #$00       			;Compare girl X-MSB values to #00
+        beq     + 				;Branch if girl X-MSB flag not set
+        lda     #$01       			;Load A with #01
+        ora     Temp_SpiteXMSBReg 		;Turn on first byte for MSB-X register
+        sta     Temp_SpiteXMSBReg 		;Store girl into SpriteXMSBReg
++       cpx     #$00       			;Branch if girl X-MSB flag not set
         beq     +
-        lda     #$02       					;Load A with #01
-        ora     Temp_SpiteXMSBReg 			;Turn on second byte for MSB-X register
-        sta     Temp_SpiteXMSBReg 			;Store bpy into SpriteXMSBReg
-+ 		lda     Temp_SpiteXMSBReg
-        sta     SpriteXMSBRegister 			;Update SpriteXMSBRegister
-        ldx     SpritePointer0 				;Set X with SpritePointer0 (Boy)
-        lda     SpritePointer1 				;Set A with SpritePointer1 (Girl)
-        sta     SpritePointer0 				;Store SpritePointer1 (Girl) to SpritePointer0 (Boy)
-        stx     SpritePointer1 				;Store SpritePointer0 (Boy) to SpritePointer1 (Girl)
-        rts                					;Return from subroutine ($5770)
+        lda     #$02       			;Load A with #01
+        ora     Temp_SpiteXMSBReg 		;Turn on second byte for MSB-X register
+        sta     Temp_SpiteXMSBReg 		;Store bpy into SpriteXMSBReg
++ 	lda     Temp_SpiteXMSBReg
+        sta     SpriteXMSBRegister 		;Update SpriteXMSBRegister
+        ldx     SpritePointer0 			;Set X with SpritePointer0 (Boy)
+        lda     SpritePointer1 			;Set A with SpritePointer1 (Girl)
+        sta     SpritePointer0 			;Store SpritePointer1 (Girl) to SpritePointer0 (Boy)
+        stx     SpritePointer1 			;Store SpritePointer0 (Boy) to SpritePointer1 (Girl)
+        rts                				;Return from subroutine ($5770)
 
 Sub_RedHealthBarZone
-        lda     $0430      					; Load top red health block
-        cmp     #$a9       					; Check if no red health bar consumed
-        beq     +    						; Branch if no red health bar consumed
-        lda     #$80       					; A = #80
-        sta     LCA18+1    					; $ca19 = #80. This is the value passed to an operation.
-        lda     #$04       					; A = #04
-        sta     Var_GoSlowRedZone 			; Var_GoSlowRedZone = #04. #02 Not slow / #04 Slow.
-        rts									; Return from subroutine
-+ 		lda     Var_GoSlowRedZone 			; Load Var_GoSlowRedZone
-        cmp     #$04       					; Check if in Go-Slow mode (Red zone)
-        beq     +							; Branch if in red zone.
-        rts 								; Return from subroutine
+        lda     $0430      			; Load top red health block
+        cmp     #$a9       			; Check if no red health bar consumed
+        beq     +    				; Branch if no red health bar consumed
+        lda     #$80       			; A = #80
+        sta     LCA18+1    			; $ca19 = #80. This is the value passed to an operation.
+        lda     #$04       			; A = #04
+        sta     Var_GoSlowRedZone 		; Var_GoSlowRedZone = #04. #02 Not slow / #04 Slow.
+        rts					; Return from subroutine
++ 		lda     Var_GoSlowRedZone 	; Load Var_GoSlowRedZone
+        cmp     #$04       			; Check if in Go-Slow mode (Red zone)
+        beq     +				; Branch if in red zone.
+        rts 					; Return from subroutine
 +       jmp     Jump_5A88
 
         .fill   2,$ea
 
 Jump_5980
-        lda     SpritePointer0 				;A = SpritePointer0
-        and     #$03       					;Isolate third bit
+        lda     SpritePointer0 			;A = SpritePointer0
+        and     #$03       			;Isolate third bit
         cmp     #$03
         beq     +
         inc     SpritePointer0
@@ -1286,29 +1286,29 @@ Jump_5980
 _rts    rts
 
 Sub_GetCurrentHealthBar
-        ldx     #$ff       					;X = #ff
--   	inx                					;Increase X
-        lda     Scr_HealthBar,x 			;A = $042e, x
-        cmp     #$a9       					;Check if health bar is populated. Get the position where it ends.
-        beq     -     						;Loop if equal zero
+        ldx     #$ff       			;X = #ff
+-   	inx                			;Increase X
+        lda     Scr_HealthBar,x 		;A = $042e, x
+        cmp     #$a9       			;Check if health bar is populated. Get the position where it ends.
+        beq     -     				;Loop if equal zero
         rts
 
 Sub_ReduceHealthBar
         jsr     Sub_GetCurrentHealthBar 	; Get the number position from $042e where the bar is blank
-        lda     Scr_HealthBar,x 			; Get the number value of the bar block
-        cmp     #$a1       					; Check if currently at empty position (Goes from #a9 to #a1)
+        lda     Scr_HealthBar,x 		; Get the number value of the bar block
+        cmp     #$a1       			; Check if currently at empty position (Goes from #a9 to #a1)
         beq     Sub_UpdateHealthBar 		; Branch if at empty health bar position
-        dec     Scr_HealthBar,x 			; Decrease current health bar block (Goes from #a9 to #a1)
+        dec     Scr_HealthBar,x 		; Decrease current health bar block (Goes from #a9 to #a1)
         rts
 
         .fill   2,$ea
 
 Sub_UpdateHealthBar
-        cpx     #$00       					;Check if at the last health block
-        beq     Jump_NoHealthLeft 			;Branch if at last healthbar block
-        dex                					;Decrease X
-        lda     #$a8       					;A = #a8
-        sta     Scr_HealthBar,x 			;Store #a8 to current health bar position
+        cpx     #$00       			;Check if at the last health block
+        beq     Jump_NoHealthLeft 		;Branch if at last healthbar block
+        dex                			;Decrease X
+        lda     #$a8       			;A = #a8
+        sta     Scr_HealthBar,x 		;Store #a8 to current health bar position
         rts	
 
         .fill   2,$ea
@@ -1318,30 +1318,30 @@ Jump_NoHealthLeft
 
 Sub_IncreaseHealthBlock
         jsr     Sub_GetCurrentHealthBar 	;Get current health bar block
-        cpx     #$21       					;Check if at maximum health block
-        beq     +	    					;Branch if already full health
-        inc     Scr_HealthBar,x 			;Increase health bar block (a1 - a9)
+        cpx     #$21       			;Check if at maximum health block
+        beq     +	    			;Branch if already full health
+        inc     Scr_HealthBar,x 		;Increase health bar block (a1 - a9)
         rts
 
         .fill   2,$ea
 
-+		lda     #$0a       					; A = #0a
++		lda     #$0a       		; A = #0a
         sta     Counter_ScoreUpdate1 		; $cf5a = #0a
-        lda     #$00						; A = #00
+        lda     #$00				; A = #00
         sta     Counter_ScoreUpdate2 		; $cf5b = #00
-        lda     #$11       					; A = #11
+        lda     #$11       			; A = #11
         sta     Counter_ScoreUpdate3 		; $cf5c = #11
         jsr     LCE42
         rts
 
         .fill   3,$ea
 
-L59E6   lda     Var_Jumping 				; #01 jumping / #00 not jumping
-        beq     +    						; Branch if not jumping
-        dec     Var_JumpSkipDamage 			; Var_JumpSkipDamage will be set to #00 in the loop
-        bne     _rts				    	; Branch if not equal zero
-        lda     #$00						; A = #00
-        sta     Var_JumpSkipDamage 			; Var_JumpSomething = #00
+L59E6   lda     Var_Jumping 			; #01 jumping / #00 not jumping
+        beq     +    				; Branch if not jumping
+        dec     Var_JumpSkipDamage 		; Var_JumpSkipDamage will be set to #00 in the loop
+        bne     _rts				; Branch if not equal zero
+        lda     #$00				; A = #00
+        sta     Var_JumpSkipDamage 		; Var_JumpSomething = #00
         jsr     Sub_ReduceHealthBar 		; Reduce health while jumping
 _rts	rts
 
@@ -1382,16 +1382,16 @@ Var_5a16
         .byte   $09,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 
 MoveHealthDec
-        lda     Var_LeftRightInput 			; Left = #ff / Right = #01
-        beq     _rts   						; Branch to RTS if no input
-        dec     Var_MoveCounter1 			; Decrease first move counter. Uses 1023 loops before initiates Sub_ReduceHealthBar
-        bne     _rts						; RTS if not #00
-        lda     #$ff 						; A = #ff
-        sta     Var_MoveCounter1			; Since Var_MoveCounter1 = #00, set to #ff
-        dec     Var_MoveCounter2 			; Decrease Var_MoveCounter2
-        bne     _rts 						; RTS if not #00
-        lda     #$03 						; A = #03
-        sta     Var_MoveCounter2 			; Since Var_MoveCounter2 = #00, set to #03
+        lda     Var_LeftRightInput 		; Left = #ff / Right = #01
+        beq     _rts   				; Branch to RTS if no input
+        dec     Var_MoveCounter1 		; Decrease first move counter. Uses 1023 loops before initiates Sub_ReduceHealthBar
+        bne     _rts				; RTS if not #00
+        lda     #$ff 				; A = #ff
+        sta     Var_MoveCounter1		; Since Var_MoveCounter1 = #00, set to #ff
+        dec     Var_MoveCounter2 		; Decrease Var_MoveCounter2
+        bne     _rts 				; RTS if not #00
+        lda     #$03 				; A = #03
+        sta     Var_MoveCounter2 		; Since Var_MoveCounter2 = #00, set to #03
         jsr     Sub_ReduceHealthBar 		; Reduce health since 1023 loops have been done.
 _rts    rts
 
@@ -1412,29 +1412,29 @@ If_5A4F lda     #$0a
 
 L5A60   lda     #$02
         sta     Var_GoSlowRedZone
-        lda     #$00						; A = #00
+        lda     #$00				; A = #00
         sta     Var_RegMovingLeftRight
         jmp     Jump_ScreenSetup
 
         .fill   3,$00
 
-Sub_NoHealthLeft 							; $5a70
-        lda     #$01      					; A = #01
+Sub_NoHealthLeft 				; $5a70
+        lda     #$01      			; A = #01
         sta     Var_GameOverFlag      		; Store #01 to Var_GameOverFlag
-        lda     #$02       					; A = #02
-        sta     Var_GoSlowRedZone 			; Store #02 to Var_GoSlowRedZone. #02 (Not slow).
-        lda     #$00						; A = #00
+        lda     #$02       			; A = #02
+        sta     Var_GoSlowRedZone 		; Store #02 to Var_GoSlowRedZone. #02 (Not slow).
+        lda     #$00				; A = #00
         sta     Var_RegMovingLeftRight 		; Store #00 to $cf07
-        lda     #$20       					; A = #20
-        sta     LCA18+1    					; Store #20 to $ca19
-        rts                					; Return from subroutine ($72bd)
+        lda     #$20       			; A = #20
+        sta     LCA18+1    			; Store #20 to $ca19
+        rts                			; Return from subroutine ($72bd)
 
         .fill   3,$ff
 
 Jump_5A88
-        lda     #$02       					;A = #02
-        sta     Var_GoSlowRedZone 			;Var_GoSlowRedZone = #02 (Not slow)
-        lda     #$00						; A = #00
+        lda     #$02       			;A = #02
+        sta     Var_GoSlowRedZone 		;Var_GoSlowRedZone = #02 (Not slow)
+        lda     #$00				; A = #00
         sta     Var_RegMovingLeftRight
         lda     #$20
         sta     LCA18+1
@@ -1442,7 +1442,7 @@ Jump_5A88
 
         .fill   2,$ea
 
-L5A9A   cmp     #$4d       					;Check if current character is complete bridge
+L5A9A   cmp     #$4d       			;Check if current character is complete bridge
         bmi     _rts
         cpy     #$50
         beq     +
@@ -1456,68 +1456,68 @@ _rts    rts
 If_UpdateBridge
         ldx     #$08
         stx     Counter_HealthIncLoop2+2
-        nop									; No operation.
-        cmp     #$53       					;Check if bridge block is #53
-        bne     If_ErrodeBridge 			;Branch if not #53 (Gap)
-        lda     #$a0       					;If bridge block is #53 then set to blank space
-        sta     (Low_tempvar),y 			;Update bridge block
+        nop					; No operation.
+        cmp     #$53       			;Check if bridge block is #53
+        bne     If_ErrodeBridge 		;Branch if not #53 (Gap)
+        lda     #$a0       			;If bridge block is #53 then set to blank space
+        sta     (Low_tempvar),y 		;Update bridge block
         rts
 
         .byte   $ea,$ea,$60
 
 If_ErrodeBridge
-        lda     (Low_tempvar),y 			;Load current value of bridge
-        tax                					;Transfer A to X
-        inx                					;Increase X
-        txa                					;Transfer X to A
-        sta     (Low_tempvar),y 			;Store updated value of bridge
-        rts                					;Return
+        lda     (Low_tempvar),y 		;Load current value of bridge
+        tax                			;Transfer A to X
+        inx                			;Increase X
+        txa                			;Transfer X to A
+        sta     (Low_tempvar),y 		;Store updated value of bridge
+        rts                			;Return
 
 Sub_GetMushroom
-        cmp     #$54                    ; Compare the value in the accumulator (A) with #$54 (check if the character is a health mushroom).
-        bne     If_GetRedFlower         ; Branch to If_GetRedFlower if the values are not equal (if the character is not a health mushroom).
+        cmp     #$54                            ; Compare the value in the accumulator (A) with #$54 (check if the character is a health mushroom).
+        bne     If_GetRedFlower                 ; Branch to If_GetRedFlower if the values are not equal (if the character is not a health mushroom).
 
-        ldx     #$18                    ; X = #$18
-        jsr     Sub_IncHealthIdx        ; Call the subroutine Sub_IncHealthIdx to handle increasing the health index when a health mushroom is collected.
+        ldx     #$18                            ; X = #$18
+        jsr     Sub_IncHealthIdx                ; Call the subroutine Sub_IncHealthIdx to handle increasing the health index when a health mushroom is collected.
 
-        lda     #$a0                    ; A = #$a0 (Blank sprite)
-        sta     (Low_tempvar),y         ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the mushroom.
+        lda     #$a0                            ; A = #$a0 (Blank sprite)
+        sta     (Low_tempvar),y                 ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the mushroom.
 
-        rts                             ; Return from the subroutine.
+        rts                                     ; Return from the subroutine.
 
 
 If_GetRedFlower
-        cmp     #$55                    ; Compare the value in the accumulator (A) with #$55 (check if the character is a poison red flower).
-        bne     Sub_GetBasket           ; Branch to subroutine Sub_GetBasket if the values are not equal (if the character is not a poison red flower).
+        cmp     #$55                            ; Compare the value in the accumulator (A) with #$55 (check if the character is a poison red flower).
+        bne     Sub_GetBasket                   ; Branch to subroutine Sub_GetBasket if the values are not equal (if the character is not a poison red flower).
 
-        ldx     #$19                    ; X = #$19
-        jsr     Update_DamageOccuring   ; Call the subroutine Update_DamageOccuring to handle damage from the poison red flower.
+        ldx     #$19                            ; X = #$19
+        jsr     Update_DamageOccuring           ; Call the subroutine Update_DamageOccuring to handle damage from the poison red flower.
 
-        lda     #$a0                    ; A = #$a0 (Blank sprite)
-        sta     (Low_tempvar),y         ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the flower.
+        lda     #$a0                            ; A = #$a0 (Blank sprite)
+        sta     (Low_tempvar),y                 ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the flower.
 
-        rts                             ; Return from the subroutine.
+        rts                                     ; Return from the subroutine.
 
 
 Sub_GetBasket
-        cmp     #$56                    ; Compare the value in the accumulator (A) with #$56 (check if the character is a basket).
-        bne     L5B57                  	; Branch to label L5B57 if the values are not equal (if the character is not a basket).
+        cmp     #$56                            ; Compare the value in the accumulator (A) with #$56 (check if the character is a basket).
+        bne     L5B57                  	        ; Branch to label L5B57 if the values are not equal (if the character is not a basket).
 
-        lda     #$64                    ; A = #$64
-        sta     Counter_ScoreUpdate1    ; Store the value of A into Counter_ScoreUpdate1.
+        lda     #$64                            ; A = #$64
+        sta     Counter_ScoreUpdate1            ; Store the value of A into Counter_ScoreUpdate1.
 
-        lda     #$00                    ; A = #00
-        sta     Counter_ScoreUpdate2    ; Store the value of A into Counter_ScoreUpdate2.
+        lda     #$00                            ; A = #00
+        sta     Counter_ScoreUpdate2            ; Store the value of A into Counter_ScoreUpdate2.
 
-        lda     #$11                    ; A = #$11
-        sta     Counter_ScoreUpdate3    ; Store the value of A into Counter_ScoreUpdate3.
+        lda     #$11                            ; A = #$11
+        sta     Counter_ScoreUpdate3            ; Store the value of A into Counter_ScoreUpdate3.
 
-        jsr     LCE42                  	; Call the subroutine at label LCE42.
+        jsr     LCE42                  	        ; Call the subroutine at label LCE42.
 
-        lda     #$a0                    ; A = #$a0 (Blank sprite)
-        sta     (Low_tempvar),y         ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the basket.
+        lda     #$a0                            ; A = #$a0 (Blank sprite)
+        sta     (Low_tempvar),y                 ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the basket.
 
-        rts                             ; Return from the subroutine.
+        rts                                     ; Return from the subroutine.
 
 
         .fill   2,$ea

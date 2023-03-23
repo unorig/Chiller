@@ -2437,55 +2437,55 @@ L771E   .byte   $0a
 L771F   rts                ;Exits to $2dc3
 
 Sub_ResetToMenu
-		; Load border color and apply a bitwise AND operation with #$0f
-		lda     Adr_BorderColor       	; Load border color into the accumulator
-		and     #$0f                   	; Perform bitwise AND operation with #$0f
+        ; Load border color and apply a bitwise AND operation with #$0f
+        lda     Adr_BorderColor       	        ; Load border color into the accumulator
+	and     #$0f                   	        ; Perform bitwise AND operation with #$0f
 
-		; Check if result is zero and branch to _TwitchTitleText if true. This will animate the title then return from subroutine.
-		beq     _TwitchTitleText                 
+	; Check if result is zero and branch to _TwitchTitleText if true. This will animate the title then return from subroutine.
+	beq     _TwitchTitleText                 
 		
-		; Decrement L771C, and if it reaches zero, reset it to #$ff; otherwise, perform RTS
-		dec     L771C                  	; Decrement L771C
-		bne     L771F                  	; Branch if not equal to zero (RTS will be performed subsequently)
-		lda     #$ff                   	; Load #$ff into the accumulator
-		sta     L771C                  	; Store accumulator value into L771C
+	; Decrement L771C, and if it reaches zero, reset it to #$ff; otherwise, perform RTS
+	dec     L771C                  	        ; Decrement L771C
+	bne     L771F                  	        ; Branch if not equal to zero (RTS will be performed subsequently)
+	lda     #$ff                   	        ; Load #$ff into the accumulator
+	sta     L771C                  	        ; Store accumulator value into L771C
 		
-		; Decrement L771D, and if it reaches zero, reset it to #$ff; otherwise, perform RTS
-		dec     L771D                 	 ; Decrement L771D
-		bne     L771F                  	; Branch if not equal to zero (RTS will be performed subsequently)
-		lda     #$ff                  	 ; Load #$ff into the accumulator
-		sta     L771D                 	 ; Store accumulator value into L771D
+	; Decrement L771D, and if it reaches zero, reset it to #$ff; otherwise, perform RTS
+	dec     L771D                 	        ; Decrement L771D
+	bne     L771F                  	        ; Branch if not equal to zero (RTS will be performed subsequently)
+	lda     #$ff                  	        ; Load #$ff into the accumulator
+	sta     L771D                 	        ; Store accumulator value into L771D
 		
-		; Decrement L771E, and if it reaches zero, reset it to #$ff; otherwise, perform RTS
-		dec     L771E                  ; Decrement L771E
-		bne     L771F                  ; Branch if not equal to zero (RTS will be performed subsequently)
-		lda     #$0a                   ; Load #$0a into the accumulator
-		sta     L771E                  ; Store accumulator value into L771E
+        ; Decrement L771E, and if it reaches zero, reset it to #$ff; otherwise, perform RTS
+        dec     L771E                           ; Decrement L771E
+        bne     L771F                           ; Branch if not equal to zero (RTS will be performed subsequently)
+        lda     #$0a                            ; Load #$0a into the accumulator
+        sta     L771E                           ; Store accumulator value into L771E
 
-		; Check and set high score
-		jsr     CheckSetHighScore      ; Call subroutine CheckSetHighScore
+        ; Check and set high score
+        jsr     CheckSetHighScore               ; Call subroutine CheckSetHighScore
 
-		; Load specific values into X and Y registers and call Sub_2A80
-		ldx     #$bf                   ; Load #$bf into the X register
-		ldy     #$5b                   ; Load #$5b into the Y register
-		jsr     Sub_2A80               ; Call subroutine Sub_2A80
+        ; Load specific values into X and Y registers and call Sub_2A80
+        ldx     #$bf                            ; Load #$bf into the X register
+        ldy     #$5b                            ; Load #$5b into the Y register
+        jsr     Sub_2A80                        ; Call subroutine Sub_2A80
 
-		; Load default value into accumulator and initialize specific memory locations
-		lda     #$00                   ; Load #$00 into the accumulator
-		sta     SpriteEnableRegister   ; Store accumulator value into SpriteEnableRegister
-		sta     ExtraBackgroundColor1  ; Store accumulator value into ExtraBackgroundColor1
-		sta     ExtraBackgroundColor2  ; Store accumulator value into ExtraBackgroundColor2
-		sta     Adr_BorderColor        ; Store accumulator value into Adr_BorderColor
-		sta     Adr_BackgroundColor    ; Store accumulator value into Adr_BackgroundColor
+        ; Load default value into accumulator and initialize specific memory locations
+        lda     #$00                            ; Load #$00 into the accumulator
+        sta     SpriteEnableRegister            ; Store accumulator value into SpriteEnableRegister
+        sta     ExtraBackgroundColor1           ; Store accumulator value into ExtraBackgroundColor1
+        sta     ExtraBackgroundColor2           ; Store accumulator value into ExtraBackgroundColor2
+        sta     Adr_BorderColor                 ; Store accumulator value into Adr_BorderColor
+        sta     Adr_BackgroundColor             ; Store accumulator value into Adr_BackgroundColor
 
-		; Load specific values into X and Y registers and call subroutine L5C4F
-		ldx     #$00                   ; Load #$00 into the X register
-		ldy     #$7c                   ; Load #$7c into the Y register
-		jsr     L5C4F                  ; Call subroutine L5C4F
+        ; Load specific values into X and Y registers and call subroutine L5C4F
+        ldx     #$00                            ; Load #$00 into the X register
+        ldy     #$7c                            ; Load #$7c into the Y register
+        jsr     L5C4F                           ; Call subroutine L5C4F
 
-		; Set up SID (Sound Interface Device) and return from subroutine
-		jsr     Sub_SIDSetup           ; Call subroutine Sub_SIDSetup
-		rts                             ; Return from subroutine
+        ; Set up SID (Sound Interface Device) and return from subroutine
+        jsr     Sub_SIDSetup                    ; Call subroutine Sub_SIDSetup
+        rts                                     ; Return from subroutine
 
 
         .fill   2,$00
@@ -2693,19 +2693,19 @@ LC000   lda     LCF46,x					;
 
 _LC00E  jmp     If_CD55
 
-LC011   lda     L4555      					; Load the value at memory address $4555 into the accumulator (A)
-        cmp     #$ff       					; Compare A with #ff
-        beq     _rts     					; Branch if A is equal to #ff (255)
-        dec     LCF43      					; Decrement the value at memory address $CF43
-        jsr     LC525      					; Jump to subroutine LC525
-        bne     _rts     					; Branch if the zero flag is not set (result of comparison in LC525 is not equal)
-        lda     L4555      					; Load the value at memory address $4555 into the accumulator (A)
-        sta     LCF43      					; Store the value in the accumulator (A) into memory address $CF43
-        lda     Adr_ScreenControl 			; Load the value at Adr_ScreenControl into the accumulator (A)
-        and     #$f7       					; Perform a bitwise AND operation with #$f7 to clear the 4th bit
-        sta     Adr_ScreenControl 			; Store the value in the accumulator (A) into Adr_ScreenControl
-        jsr     If_C46B    					; Jump to subroutine If_C46B
-_rts  	rts                					; Return from the subroutine
+LC011   lda     L4555      			; Load the value at memory address $4555 into the accumulator (A)
+        cmp     #$ff       			; Compare A with #ff
+        beq     _rts     			; Branch if A is equal to #ff (255)
+        dec     LCF43      			; Decrement the value at memory address $CF43
+        jsr     LC525      			; Jump to subroutine LC525
+        bne     _rts     			; Branch if the zero flag is not set (result of comparison in LC525 is not equal)
+        lda     L4555      			; Load the value at memory address $4555 into the accumulator (A)
+        sta     LCF43      			; Store the value in the accumulator (A) into memory address $CF43
+        lda     Adr_ScreenControl 		; Load the value at Adr_ScreenControl into the accumulator (A)
+        and     #$f7       			; Perform a bitwise AND operation with #$f7 to clear the 4th bit
+        sta     Adr_ScreenControl 		; Store the value in the accumulator (A) into Adr_ScreenControl
+        jsr     If_C46B    			; Jump to subroutine If_C46B
+_rts  	rts                			; Return from the subroutine
 
 
 LC032   lda     L4517
@@ -2727,10 +2727,10 @@ Var_CurrentEnemy
 
 Sub_UpdateEnemySprites
         jsr     Sub_VerticalMovingEnemies 	;A = Active enemy index
-        jsr     Sub_EnemyMSB 				;A = Active enemy index
-        lda     Var_CurrentEnemy 			;A = C0e3 (Alternates between #00-04)
-        tax                					;Transfer A to X
-        lda     LCF46,x    					;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
+        jsr     Sub_EnemyMSB 			;A = Active enemy index
+        lda     Var_CurrentEnemy 		;A = C0e3 (Alternates between #00-04)
+        tax                			;Transfer A to X
+        lda     LCF46,x    			;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
         ora     SpriteEnableRegister 		;Enable/disable sprite in $d015
         sta     SpriteEnableRegister 		;Update sprite register
         lda     LCF68,x
@@ -3029,7 +3029,7 @@ LC607   dec     LCF82,x
         eor     #$ff
         and     SpriteEnableRegister
         sta     SpriteEnableRegister
-        lda     #$00					; A = #00
+        lda     #$00				; A = #00
         sta     LCF4F,x
 If_C63F lda     L455B,x
         sta     LCF54,x
@@ -3039,13 +3039,13 @@ RTS_C645
 JUMP_c646
         jsr     ResetGirl
         jsr     Sub_SetupSpritesEtc
-        lda     L450F 					;Value is usually #f0 (Light grey)
-        sta     Adr_BackgroundColor ;Set the background colour to light grey
+        lda     L450F 				;Value is usually #f0 (Light grey)
+        sta     Adr_BackgroundColor             ;Set the background colour to light grey
         lda     #$08
-        jsr     BSOUT      ;Not sure why this exists
-        nop								; No operation.
-        lda     #$00					; A = #00
-        sta     SpriteEnableRegister ;Disable all sprites
+        jsr     BSOUT                           ;Not sure why this exists
+        nop					; No operation.
+        lda     #$00				; A = #00
+        sta     SpriteEnableRegister            ;Disable all sprites
         nop								; No operation.
         nop								; No operation.
         nop								; No operation.

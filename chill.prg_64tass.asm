@@ -406,24 +406,24 @@ L2D52   lda     L45F7,x    			; Load the value at address L45F7+x into the accum
 
 
 Jump_2D60
-        lda     Adr_SprBGColl 			;Load the value of a memory address called Adr_SprBGColl into the accumulator.
-        sta     _L2D7A      			;Store it in a variable called _L2D7A.
-        and     #$02         			;Perform a bitwise AND operation with the value #$02.
-        cmp     #$00         			;Compare the result to the value #$00.
-        beq     +            			;If it's equal to #$00, branch to the next line.
-        lda     L45FE        			;Load the value at address L45FE into the accumulator.
-        beq     +            			;If it's equal to #$00, branch to the next line.
-        jsr     LC4FB        			;Call a subroutine at a label called LC4FB.
-        jmp     +            			;Jump to the next line.
-        .byte   $ea          			;Undocumented instruction.
-        .byte   $7b          			;Undocumented instruction.
-        .byte   $2d          			;Undocumented instruction.
-_L2D7A  .byte   $00          			;Initialize a variable called _L2D7A with the value #$00.
+        lda     Adr_SprBGColl 			; Load the value of a memory address called Adr_SprBGColl into the accumulator.
+        sta     _L2D7A      			; Store it in a variable called _L2D7A.
+        and     #$02         			; Perform a bitwise AND operation with the value #$02.
+        cmp     #$00         			; Compare the result to the value #$00.
+        beq     +            			; If it's equal to #$00, branch to the next line.
+        lda     L45FE        			; Load the value at address L45FE into the accumulator.
+        beq     +            			; If it's equal to #$00, branch to the next line.
+        jsr     LC4FB        			; Call a subroutine at a label called LC4FB.
+        jmp     +            			; Jump to the next line.
+        .byte   $ea          			; Undocumented instruction.
+        .byte   $7b          			; Undocumented instruction.
+        .byte   $2d          			; Undocumented instruction.
+_L2D7A  .byte   $00          			; Initialize a variable called _L2D7A with the value #$00.
 
-+       lda     Var_GameOverFlag                ;Load the value at address Var_GameOverFlag into the accumulator.
-        cmp     #$01         			;Compare it to the value #$01.
-        beq     +            			;If it's equal to #$01, branch to the next line.
-        jmp     L2EB3        			;Otherwise, jump to a label called L2EB3.
++       lda     Var_GameOverFlag                ; Load the value at address Var_GameOverFlag into the accumulator.
+        cmp     #$01         			; Compare it to the value #$01.
+        beq     +            			; If it's equal to #$01, branch to the next line.
+        jmp     L2EB3        			; Otherwise, jump to a label called L2EB3.
 
 +       jsr     Sub_5D98     			; Call a subroutine at a label called Sub_5D98.
         jmp     Jump_5DA9    			; Jump to a label called Jump_5DA9.
@@ -431,10 +431,10 @@ _L2D7A  .byte   $00          			;Initialize a variable called _L2D7A with the va
         .byte   $ea          			; Undocumented instruction.
         .byte   $ea          			; Undocumented instruction.
 
-L2D8D   sta     SpritePointer1 			;Store the accumulator value into a variable called SpritePointer1.
-        lda     #$00           			;Load the value #$00 into the accumulator.
-        sta     LC53C+8        			;Store it in a memory address called LC53C+8.
-        rts                    			;Return from the subroutine.
+L2D8D   sta     SpritePointer1 			; Store the accumulator value into a variable called SpritePointer1.
+        lda     #$00           			; Load the value #$00 into the accumulator.
+        sta     LC53C+8        			; Store it in a memory address called LC53C+8.
+        rts                    			; Return from the subroutine.
 
 
         .byte   $ea
@@ -1502,23 +1502,16 @@ If_GetRedFlower
 Sub_GetBasket
         cmp     #$56                            ; Compare the value in the accumulator (A) with #$56 (check if the character is a basket).
         bne     L5B57                  	        ; Branch to label L5B57 if the values are not equal (if the character is not a basket).
-
         lda     #$64                            ; A = #$64
         sta     Counter_ScoreUpdate1            ; Store the value of A into Counter_ScoreUpdate1.
-
         lda     #$00                            ; A = #00
         sta     Counter_ScoreUpdate2            ; Store the value of A into Counter_ScoreUpdate2.
-
         lda     #$11                            ; A = #$11
         sta     Counter_ScoreUpdate3            ; Store the value of A into Counter_ScoreUpdate3.
-
         jsr     LCE42                  	        ; Call the subroutine at label LCE42.
-
         lda     #$a0                            ; A = #$a0 (Blank sprite)
         sta     (Low_tempvar),y                 ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the basket.
-
         rts                                     ; Return from the subroutine.
-
 
         .fill   2,$ea
 
@@ -1532,9 +1525,7 @@ Sub_HealthBarUpdates
         lda     #$10                            ; Load A with the value #10.
         sta     Counter_HealthIncLoop2+1        ; Store A (#10) to the address Counter_HealthIncLoop2+1.
         dec     Counter_HealthIncLoop2          ; Decrement the value of Counter_HealthIncLoop2.
-
         jsr     Sub_IncreaseHealthBlock         ; Call subroutine Sub_IncreaseHealthBlock to update the health bar by increasing the health block.
-
 +       jmp     If_CheckForDamage               ; Jump to the If_CheckForDamage label to check if the player has taken damage.
 
 
@@ -1578,7 +1569,7 @@ L5B57   cmp     #$57       			; Check if character is cross
         jmp     L7F50
 
 IncMagicCrossNumRight
-        nop									; No operation.
+        nop					; No operation.
         lda     Adr_MagicCrossNumRight		; A = Adr_MagicCrossNum1 (Score number)
         cmp     #$b9      			; Check if Adr_MagicCrossNumRight is 9
         beq     + 				; Branch if Adr_MagicCrossNumRight is 9
@@ -1833,9 +1824,9 @@ L5D22   ldy     #$b0
         .fill   4,$00
 
 Sub_SetupSpritesEtc
-        lda     #$01                            ;JSR from $c649
-        sta     Var_BorderColour                ;This variable changes between boy (Blue) and girl (Red)
-        jsr     L576B                           ;Setup sprites etc.
+        lda     #$01                            ; JSR from $c649
+        sta     Var_BorderColour                ; This variable changes between boy (Blue) and girl (Red)
+        jsr     L576B                           ; Setup sprites etc.
         rts
 
         .byte   $ea,$ea,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00

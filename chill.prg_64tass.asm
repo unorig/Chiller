@@ -416,8 +416,8 @@ _L2D7A  .byte   $00          			; Initialize a variable called _L2D7A with the v
 
 +       lda     Var_GameOverFlag                ; Load the value at address Var_GameOverFlag into the accumulator.
         cmp     #$01         			; Compare it to the value #$01 (#01 Game over / #00 Not over).
-        beq     +            			; If it's equal to #$01, branch to the next line.
-        jmp     L2EB3        			; Otherwise, jump to a label called L2EB3.
+        beq     +            			; If it's equal to #$01 (Game over), branch to the next line.
+        jmp     L2EB3        			; Jump to L2EB3 as game is not over.
 
 +       jsr     Sub_5D98     			; Call a subroutine at a label called Sub_5D98.
         jmp     Jump_5DA9    			; Jump to a label called Jump_5DA9.
@@ -999,7 +999,7 @@ Sub_5733
         nop					; No operation.
         nop					; No operation.
         ldx     #$00				; A = #00
-- 		lda     L574A,x 		; Pointless code
+- 	lda     L574A,x 		        ; Pointless code
         lda     $07ca,x 			; Pointless code
         lda     $d805 				; Pointless code
         lda     $dbca,x 			; Pointless code
@@ -1253,7 +1253,7 @@ Sub_RedHealthBarZone
         lda     #$04       			; A = #04
         sta     Var_GoSlowRedZone 		; Var_GoSlowRedZone = #04. #02 Not slow / #04 Slow.
         rts					; Return from subroutine
-+ 		lda     Var_GoSlowRedZone 	; Load Var_GoSlowRedZone
++ 	lda     Var_GoSlowRedZone 	        ; Load Var_GoSlowRedZone
         cmp     #$04       			; Check if in Go-Slow mode (Red zone)
         beq     +				; Branch if in red zone.
         rts 					; Return from subroutine
@@ -1399,9 +1399,9 @@ If_5A4F lda     #$0a
         .fill   11,$00
 
 L5A60   lda     #$02
-        sta     Var_GoSlowRedZone
+        sta     Var_GoSlowRedZone               ; Store #02 to Var_GoSlowRedZone. #02 (Not slow).
         lda     #$00				; A = #00
-        sta     Var_RegMovingLeftRight
+        sta     Var_RegMovingLeftRight          ; #01 moving left or right / #00 not moving left or right.
         jmp     Jump_ScreenSetup
 
         .fill   3,$00
@@ -1412,7 +1412,7 @@ Sub_NoHealthLeft 				; $5a70
         lda     #$02       			; A = #02
         sta     Var_GoSlowRedZone 		; Store #02 to Var_GoSlowRedZone. #02 (Not slow).
         lda     #$00				; A = #00
-        sta     Var_RegMovingLeftRight 		; Store #00 to $cf07
+        sta     Var_RegMovingLeftRight 		; #01 moving left or right / #00 not moving left or right.
         lda     #$20       			; A = #20
         sta     LCA18+1    			; Store #20 to $ca19
         rts                			; Return from subroutine ($72bd)
@@ -1420,12 +1420,12 @@ Sub_NoHealthLeft 				; $5a70
         .fill   3,$ff
 
 Jump_5A88
-        lda     #$02       			;A = #02
-        sta     Var_GoSlowRedZone 		;Var_GoSlowRedZone = #02 (Not slow)
+        lda     #$02       			; A = #02
+        sta     Var_GoSlowRedZone 		; Var_GoSlowRedZone = #02 (Not slow).
         lda     #$00				; A = #00
-        sta     Var_RegMovingLeftRight
-        lda     #$20
-        sta     LCA18+1
+        sta     Var_RegMovingLeftRight          ; #01 moving left or right / #00 not moving left or right.
+        lda     #$20                            ; Load A with #20.
+        sta     LCA18+1                         ; Store #20 to LCA18+1.
         rts
 
         .fill   2,$ea
@@ -1832,19 +1832,19 @@ Jump_ScreenSetup
         jmp     L5651
 
 Sub_5D98
-        jsr     Sub_GameOverText
-        lda     #$10
-        sta     $b7
-        sta     $b9
-        lda     #$6b
-        sta     $b8
-        sta     $ba
+        jsr     Sub_GameOverText                ; Load game over text on screen
+        lda     #$10                            ; Load #10 to A
+        sta     $b7                             ; Store #10 to $00b7
+        sta     $b9                             ; Store #10 to $00b9
+        lda     #$6b                            ; Load #6b to A
+        sta     $b8                             ; Store #6b to $00b8
+        sta     $ba                             ; Store #6b to $00ba
         rts
 
         .byte   $00
 
 Jump_5DA9 
-		lda     $02ff 			; Increased by $617c which is most likely an interrupt
+	lda     $02ff 			        ; Increased by $617c which is most likely an interrupt
         beq     Jump_5DA9			; Loop until $02ff is not #00
         jsr     Sub_DisableMusic		; Go to subroutine to disable music and update IRQ address
         lda     #$00				; A = #00
@@ -2170,15 +2170,15 @@ Sub_DamageRoutine
         .byte   $00
 		
 SetMastertronicApostrophe
-		lda     #$ac 			; Load value for apostrophe in "Mastertronic's".
+	lda     #$ac 			        ; Load value for apostrophe in "Mastertronic's".
         sta     $04ba 				; Store value for apostrophe in "Mastertronic's" on the screen.
         lda     #$02 				; Load value for color for apostrophe in "Mastertronic's"
         sta     $d8ba 				; Store value for color for apostrophe in "Mastertronic's"
         jmp     SetTitleScreenTopRow
 
 JMP_SetTopChars					; Used to set the top row of the scren to say "Programmed by David and Richard Darling".
-		ldx     #$00			; X = #00 (Used for looping).		
--		lda     L77C0,x 		; Load value from 77C6 for 40 characters.
+	ldx     #$00			        ; X = #00 (Used for looping).		
+-	lda     L77C0,x 		        ; Load value from 77C6 for 40 characters.
         sta     $0400,x 			; Store value from A to screen mem.
         lda     #$04 				; A = #04.
         sta     Adr_ColorRam,x			; Store value to $Adr_ColorRam.
@@ -2231,37 +2231,36 @@ L7523   .byte   $f2,$8b,$33,$a7,$02,$03,$04,$0b,$00,$23,$26,$19,$08,$40,$04,$04
         .byte   $12,$b0,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 		
 TwitchTitleText   
-    ; Call LC9F1 subroutine and perform a series of comparisons and updates
-    jsr     LC9F1                               ; Call subroutine LC9F1 (sent from $776D)
-    cpy     #$00                                ; Compare Y register with #$00
-    bne     _rts                                ; If Y not equal to 00, branch to _rts (return from subroutine)
+                                                ; Call LC9F1 subroutine and perform a series of comparisons and updates
+        jsr     LC9F1                           ; Call subroutine LC9F1 (sent from $776D)
+        cpy     #$00                            ; Compare Y register with #$00
+        bne     _rts                            ; If Y not equal to 00, branch to _rts (return from subroutine)
 
-    ; Repeat LC9F1 call, compare Y, and update memory locations based on conditions
-    jsr     LC9F1                               ; Call subroutine LC9F1 again
-    cpy     #$40                                ; Compare Y register with #$40
-    bpl     +                                   ; If Y is positive (>= 0), branch to label +
+                                                ; Repeat LC9F1 call, compare Y, and update memory locations based on conditions
+        jsr     LC9F1                           ; Call subroutine LC9F1 again
+        cpy     #$40                            ; Compare Y register with #$40
+        bpl     +                               ; If Y is positive (>= 0), branch to label +
 
-    ; Update ExtraBackgroundColor1 and return from subroutine
-    lda     ExtraBackgroundColor1  	        ; Load value from ExtraBackgroundColor1 into the accumulator
-    eor     #$02                                ; Perform XOR operation with #$02
-    sta     ExtraBackgroundColor1  	        ; Store the result back into ExtraBackgroundColor1
-    jmp     _rts                                ; Jump to _rts (return from subroutine)
+                                                ; Update ExtraBackgroundColor1 and return from subroutine
+        lda     ExtraBackgroundColor1  	        ; Load value from ExtraBackgroundColor1 into the accumulator
+        eor     #$02                            ; Perform XOR operation with #$02
+        sta     ExtraBackgroundColor1  	        ; Store the result back into ExtraBackgroundColor1
+        jmp     _rts                            ; Jump to _rts (return from subroutine)
 
-+   ; Update ExtraBackgroundColor2 and L7523, and return from subroutine
-    lda     ExtraBackgroundColor2  	        ; Load value from ExtraBackgroundColor2 into the accumulator
-    eor     #$02                                ; Perform XOR operation with #$02
-    sta     L7523                               ; Store the result into memory location L7523
-    jmp     _rts                                ; Jump to _rts (return from subroutine)
+        +                                       ; Update ExtraBackgroundColor2 and L7523, and return from subroutine
+        lda     ExtraBackgroundColor2  	        ; Load value from ExtraBackgroundColor2 into the accumulator
+        eor     #$02                            ; Perform XOR operation with #$02
+        sta     L7523                           ; Store the result into memory location L7523
+        jmp     _rts                            ; Jump to _rts (return from subroutine)
 
-_rts
-    rts                                         ; Return from subroutine
+_rts    rts                                     ; Return from subroutine
 
 
         .fill   2,$00
 
-L75A7   lda     #$ea
-        sta     $0328
-        jmp     L5A60
+L75A7   lda     #$ea                            ; Load A with #ea
+        sta     $0328                           ; Store #ea to $0328
+        jmp     L5A60                           ; Jump to L5A60
 
         .byte   $00
 
@@ -4104,7 +4103,7 @@ Var_SomethingElseRandom
         .byte   $06,$00,$06
 Var_MovingLeftRight                             ; $cf06 (#01 moving left or right / #00 not moving left or right).
         .byte   $00
-Var_RegMovingLeftRight
+Var_RegMovingLeftRight                          ; #01 moving left or right / #00 not moving left or right
         .byte   $00
 Var_BinaryEnemyNum
         .byte   $04
@@ -4225,7 +4224,7 @@ Txt_GameOver
 Sub_GameOverText 				; Run when game over
         jsr     Sub_5733
         ldx     #$00
-- 		lda     LCFA1,x			; Pointless code.
+- 	lda     LCFA1,x			        ; Pointless code.
         lda     $0617,x				; Pointless code.
         lda     $d81a				; Pointless code.
         lda     #$01 				; A = #01 (Will be used to change character to white).

@@ -406,11 +406,11 @@ L2D52   lda     L45F7,x    			; Load the value at address L45F7+x into the accum
 
 
 Jump_2D60
-        lda     Adr_SprBGColl 			; Load the value of a memory address called Adr_SprBGColl into the accumulator.
-        sta     _L2D7A      			; Store it in a variable called _L2D7A.
-        and     #$02         			; Perform a bitwise AND operation with the value #$02.
+        lda     Adr_SprBGColl 			; Load the value of a Adr_SprBGColl ($d01f) to A.
+        sta     _L2D7A      			; Store Adr_SprBGColl to _L2D7A.
+        and     #$02         			; Perform a bitwise AND operation with the girl sprite.
         cmp     #$00         			; Compare the result to the value #$00.
-        beq     +            			; If it's equal to #$00, branch to the next line.
+        beq     +            			; Branch if Sprite girl sprite not collided.
         lda     L45FE        			; Load the value at address L45FE into the accumulator.
         beq     +            			; If it's equal to #$00, branch to the next line.
         jsr     LC4FB        			; Call a subroutine at a label called LC4FB.
@@ -3040,7 +3040,7 @@ JUMP_c646
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
-        ldx     #$00                            ; This will set the start level. 00=Forest, 02=Cinema, 04=Ghetto, 06=Graveyard, 08=Haunted House
+        ldx     #$00                            ; ($c660) This will set the start level. 00=Forest, 02=Cinema, 04=Ghetto, 06=Graveyard, 08=Haunted House
         jsr     Sub_SetupScreen
         nop					; No operation.
         nop					; No operation.

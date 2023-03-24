@@ -233,22 +233,16 @@ Sub_SetScreenControl
 
         .byte   $ea,$1d
 
-L2C00
-        ; Initialize X register as index
+L2C00                                        
         ldx     #$00                            ; Load #$00 into X register to use as an index
-
-        ; Loop 5 times through values stored at L4542 (indexed by X) and call subroutine L56B2
+                                                ; Loop 5 times through values stored at L4542 (indexed by X) and call subroutine L56B2
 -   	lda     L4542,x                         ; Load value from L4542 indexed by X into A register. This seems to be used for the frequency the sprite performs its path.	
         jsr     L56B2                           ; Call subroutine L56B2 with the loaded value
         inx                                     ; Increment X register to move to the next index
         cpx     #$05                            ; Compare X register (index) with #$05
         bne     -                               ; Loop if X (index) not equal to #$05 (continue looping 5 times)
-
-        ; Call subroutine L2E62 and return
         jsr     L2E62                           ; Call subroutine L2E62
         rts                                     ; Return from subroutine
-
-
 
         .fill   8,$ea
 
@@ -411,8 +405,8 @@ Jump_2D60
         and     #$02         			; Perform a bitwise AND operation with the girl sprite.
         cmp     #$00         			; Compare the result to the value #$00.
         beq     +            			; Branch if Sprite girl sprite not collided.
-        lda     L45FE        			; Load the value at address L45FE into the accumulator.
-        beq     +            			; If it's equal to #$00, branch to the next line.
+        lda     L45FE        			; Load the value at address L45FE into the accumulator. Always seems to be #00.
+        beq     +            			; If it's equal to #$00, branch to the next symbol.
         jsr     LC4FB        			; Call a subroutine at a label called LC4FB.
         jmp     +            			; Jump to the next line.
         .byte   $ea          			; Undocumented instruction.
@@ -421,7 +415,7 @@ Jump_2D60
 _L2D7A  .byte   $00          			; Initialize a variable called _L2D7A with the value #$00.
 
 +       lda     Var_GameOverFlag                ; Load the value at address Var_GameOverFlag into the accumulator.
-        cmp     #$01         			; Compare it to the value #$01.
+        cmp     #$01         			; Compare it to the value #$01 (#01 Game over / #00 Not over).
         beq     +            			; If it's equal to #$01, branch to the next line.
         jmp     L2EB3        			; Otherwise, jump to a label called L2EB3.
 
@@ -435,7 +429,6 @@ L2D8D   sta     SpritePointer1 			; Store the accumulator value into a variable 
         lda     #$00           			; Load the value #$00 into the accumulator.
         sta     LC53C+8        			; Store it in a memory address called LC53C+8.
         rts                    			; Return from the subroutine.
-
 
         .byte   $ea
 
@@ -491,15 +484,10 @@ L2E00   .byte   $60
 		.fill 	97, $ea
 
 L2E62
-; Load value from memory address L45ED into accumulator A, and store it in memory address LCF7C
         lda     L45ED       			; Load value from memory address L45ED into accumulator A
         sta     LCF7C       			; Store accumulator A into memory address LCF7C
-
-; Load value #00 into accumulator A, and store it in memory address Var_GameOverFlag
         lda     #$00      			; Load value #00 into accumulator A
         sta     Var_GameOverFlag       	        ; Store accumulator A into memory address Var_GameOverFlag
-
-; Load value from memory address L450E into accumulator A, and jump to subroutine L2E8B
         lda     L450E       			; Load value from memory address L450E into accumulator A
         jmp     L2E8B       			; Jump to subroutine L2E8B
 
@@ -1420,7 +1408,7 @@ L5A60   lda     #$02
 
 Sub_NoHealthLeft 				; $5a70
         lda     #$01      			; A = #01
-        sta     Var_GameOverFlag      		; Store #01 to Var_GameOverFlag
+        sta     Var_GameOverFlag      		; Store #01 to Var_GameOverFlag (#01 Game over / #00 Not over)
         lda     #$02       			; A = #02
         sta     Var_GoSlowRedZone 		; Store #02 to Var_GoSlowRedZone. #02 (Not slow).
         lda     #$00				; A = #00
@@ -4210,7 +4198,7 @@ LCF74   .byte   $00
 LCF75   .byte   $c1
 LCF76   .byte   $c6,$c6,$14,$00,$c6,$40
 LCF7C   .byte   $b3
-Var_GameOverFlag   .byte   $00
+Var_GameOverFlag   .byte   $00                  ; (#01 Game over / #00 Not over)
         .byte   $02
 LCF7F   .byte   $00
         .byte   $ea

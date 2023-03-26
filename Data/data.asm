@@ -1282,9 +1282,9 @@ Var_4500
         .byte   $00
 Var_4501
         .byte   $00
-Var_RopeFall
+Var_RopeFall                                    ; $4502
         .byte   $01
-Var_SlidingOnRope
+Var_SlidingOnRope                               ; $4503
         .byte   $01
         .byte   $01
         .byte   $01
@@ -1461,7 +1461,7 @@ Var_Num01
         .byte   $01
         .byte   $05
         .byte   $00
-        .byte   $0b
+L45AE   .byte   $0b
 L45AF   .byte   $01
 L45B0   .byte   $08
 L45B1   .byte   $0b
@@ -4957,5 +4957,5 @@ Temp_0c .byte   $0c
 Temp_534c
         .byte   $03
         .byte   $ea
-Var_Falling
+Var_Falling                                     ; $534e
         .byte   $00,$ea

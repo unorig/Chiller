@@ -326,7 +326,7 @@ Sub_SetInterruptsAndMem
         lda     #$00				; A = #00
         sta     LCF7F      			; $cf7f = #00
         lda     #$05       			; A = #05
-        sta     Adr_BorderColor 		; BorderColor = #05 (Green)
+        sta     Adr_BorderColor 		; Set Adr_BorderColor ($d020) to #05 (Green).
         lda     #$0f       			; A = #0f
         sta     Adr_BackgroundColor 		; BackgroundColor = #0f (Light grey)
         lda     #$15       			; A = #15
@@ -462,7 +462,7 @@ ResetToMenuScreen
         beq     MainMenuLoop                    ; If there's no joystick or keyboard input received, loop back to the main menu.
 
 Menu_FirePressed
-        lda     Adr_BorderColor                 ; Load A with the current border color value (At menu screen, the value is #f0).
+        lda     Adr_BorderColor                 ; Set A with Adr_BorderColor ($d020). At menu screen, the value is #f0.
         and     #$0f                            ; Perform an AND operation on the accumulator (A) with #0f. This will result in #00 for the menu screen border color.
         beq     +                               ; If the result is #00, jump to address $2dd3.
         jsr     CheckSetHighScore               ; Call the subroutine to check and set the high score.
@@ -1040,7 +1040,7 @@ If_5783 lda     #$01
         lda     #$f0
         sta     L589A+1
         lda     #$0a
-        sta     Adr_BorderColor
+        sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #0a (Pink).
         jmp     Jump_5844
 
 Jump_57BD
@@ -1065,7 +1065,7 @@ Jump_57BD
         lda     #$e0
         sta     L589A+1
         lda     #$06
-        sta     Adr_BorderColor
+        sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #06 (Blue)
         jmp     Jump_5844
 
         .fill   9,$ea
@@ -1084,7 +1084,7 @@ L5800   inc     Var_SomethingRandom 		; Increase Var_SomethingRandom
         cmp     #$00       			; Compare Var_Jumping
         bne     If_5836    			; Branch if jumping
         lda     #$a9
-        sta     Sub_GetInputs
+        sta     Sub_GetInputs                   ; Get keyboard and joystick inputs and store to variables.
         lda     #$ad                            ; Load A with #ad. This changes the Sprite 0 frame update to a 'Load function'.
         sta     UpdateSprPointer0               ; Set UpdateSprPointer0 to #ad. This returns the function to an LDA from a previou RTS.
         jsr     Sub_CheckSlidingOnRope
@@ -1201,7 +1201,7 @@ ResetGirl
         sta     Sprite1YPosition 		; Set girl sprite position
         lda     #$06       			; Value will be used to set border to blue
         nop					; No operation.
-        sta     Adr_BorderColor 		; Set border colour to blue
+        sta     Adr_BorderColor 		; Set Adr_BorderColor ($d020) to #06 (Blue).
         lda     #$ee
         sta     SpritePointer1 			; Update sprite pointer for girl
         rts                			; Return from subroutine
@@ -1384,11 +1384,11 @@ L5A41   jsr     L7659
         lda     Var_BoyGirlToggle
         bne     If_5A4F
         lda     #$06
-        sta     Adr_BorderColor
+        sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #06 (Blue).
         rts
 
 If_5A4F lda     #$0a
-        sta     Adr_BorderColor
+        sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #0a (Pink).
         rts
 
         .fill   11,$00
@@ -1669,7 +1669,7 @@ L5C4F   jsr     Sub_5CD8
         nop					; No operation.
         nop					; No operation.
         lda     #$00				; A = #00
-        sta     Adr_BorderColor
+        sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #00 (Black).
         sta     Adr_BackgroundColor
         sta     L5BF4+9
         jsr     L5C00
@@ -2148,9 +2148,9 @@ Sub_DamageRoutine
         lda     ScreenControlRegister 	        ;Load screen control register
         and     #$80
         bne     -
-        lda     Adr_BorderColor 		;Load border colour
+        lda     Adr_BorderColor 		; Set A to Adr_BorderColor ($d020).
         eor     #$08       			;Alternate colour between #f6 (Blue) and #fe (Light blue)
-        sta     Adr_BorderColor 		;Store updated colour to background colour.
+        sta     Adr_BorderColor 		; Set Adr_BorderColor ($d020) based on logic above.
 +		rts
 
         .byte   $00
@@ -2256,11 +2256,11 @@ Branch_DamageBorderColour                       ; $75a7
         bne     Branch_Damage            	; Branch if damage has been received (not equal to #00).
         lda     Var_BoyGirlToggle           	; Load the value of Var_BoyGirlToggle into the accumulator (A).
         bne     +                          	; Branch to next symbol if girl (#01) is selected (Boy = #00 / Girl = #01).
-        lda     #$06                       	; Set the accumulator (A) to #$06 (blue).
-        sta     Adr_BorderColor            	; Store #06 to Adr_BorderColor (set background color to blue).
+        lda     #$06                       	; Set the accumulator (A) to #$06 (Blue).
+        sta     Adr_BorderColor            	; Set Adr_BorderColor ($d020) to #06 (Blue).
         jmp     L7FAE                      	; Jump to the label L7FAE.
-+       lda     #$0a                       	; Set the accumulator (A) to #$0a (pink).
-        sta     Adr_BorderColor            	; Store the value in the accumulator (A) into Adr_BorderColor (set background color to pink).
++       lda     #$0a                       	; Set the accumulator (A) to #$0a (Pink).
+        sta     Adr_BorderColor            	; Set Adr_BorderColor ($d020) to #0a (Pink).
 Branch_Damage
         jmp     L7FAE                      	; Jump to the label L7FAE.
 
@@ -2368,10 +2368,10 @@ L7680   stx     L767B+4                         ;
         sta     SpritePointer1
         stx     SpritePointer0
         lda     #$0a
-        sta     Adr_BorderColor
+        sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #0a (Pink).
         jmp     Jump_76C0
-+ 	lda     #$06
-        sta     Adr_BorderColor
++ 	lda     #$06                            
+        sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #06 (Blue).
 
 Jump_76C0
         ldy     #$73
@@ -2402,7 +2402,7 @@ L771F   rts                                     ;Exits to $2dc3
 
 Sub_ResetToMenu
         ; Load border color and apply a bitwise AND operation with #$0f
-        lda     Adr_BorderColor       	        ; Load border color into the accumulator
+        lda     Adr_BorderColor       	        ; Set A to Adr_BorderColor ($d020).
 	and     #$0f                   	        ; Perform bitwise AND operation with #$0f
 
 	; Check if result is zero and branch to _TwitchTitleText if true. This will animate the title then return from subroutine.
@@ -2439,7 +2439,7 @@ Sub_ResetToMenu
         sta     SpriteEnableRegister            ; Store accumulator value into SpriteEnableRegister
         sta     ExtraBackgroundColor1           ; Store accumulator value into ExtraBackgroundColor1
         sta     ExtraBackgroundColor2           ; Store accumulator value into ExtraBackgroundColor2
-        sta     Adr_BorderColor                 ; Store accumulator value into Adr_BorderColor
+        sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #00 (Black).
         sta     Adr_BackgroundColor             ; Store accumulator value into Adr_BackgroundColor
 
         ; Load specific values into X and Y registers and call subroutine L5C4F
@@ -3139,7 +3139,7 @@ If_C717 nop
 
 LC71B   lda     #$00                		; A = #00
         sta     Var_MovingLeftRight 		; Reset Var_MovingLeftRight (#01 moving left or right / #00 not moving left or right).
-        jsr     Sub_GetInputs 			; Call subroutine to get inputs
+        jsr     Sub_GetInputs 			; Get keyboard and joystick inputs and store to variables.
         lda     Var_DownInput       		; A = Var_DownInput. 01 = Down pressed / 00 = No input
         cmp     #$ff                		; Compare with #ff (unknown significance, possibly unused)
         bne     +   				; Branch if Var_DownInput not equal #$ff
@@ -3273,7 +3273,7 @@ _rts    rts               			; Return from the subroutine.
                                                 ;*****************************
                                                 ;* Get Inputs                *
                                                 ;*****************************
-Sub_GetInputs
+Sub_GetInputs                                   ; Get keyboard and joystick inputs and store to variables.
         lda     #$00                    	; A = #00
         sta     Var_UpInput             	; Set Var_UpInput to #00
         lda     L4511                   	; Load the value at memory address $4511 into the accumulator (A)
@@ -3315,10 +3315,9 @@ If_C89F lda     Var_KeyboardInput      		; Load Var_KeyboardInput into the accum
         sta     Var_LeftRightInput      	; Store #01 (Right) to Var_LeftRightInput
 If_C8AB lda     $028d                  		; Load the value at memory address $028D into the accumulator (A)
         cmp     #$00                    	; Compare A with #00
-        beq     CheckJoyUp   				; Branch if equal, go to CheckJoyUp
+        beq     CheckJoyUp   			; Branch if equal, go to CheckJoyUp
         lda     #$01                    	; A = #01
         sta     Var_UpInput             	; Set Var_UpInput to #01
-
 CheckJoyUp
         jsr     Sub_ResetMovementVars   	; Reset movement variables and get port A input (Left = 7b / Right = 77 / Up = 7e / Down = 7d / No input = 7f)
         and     #$01                    	; Isolate first bit
@@ -3334,14 +3333,14 @@ CheckJoyDown
         lda     #$01                    	; A = #01
         sta     Var_DownInput           	; Store #01 to Var_DownInput
 CheckJoyLeft 
-		lda     InputPortA             	; Get Port A inputs
+	lda     InputPortA             	        ; Get Port A inputs
         and     #$04                    	; Isolate third bit
         cmp     #$04                    	; Check if third bit is set
         beq     CheckJoyRight                   ; Branch if left is not pressed
         lda     #$ff                    	; A = #ff
         sta     Var_LeftRightInput      	; Store #ff (Left) to Var_LeftRightInput
 CheckJoyRight 
-		lda     InputPortA             	; Get Port A inputs
+	lda     InputPortA             	        ; Get Port A inputs
         and     #$08                    	; Isolate fourth bit
         cmp     #$08                    	; Check if fourth bit is set
         beq     _rts                		; Branch to RTS if right is not pressed
@@ -3649,8 +3648,7 @@ Sub_EnemyMSB
         jsr     LC9F1
 LCB5C   lda     #$00                            ;A = #00
         sta     LCF12                           ;$cf12 = 00
-Jump_CB61
-        ldx     Counter_Enemy                   ;X = Active enemy
+-       ldx     Counter_Enemy                   ;X = Active enemy
         lda     LCF0D,x
         tax
         lda     LCF12
@@ -3667,7 +3665,7 @@ Jump_CB61
         inx                                     ;Increase X (Jump to next enemy)
         jsr     Sub_UpdateSpritePositions       ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         ldy     LCF13
-        jmp     Jump_CB61
+        jmp     -
 
 If_CB8B lda     Counter_Enemy
         tax
@@ -3743,21 +3741,21 @@ Temp_CurrentEnemy
         .byte   $03
 
 Sub_CC12
-        sta     Temp_CurrentEnemy               ;A = Enemy index
-        tax                                     ;Transfer A to X
-        lda     LCF15,x                         ;A = $cf15,x (Not sure what A is loaded with)
-        ldx     Temp_CurrentEnemy               ;X = Temp_CurrentEnemy
+        sta     Temp_CurrentEnemy               ; A = Enemy index
+        tax                                     ; Transfer A to X
+        lda     LCF15,x                         ; A = $cf15,x (Not sure what A is loaded with)
+        ldx     Temp_CurrentEnemy               ; X = Temp_CurrentEnemy
         jmp     Jump_CC81
 
-LCC1F   ldx     Temp_CurrentEnemy
-        inc     LCF1A,x
-        lda     LCF1A,x
-        cmp     #$08
-        beq     If_CC2D
+LCC1F   ldx     Temp_CurrentEnemy               ; Set X to Temp_CurrentEnemy
+        inc     LCF1A,x                         ; Increase CF1A,x (x = Temp_CurrentEnemy)
+        lda     LCF1A,x                         ; Set A to CF1A,x (x = Temp_CurrentEnemy)
+        cmp     #$08                            ; Compare A to #08
+        beq     If_CC2D                         ; Branch if A = #08. This will then reset the counter to #00.
         rts
 
-If_CC2D lda     #$00
-        sta     LCF1A,x
+If_CC2D lda     #$00                            ; Set A to #00
+        sta     LCF1A,x                         ; Reset LCF1A,x to #00
         lda     L453D,x
         cmp     #$00
         beq     If_CC3C
@@ -3977,16 +3975,16 @@ LCE00   .byte   $dd,$60,$9d,$4f,$cf,$a9,$fd,$2d,$15,$d0,$8d,$15,$d0,$4c,$6b,$ce
         .byte   $60
 
 Sub_UpdateScore
-        ldx     #$06                            ;X = #06
--       inc     $0405,x    			;Update score character
-        lda     $0405,x    			;A = updated score character value
-        cmp     #$ba       			;Check if character is over 9
-        bne     + 				;Exit if not over 9
-        lda     #$b0       			;A = #b0
-        sta     $0405,x    			;Update character to 0
-        dex                			;Decrease X (Go to next character in score)
-        cpx     #$00       			;Check if character is 0
-        bne     - 				;Branch if not equal 0
+        ldx     #$06                            ; X = #06
+-       inc     $0405,x    			; Update score character
+        lda     $0405,x    			; A = updated score character value
+        cmp     #$ba       			; Check if character is over 9
+        bne     + 				; Exit if not over 9
+        lda     #$b0       			; A = #b0
+        sta     $0405,x    			; Update character to 0
+        dex                			; Decrease X (Go to next character in score)
+        cpx     #$00       			; Check if character is 0
+        bne     - 				; Branch if not equal 0
 +       rts
 
         .byte   $a2,$06,$de,$05,$04,$bd,$05,$04,$c9,$af,$d0,$0d,$a9,$b9,$9d,$05
@@ -4015,32 +4013,22 @@ Temp_Something1
 
 LCE87   lda     Adr_SpriteCollision   	        ; Load the value at Adr_SpriteCollision into the accumulator (A).
         sta     Var_SpriteCollision             ; Store the value in the accumulator (A) into Var_SpriteCollision.
-
         and     #$01                            ; Perform a bitwise AND operation with #$01 to isolate the boy's collision information.
         bne     +                               ; Branch as the boy has had a collision.
-
         jmp     LCD9D                           ; Jump to check if the girl has a collision.
-
 +       lda     Var_SpriteCollision             ; Load the value at Var_SpriteCollision into the accumulator (A).
-
         and     #$02                            ; Perform a bitwise AND operation with #$02 to isolate the girl's collision information.
         beq     +                               ; Branch to the next code block (marked as '+') since the girl does not have a collision.
-
         rts                                     ; Return from the subroutine if the girl has a collision.
-
 +       ldx     #$00                            ; Set the X register to #00, initializing it.
         ldy     #$00                            ; Set the Y register to #00, initializing it.
-
 -       lda     LCF46,x                         ; Load the value at address LCF46+x into the accumulator (A). This will increase through each enemy (#04, #08, #10, #20, #40).
         and     Var_SpriteCollision             ; Perform a bitwise AND operation with Var_SpriteCollision to check if the selected sprite caused a collision.
         beq     +                               ; Branch to the next code block (marked as '+') if the selected enemy caused a collision.
-
         iny                                     ; Increment the Y register. This is used to confirm that an enemy was found.
-
 +       inx                                     ; Increment the X register.
-        cpx     #$06					; Compare the value in the X register to #$06 (6 in decimal), since there are only 5 enemies.
+        cpx     #$06				; Compare the value in the X register to #$06 (6 in decimal), since there are only 5 enemies.
         bne     -                               ; Loop back to '-' if not at the final enemy.
-
         cpy     #$01                            ; Compare the value in the Y register to #$01 (1 in decimal) to check if an enemy was found.
         beq     +                               ; Branch to the next code block (marked as '+') if an enemy was found.
 

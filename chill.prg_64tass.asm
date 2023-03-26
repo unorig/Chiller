@@ -340,8 +340,8 @@ Sub_SetInterruptsAndMem
 
         .byte   $ea
 
-L2CE4   lda     L45FC
-        sta     LCA18+1 			; Value will be used with a CMP function. 80 will be moving slowly.
+L2CE4   lda     L45FC                           ; Load A with $45fc (#20).
+        sta     LCA18+1 			; Update $ca19 to slow movement speed (Normal speed = #20 / Slow = #80).
         lda     L45FD
         sta     LCA06+1
         jmp     L2EE3
@@ -418,10 +418,8 @@ _L2D7A  .byte   $00          			; Initialize a variable called _L2D7A with the v
         cmp     #$01         			; Compare it to the value #$01 (#01 Game over / #00 Not over).
         beq     +            			; If it's equal to #$01 (Game over), branch to the next line.
         jmp     L2EB3        			; Jump to L2EB3 as game is not over.
-
 +       jsr     Sub_5D98     			; Call a subroutine at a label called Sub_5D98.
         jmp     Jump_5DA9    			; Jump to a label called Jump_5DA9.
-
         .byte   $ea          			; Undocumented instruction.
         .byte   $ea          			; Undocumented instruction.
 
@@ -475,7 +473,7 @@ Menu_FirePressed
                                                 ;* Main menu loop end        *
                                                 ;*****************************
         .fill   33,$00
-		.fill 	3,$ea
+	.fill 	3,$ea
 
 L2DFA   jsr     L75A7
         jmp     L2CE4
@@ -503,12 +501,10 @@ L2E8B
         lda     L45EF                           ; Load value from memory address L45EF into accumulator A
         jsr     L2CF3                           ; Jump to subroutine L2CF3
         jsr     L2F4D                           ; Jump to subroutine L2F4D
-
-; Load value from memory address Const_SprDoubleWidth into accumulator A, and store it in memory address $d01b
+                                                ; Load value from memory address Const_SprDoubleWidth into accumulator A, and store it in memory address $d01b
         lda     Const_SprDoubleWidth            ; Load value from memory address Const_SprDoubleWidth into accumulator A
         sta     $d01b                           ; Store accumulator A into memory address $d01b
-
-; Load value from memory address L450E into accumulator A, and return from subroutine
+                                                ; Load value from memory address L450E into accumulator A, and return from subroutine
         lda     L450E                           ; Load value from memory address L450E into accumulator A
         rts                                     ; Return from subroutine
 
@@ -663,11 +659,11 @@ If_535D lda     Temp_0c   		        ; A = $534b (Always seems to be #0c)
 
         .fill   3,$ea
 
-If_537E jsr     L54AC
-        inc     Var_Falling                     ; Counts up when falling. Can be short when on a rope.
+If_537E jsr     L54AC                           ; $537e
+        inc     Var_Falling                     ; Increase Var_Falling ($534e). This means the character is continuing to fall.
         lda     #$00			        ; A = #00
-        sta     Var_RopeFall                    
-        sta     Var_SlidingOnRope
+        sta     Var_RopeFall                    ; Set Var_RopeFall ($4502) to #00.
+        sta     Var_SlidingOnRope               ; Set Var_SlidingOnRope ($4503) to #00.
         rts
 
         .byte   $ea
@@ -718,20 +714,20 @@ If_53D8 lda     L544A,x
 
         .byte   $ea
 
-Jump_53E2
+Jump_53E2                                       ; $53e2
         lda     #$00				; A = #00
         sta     Var_Jumping 			; Reset Var_Jumping to #00 (#01 jumping / #00 not jumping)
         lda     #$18                            ; Reset Var_Falling to #18
-        sta     Var_Falling
+        sta     Var_Falling                     ; Set Var_Falling ($534e) to #18.
         rts
 
         .fill   2,$ea
 
 L53EF   lda     #$01
-        sta     Var_RopeFall
-        sta     Var_SlidingOnRope
-        lda     Var_Falling
-        cmp     L457A
+        sta     Var_RopeFall                    ; Set Var_RopeFall to #01 ($4502)
+        sta     Var_SlidingOnRope               ; Set Var_SlidingOnRope ($4503) to #01.
+        lda     Var_Falling                     ; Set A to Var_Falling ($534e).
+        cmp     L457A                           ; Compare to #ff
         bpl     +
 +       nop
         nop					; No operation.
@@ -741,13 +737,13 @@ L53EF   lda     #$01
         nop					; No operation.
         nop					; No operation.
         lda     #$00				; A = #00
-        sta     Var_Falling
+        sta     Var_Falling                     ; Set Var_Falling ($534e) to not falling (Not falling = #00).
         rts
 
         .byte   $ea,$a9,$00,$8d,$4e,$53,$20,$a7,$2f,$60,$ea,$ea
 
-L5418   lda     Var_Falling			; Counts up when falling. Can be short when on a rope.
-        bne     +    				; Branch if above is not #00
+L5418   lda     Var_Falling			; Load A with Var_Falling ($534e).
+        bne     +    				; Branch if falling.
         lda     #$01       			; A = #01
         sta     Var_Jumping 			; Var_Jumping = #01 (#01 jumping / #00 not jumping)
         jmp     LC1B4
@@ -791,8 +787,7 @@ L5467   lda     Sprite0YPos                     ; Load accumulator with value in
         beq     +                               ; If they are equal, branch to the next line
         rts                                     ; Return from the subroutine
 
-
-+		lda     #$00
++	lda     #$00
         sta     Var_Jumping 			;#01 jumping / #00 not jumping
         rts
 
@@ -824,7 +819,7 @@ L54A0   lda     #$00
 L54AC   lda     L549F
         beq     +
         .byte   $4c
-+		cmp     ($54,x)
++	cmp     ($54,x)
         lda     #$01
         sta     L549F
         jsr     Jump_JumpSound
@@ -865,9 +860,9 @@ L54FC   lda     L54F7+2
         sbc     #$05
         sta     L54F7+2
         sta     $d40e
-        bcc     If_550D
+        bcc     +
         inc     L54F7+3
-If_550D lda     L54F7+3
++       lda     L54F7+3
         sta     $d40f
         rts
 
@@ -1020,12 +1015,12 @@ L576B   jsr     Sub_WaitForCurrentRaster 	; JSR from $5d65
         lda     SpriteEnableRegister
         ora     #$03
         sta     SpriteEnableRegister
-        lda     Var_BorderColour
+        lda     Var_BoyGirlToggle
         beq     If_5783    			; Have not seen this executed yet.
         jmp     Jump_57BD
 
 If_5783 lda     #$01
-        sta     Var_BorderColour
+        sta     Var_BoyGirlToggle
         lda     #$e8
         sta     L582C+1
         lda     #$ec
@@ -1050,7 +1045,7 @@ If_5783 lda     #$01
 
 Jump_57BD
         lda     #$00				; A = #00
-        sta     Var_BorderColour
+        sta     Var_BoyGirlToggle
         lda     #$d8
         sta     L582C+1
         lda     #$dc
@@ -1076,7 +1071,7 @@ Jump_57BD
         .fill   9,$ea
 
 L5800   inc     Var_SomethingRandom 		; Increase Var_SomethingRandom
-        jsr     Sub_RedHealthBarZone
+        jsr     Sub_GoSlowRedZone               ; Check if in red health zone and update player speed if true.
         jsr     Sub_HealthBarUpdates
         nop					; No operation.
         nop					; No operation.	
@@ -1085,13 +1080,13 @@ L5800   inc     Var_SomethingRandom 		; Increase Var_SomethingRandom
         beq     +
         lda     Var_JumpDirection 		; Never taken (Left = #ff / Right = #01 / Up = #00)
         sta     Var_LeftRightInput 		; Never taken
-+ 		lda     Var_Jumping 		; #01 jumping / #00 not jumping
++ 	lda     Var_Jumping 		        ; #01 jumping / #00 not jumping
         cmp     #$00       			; Compare Var_Jumping
         bne     If_5836    			; Branch if jumping
         lda     #$a9
         sta     Sub_GetInputs
-        lda     #$ad
-        sta     Jump_5980
+        lda     #$ad                            ; Load A with #ad. This changes the Sprite 0 frame update to a 'Load function'.
+        sta     UpdateSprPointer0               ; Set UpdateSprPointer0 to #ad. This returns the function to an LDA from a previou RTS.
         jsr     Sub_CheckSlidingOnRope
 L582C   lda     #$e8
         sta     LC79B+1
@@ -1108,7 +1103,7 @@ L5847   cmp     #$f1                            ; Compare the value in the accum
 L584B   lda     #$f6                            ; Load the value #$f6 into the accumulator.
         sta     SpritePointer0                  ; Store the value in the accumulator into memory location SpritePointer0.
 Sub_CheckXMovement
-        ldx     Sprite0XCoords                ; Load the value at memory location Sprite0XCoords into the X register.
+        ldx     Sprite0XCoords                  ; Load the value at memory location Sprite0XCoords into the X register.
         lda     Var_JumpDirection+1             ; Load the value at memory location Var_JumpDirection+1 into the accumulator.
         stx     Var_JumpDirection+1             ; Store the value in the X register into memory location Var_JumpDirection+1.
         cmp     Var_JumpDirection+1             ; Compare the value in the accumulator with the value in memory location Var_JumpDirection+1.
@@ -1138,9 +1133,9 @@ Sub_5880
         sta     Var_5a00   			; Var_5a00 = #00
         lda     Var_LeftRightInput 		; Left = #ff / Right = #01
         sta     Var_JumpDirection 		; Left = #ff / Right = #01 / Up = #00
-        lda     #$60       			; A = #60
-        sta     Sub_GetInputs 			; $c84d = #60
-        sta     Jump_5980  			; $5980 = #60
+        lda     #$60       			; A = #60. This will be used to update some routines to an RTS.
+        sta     Sub_GetInputs 			; Set $c84d to #60. This will make the code section perform an RTS.
+        sta     UpdateSprPointer0  		; Set $5980 to #60. This will make the code section perform an RTS.
         lda     SpritePointer0 			; Load SpritePointer0
         and     #$04       			; Isolate 4th bit
         bne     If_58a3    			; Branch if facing left
@@ -1157,31 +1152,31 @@ Jump_58A8
         sta     LC7C5+1   			; #c7c5 = #f0
         jmp     Jump_JumpSound
 
-Sub_CheckSlidingOnRope
-        lda     Var_SlidingOnRope
+Sub_CheckSlidingOnRope                          ; $58b3
+        lda     Var_SlidingOnRope               ; Set A to Var_SlidingOnRope ($4503). #01 not sliding.
         bne     If_58bb   			; Branch if not sliding down rope
         rts
 
         .fill   2,$ea
 
-If_58bb ldx     #$00       			; X = #00
+If_58bb ldx     #$00       			; Set X to #00.
         lda     InputPortA 			; A = $dc00
         and     #$10       			; Isolate 5th bit. (Port 2 joystick fire pressed)
         bne     +   				; Branch if fire not received
         nop					; No operation.
         ldx     #$01       			; X = 01
-+ 		lda     Var_KeyboardInput 	; A = $c5
++	lda     Var_KeyboardInput 	        ; A = $c5
         cmp     #$37     			; Compare to #37 (Keyboard fire pressed).
         bne     +    				; Branch if fire not received
         ldx     #$01      			; X = 01
-+ 		cpx     #$00       		; Compare X to X = #01
++ 	cpx     #$00                  		; Compare X to #00
         bne     Sub_FireButtonEvent 		; Branch if fire received
         lda     #$00				; A = #00
-        sta     Var_StartGame 			; Reset Var_StartGame
+        sta     Var_StartGame 			; Reset Var_StartGame ($5a06)
         jmp     Jump_5844
 
-Sub_FireButtonEvent
-        lda     Var_StartGame   		; Load the value at memory location Var_StartGame into the accumulator.
+Sub_FireButtonEvent                             ; $58e3
+        lda     Var_StartGame   		; Load the value at memory location Var_StartGame ($5a06) into the accumulator.
         beq     +              			; If the value in the accumulator is equal to zero, skip the next instruction (i.e., fall through to the following instruction).
         jmp     Jump_5844      			; Otherwise, jump to the address indicated by the label Jump_5844.
 +       jmp     L5768          			; If the previous instruction was skipped (i.e., the value in Var_StartGame was zero), jump to the address indicated by the label L5768.
@@ -1189,7 +1184,7 @@ Sub_FireButtonEvent
 
 SetupSpritePositions
         lda     #$01       			; JSR from $5770
-        sta     Var_StartGame 			; Store #01 to $5A06
+        sta     Var_StartGame 			; Store #01 Var_StartGame ($5a06)
         ldx     Sprite0XCoords 		        ; Load X with Sprite0_X_Position
         lda     Sprite1XCoords 	                ; Load A with Sprite1_X_Position ($d002)
         sta     Sprite0XCoords 		        ; Update Sprite0_X_Position with Sprite1_X_Position
@@ -1244,41 +1239,41 @@ ContSetupSpritePositions
         stx     SpritePointer1 			;Store SpritePointer0 (Boy) to SpritePointer1 (Girl)
         rts                			;Return from subroutine ($5770)
 
-Sub_RedHealthBarZone
+Sub_GoSlowRedZone
         lda     $0430      			; Load top red health block
         cmp     #$a9       			; Check if no red health bar consumed
-        beq     +    				; Branch if no red health bar consumed
+        beq     +    				; Branch if no red health bar consumed. This will reset to normal speed/movement.
         lda     #$80       			; A = #80
-        sta     LCA18+1    			; $ca19 = #80. This is the value passed to an operation.
+        sta     LCA18+1    			; Update $ca19 to slow movement speed (Normal speed = #20 / Slow = #80).
         lda     #$04       			; A = #04
-        sta     Var_GoSlowRedZone 		; Var_GoSlowRedZone = #04. #02 Not slow / #04 Slow.
+        sta     Var_GoSlowRedZone 		; Set Var_GoSlowRedZone to slow (#02 Not slow / #04 Slow).
         rts					; Return from subroutine
-+ 	lda     Var_GoSlowRedZone 	        ; Load Var_GoSlowRedZone
-        cmp     #$04       			; Check if in Go-Slow mode (Red zone)
++ 	lda     Var_GoSlowRedZone 	        ; Load Var_GoSlowRedZone (#02 Not slow / #04 Slow).
+        cmp     #$04       			; Check if in Slow mode (Red zone)
         beq     +				; Branch if in red zone.
         rts 					; Return from subroutine
-+       jmp     Jump_5A88
++       jmp     ResetMovementSpeed              ; Reset movement speeds etc.
 
         .fill   2,$ea
 
-Jump_5980
-        lda     SpritePointer0 			;A = SpritePointer0
-        and     #$03       			;Isolate third bit
+UpdateSprPointer0                               ; Increases the sprite pointer to the next sprite or then loops to the first sprite again.
+        lda     SpritePointer0 			; A = SpritePointer0
+        and     #$03       			; Isolate third bit
         cmp     #$03
         beq     +
         inc     SpritePointer0
         jmp     _rts
-+ 		lda     SpritePointer0
++ 	lda     SpritePointer0
         and     #$fc
         sta     SpritePointer0
 _rts    rts
 
 Sub_GetCurrentHealthBar
-        ldx     #$ff       			;X = #ff
--   	inx                			;Increase X
-        lda     Scr_HealthBar,x 		;A = $042e, x
-        cmp     #$a9       			;Check if health bar is populated. Get the position where it ends.
-        beq     -     				;Loop if equal zero
+        ldx     #$ff       			; X = #ff
+-   	inx                			; Increase X
+        lda     Scr_HealthBar,x 		; A = $042e, x
+        cmp     #$a9       			; Check if health bar is populated. Get the position where it ends.
+        beq     -     				; Loop if equal zero
         rts
 
 Sub_ReduceHealthBar
@@ -1313,7 +1308,7 @@ Sub_IncreaseHealthBlock
 
         .fill   2,$ea
 
-+		lda     #$0a       		; A = #0a
++	lda     #$0a       		        ; A = #0a
         sta     Counter_ScoreUpdate1 		; $cf5a = #0a
         lda     #$00				; A = #00
         sta     Counter_ScoreUpdate2 		; $cf5b = #00
@@ -1340,11 +1335,11 @@ Var_5a00
         .byte   $00
 Var_JumpDirection
         .byte   $01,$70,$c1,$ff,$00 		; Left = #ff / Right = #01 / Up = #00
-Var_StartGame
+Var_StartGame                                   ; $5a06
         .fill   1,$00
 Temp_SpiteXMSBReg
         .byte   $20
-Var_BorderColour
+Var_BoyGirlToggle                                ;
         .byte   $01
 Var_JumpSkipDamage
         .byte   $64
@@ -1386,7 +1381,7 @@ _rts    rts
         .byte   $ff,$ff,$ff,$f6
 
 L5A41   jsr     L7659
-        lda     Var_BorderColour
+        lda     Var_BoyGirlToggle
         bne     If_5A4F
         lda     #$06
         sta     Adr_BorderColor
@@ -1398,11 +1393,11 @@ If_5A4F lda     #$0a
 
         .fill   11,$00
 
-L5A60   lda     #$02
-        sta     Var_GoSlowRedZone               ; Store #02 to Var_GoSlowRedZone. #02 (Not slow).
-        lda     #$00				; A = #00
-        sta     Var_RegMovingLeftRight          ; #01 moving left or right / #00 not moving left or right.
-        jmp     Jump_ScreenSetup
+L5A60   lda     #$02                            ; Set A to #02.
+        sta     Var_GoSlowRedZone               ; Set Var_GoSlowRedZone to not slow (#02 Not slow / #04 Slow).
+        lda     #$00				; Set A to #00.
+        sta     Var_RegMovingLeftRight          ; Set Var_RegMovingLeftRight to not moving left/right (#01 moving left or right / #00 not moving left or right).
+        jmp     Jump_ScreenSetup                ; Jump to Jump_ScreenSetup
 
         .fill   3,$00
 
@@ -1410,22 +1405,22 @@ Sub_NoHealthLeft 				; $5a70
         lda     #$01      			; A = #01
         sta     Var_GameOverFlag      		; Store #01 to Var_GameOverFlag (#01 Game over / #00 Not over)
         lda     #$02       			; A = #02
-        sta     Var_GoSlowRedZone 		; Store #02 to Var_GoSlowRedZone. #02 (Not slow).
+        sta     Var_GoSlowRedZone 		; Store #02 to Var_GoSlowRedZone (#02 Not slow / #04 Slow).
         lda     #$00				; A = #00
         sta     Var_RegMovingLeftRight 		; #01 moving left or right / #00 not moving left or right.
         lda     #$20       			; A = #20
-        sta     LCA18+1    			; Store #20 to $ca19
+        sta     LCA18+1    			; Update $ca19 to normal movement speed (Normal speed = #20 / Slow = #80).
         rts                			; Return from subroutine ($72bd)
 
         .fill   3,$ff
 
-Jump_5A88
+ResetMovementSpeed
         lda     #$02       			; A = #02
-        sta     Var_GoSlowRedZone 		; Var_GoSlowRedZone = #02 (Not slow).
+        sta     Var_GoSlowRedZone 		; Set Var_GoSlowRedZone to not slow (#02 Not slow / #04 Slow).
         lda     #$00				; A = #00
-        sta     Var_RegMovingLeftRight          ; #01 moving left or right / #00 not moving left or right.
+        sta     Var_RegMovingLeftRight          ; Set Var_RegMovingLeftRight to not moving (#01 moving left or right / #00 not moving).
         lda     #$20                            ; Load A with #20.
-        sta     LCA18+1                         ; Store #20 to LCA18+1.
+        sta     LCA18+1                         ; Update $ca19 to slow movement speed (Normal speed = #20 / Slow = #80).
         rts
 
         .fill   2,$ea
@@ -1464,26 +1459,20 @@ If_ErrodeBridge
 Sub_GetMushroom
         cmp     #$54                            ; Compare the value in the accumulator (A) with #$54 (check if the character is a health mushroom).
         bne     If_GetRedFlower                 ; Branch to If_GetRedFlower if the values are not equal (if the character is not a health mushroom).
-
         ldx     #$18                            ; X = #$18
         jsr     Sub_IncHealthIdx                ; Call the subroutine Sub_IncHealthIdx to handle increasing the health index when a health mushroom is collected.
-
         lda     #$a0                            ; A = #$a0 (Blank sprite)
         sta     (Low_tempvar),y                 ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the mushroom.
-
         rts                                     ; Return from the subroutine.
 
 
 If_GetRedFlower
         cmp     #$55                            ; Compare the value in the accumulator (A) with #$55 (check if the character is a poison red flower).
         bne     Sub_GetBasket                   ; Branch to subroutine Sub_GetBasket if the values are not equal (if the character is not a poison red flower).
-
         ldx     #$19                            ; X = #$19
         jsr     Update_DamageOccuring           ; Call the subroutine Update_DamageOccuring to handle damage from the poison red flower.
-
         lda     #$a0                            ; A = #$a0 (Blank sprite)
         sta     (Low_tempvar),y                 ; Store the value of A (blank sprite) into the address pointed by (Low_tempvar),y to remove the flower.
-
         rts                                     ; Return from the subroutine.
 
 
@@ -1506,10 +1495,8 @@ Sub_GetBasket
 Sub_HealthBarUpdates
         lda     Counter_HealthIncLoop2          ; Load A with the value of Counter_HealthIncLoop2, which is incremented when regaining health.
         beq     +                               ; Branch to '+' if the player is not regaining health.
-
         dec     Counter_HealthIncLoop2+1        ; Decrement the value at address Counter_HealthIncLoop2+1.
         bne     +                               ; Branch to '+' if the value at Counter_HealthIncLoop2+1 is not zero.
-
         lda     #$10                            ; Load A with the value #10.
         sta     Counter_HealthIncLoop2+1        ; Store A (#10) to the address Counter_HealthIncLoop2+1.
         dec     Counter_HealthIncLoop2          ; Decrement the value of Counter_HealthIncLoop2.
@@ -1813,7 +1800,7 @@ L5D22   ldy     #$b0
 
 Sub_SetupSpritesEtc
         lda     #$01                            ; JSR from $c649
-        sta     Var_BorderColour                ; This variable changes between boy (Blue) and girl (Red)
+        sta     Var_BoyGirlToggle               ; This variable changes between boy (Blue) and girl (Red)
         jsr     L576B                           ; Setup sprites etc.
         rts
 
@@ -2260,19 +2247,18 @@ _rts    rts                                     ; Return from subroutine
 
 L75A7   lda     #$ea                            ; Load A with #ea
         sta     $0328                           ; Store #ea to $0328
-        jmp     L5A60                           ; Jump to L5A60
+        jmp     L5A60                           ; Jump to L5A60. Resets default movement then setup screen.
 
         .byte   $00
 
-Branch_DamageBorderColour
+Branch_DamageBorderColour                       ; $75a7
         lda     Var_DamageOccuring         	; Load the value of Var_DamageOccuring (#00 No damage / #01 Damage) into the accumulator (A).
         bne     Branch_Damage            	; Branch if damage has been received (not equal to #00).
-        lda     Var_BorderColour           	; Load the value of Var_BorderColour into the accumulator (A).
-        bne     +                          	; Branch if the background color is not #00 (to the code block marked as '+').
+        lda     Var_BoyGirlToggle           	; Load the value of Var_BoyGirlToggle into the accumulator (A).
+        bne     +                          	; Branch to next symbol if girl (#01) is selected (Boy = #00 / Girl = #01).
         lda     #$06                       	; Set the accumulator (A) to #$06 (blue).
-        sta     Adr_BorderColor            	; Store the value in the accumulator (A) into Adr_BorderColor (set background color to blue).
+        sta     Adr_BorderColor            	; Store #06 to Adr_BorderColor (set background color to blue).
         jmp     L7FAE                      	; Jump to the label L7FAE.
-
 +       lda     #$0a                       	; Set the accumulator (A) to #$0a (pink).
         sta     Adr_BorderColor            	; Store the value in the accumulator (A) into Adr_BorderColor (set background color to pink).
 Branch_Damage
@@ -2375,7 +2361,7 @@ L7680   stx     L767B+4                         ;
         inx                                     ; Increase X
         inx                                     ; Increase X
         jsr     Sub_SetupScreen                 ;
-        lda     Var_BorderColour
+        lda     Var_BoyGirlToggle
         beq     +
         lda     SpritePointer0
         ldx     SpritePointer1
@@ -2564,7 +2550,7 @@ L7F50   lda     High_tempvar 			; A = #fc
         lda     (Low_tempvar),y
         and     #$04
         tax
-        lda     Var_BorderColour
+        lda     Var_BoyGirlToggle
         beq     _L7F67
         cpx     #$00
         beq     _L7F6C
@@ -3027,7 +3013,7 @@ JUMP_c646
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
-        ldx     #$00                            ; ($c660) This will set the start level. 00=Forest, 02=Cinema, 04=Ghetto, 06=Graveyard, 08=Haunted House
+        ldx     #$08                            ; ($c660) This will set the start level. 00=Forest, 02=Cinema, 04=Ghetto, 06=Graveyard, 08=Haunted House
         jsr     Sub_SetupScreen
         nop					; No operation.
         nop					; No operation.
@@ -3193,7 +3179,7 @@ LC71B   lda     #$00                		; A = #00
 +       lda     Var_LeftRightInput 		; Load the value of a variable called Var_LeftRightInput into the accumulator.
         cmp     #$ff       			; Compare it to the value #$ff, which means "Left input received".
         bne     +          			; If it's not equal to #$ff, branch to the next line.
-        lda     Var_RopeFall 			; Load the value of a variable called Var_RopeFall into the accumulator.
+        lda     Var_RopeFall 			; Set A to Var_RopeFall ($4502).
         cmp     #$00       			; Compare it to the value #$00.
         beq     +          			; If it's equal to #$00, branch to the next code block.
         lda     #$02       			; 02 (Left) is passed to Sub_PlayerPosition as direction of player.
@@ -3212,7 +3198,7 @@ LC79B   adc     #$e8       			;Add the value #$e8 to the accumulator (which cont
 +       lda     Var_LeftRightInput 		; Load the value of a variable called Var_LeftRightInput into the accumulator.
         cmp     #$01       			; Compare it to the value #$01, which means "going right".
         bne     +          			; If it's not equal to #$01, branch to the next code block (i.e. skip the code that follows).
-        lda     Var_SlidingOnRope 		; Load the value of a variable called Var_SlidingOnRope into the accumulator.
+        lda     Var_SlidingOnRope 		; Set A to Var_SlidingOnRope ($4503).
         cmp     #$00       			; Compare it to the value #$00.
         beq     +          			; If it's equal to #$00, branch to the next line.
         lda     #$03       			; 03 (Right) is passed to Sub_PlayerPosition as direction of player.
@@ -3273,20 +3259,20 @@ CheckLeftRightInput				; $c819
         beq     _rts 			        ; If no left/right input, return from the subroutine.
 +  	inc     Var_RegMovingLeftRight 	        ; Increment the value of a variable called Var_RegMovingLeftRight.
         lda     Var_RegMovingLeftRight 		; Load the value of a variable called Var_RegMovingLeftRight into the accumulator.
-        cmp     Var_GoSlowRedZone 		; Compare it to the value of a variable called Var_GoSlowRedZone.
+        cmp     Var_GoSlowRedZone 		; Compare it to the value of a variable called Var_GoSlowRedZone (#02 Not slow / #04 Slow).
         bne     _rts 			        ; If it's not equal, return from the subroutine.
         lda     #$00       			; Load the value #$00 into the accumulator.
         sta     Var_RegMovingLeftRight 		; Store it in a variable called Var_RegMovingLeftRight.
-        jmp     Jump_5980  			; Jump to a label called Jump_5980.
+        jmp     UpdateSprPointer0  		; Jump to code that steps to next sprite animation.
         .byte   $29,$03,$aa,$e8,$8a 		; Undocumented instructions.
 _rts    rts               			; Return from the subroutine.
 
         .byte   $ea,$ea,$ea,$ad,$3c,$03,$ae,$3d,$03,$20,$00,$c9,$60 ;Undocumented instructions.
 
 
-;*****************************
-;* Get Inputs                *
-;*****************************
+                                                ;*****************************
+                                                ;* Get Inputs                *
+                                                ;*****************************
 Sub_GetInputs
         lda     #$00                    	; A = #00
         sta     Var_UpInput             	; Set Var_UpInput to #00
@@ -3485,7 +3471,7 @@ Sub_ResetMovementVars
         lda     #$00				; A = #00
         sta     Var_DownInput 			;Reset down input
         sta     Var_LeftRightInput 		;Reset left/right input
-+ 		lda     InputPortA 		;Load port A inputs
++ 	lda     InputPortA 		        ;Load port A inputs
         rts
 
         .byte   $ea
@@ -3535,17 +3521,17 @@ LC9F1
 
 LCA00   jsr     Branch_DamageBorderColour
         jsr     L5800
-LCA06   cmp     #$08
+LCA06   cmp     #$08                            ; This $ca07 is modified by code
         bne     If_CA12
         lda     #$00			        ; A = #00
-        sta     Var_SomethingRandom 		;Var_SomethingRandom = #00
+        sta     Var_SomethingRandom 		; Var_SomethingRandom = #00
         jsr     LC700
-If_CA12 inc     Var_SomethingElseRandom
-        lda     Var_SomethingElseRandom
-LCA18   cmp     #$20       			;Value ($ca19) get modified by code
+If_CA12 inc     Var_MoveSpeedCounter
+        lda     Var_MoveSpeedCounter
+LCA18   cmp     #$20       			; This checks player walking speed. Value ($ca19) gets modified by code to #80 to walk slow.
         bne     If_CA24
         lda     #$00				; A = #00
-        sta     Var_SomethingElseRandom
+        sta     Var_MoveSpeedCounter
         jsr     LC71B
 If_CA24 jmp     L2D4B
 
@@ -4097,9 +4083,9 @@ Var_CurrentEnemyIndex
         .byte   $05
         .byte   $00
         .byte   $ea
-Var_SomethingRandom
+Var_SomethingRandom                             ; $cf02
         .byte   $7f
-Var_SomethingElseRandom
+Var_MoveSpeedCounter
         .byte   $06,$00,$06
 Var_MovingLeftRight                             ; $cf06 (#01 moving left or right / #00 not moving left or right).
         .byte   $00
@@ -4228,7 +4214,7 @@ Sub_GameOverText 				; Run when game over
         lda     $0617,x				; Pointless code.
         lda     $d81a				; Pointless code.
         lda     #$01 				; A = #01 (Will be used to change character to white).
-        nop					; No operation.								; No operation.
+        nop					; No operation.
         sta     $d838,x				; Change color of character to white.
         lda     Txt_GameOver,x 			; Load text for "Game Over" text.
         sta     $0438,x				; Store "Game Over" text to screen.

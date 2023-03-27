@@ -22,7 +22,7 @@ SpritePointers = $07fa
 Sprite0XCoords = $d000
 Sprite0YPos =   $d001
 Sprite1XCoords = $d002
-Sprite1YPosition = $d003
+Sprite1YCoords = $d003
 Adr_EnemyXPosition = $d004
 Adr_EnemyYPosition = $d005
 SpriteXMSBRegister = $d010
@@ -39,6 +39,7 @@ Adr_BorderColor = $d020
 Adr_BackgroundColor = $d021
 ExtraBackgroundColor1 = $d022
 ExtraBackgroundColor2 = $d023
+ExtraBackgroundColor3 = $d024
 Adr_SprExtraCol1 = $d025
 Adr_SprExtraCol2 = $d026
 Adr_Voice3Control = $d412
@@ -48,23 +49,23 @@ FilterCutoffFrequencyHigh = $d416
 FilterResonanceRouting = $d417
 FilterModeVolume = $d418
 InputPortA =    $dc00
-BSOUT   =       $ffd2      ;($0326/ichrout) output vector, chrout
-PLOT    =       $fff0      ;read/set cursor X/Y position
+BSOUT   =       $ffd2                           ;($0326/ichrout) output vector, chrout
+PLOT    =       $fff0                           ;read/set cursor X/Y position
 
 
 *       =       $0818
-        ldx     #$00
--   	lda     L0900,x
-        sta     LCE00,x
-        lda     L0A00,x
-        sta     Var_CurrentEnemyIndex+1,x
-        inx
-        bne     -
--       lda     L08D0,x
-        sta     Sprite0XCoords,x
-        inx
-        cpx     #$30
-        bne     -
+        ldx     #$00                            ; Set X to #00
+-   	lda     L0900,x                         ; Load A with L0900,x
+        sta     LCE00,x                         ; Store L0900,x to LCE00,x
+        lda     L0A00,x                         ; Load A with L0A00,x
+        sta     Var_CurrentEnemyIndex+1,x       ; Store L0A00,x to Var_CurrentEnemyIndex+1,x
+        inx                                     ; Increase X
+        bne     -                               ; Loop if not #00
+-       lda     L08D0,x                         ; Load A with L08D0,x
+        sta     Sprite0XCoords,x                ; Store L08D0,x to Sprite0XCoords,x
+        inx                                     ; Increase X
+        cpx     #$30                            ; Compare to #30
+        bne     -                               ; Loop 30 times
         jmp     L2DFA
 
         .include "Data/X_0837.asm"
@@ -175,28 +176,28 @@ Var_JumpAscDescTimer                            ; $2a7f
         .byte   $09
 
 Sub_2A80
-        stx     Low_tempvar 			;X = $fb (From $2a80. Passed with X = #bf)
-        sty     High_tempvar 			;Y = $fc (From $2a80. Passed with Y = #5b)
-        ldy     #$00       			;Y = #00
-        lda     (Low_tempvar),y 		;A = 5bbf,00. Start of the index set.
-        sta     Sub_C29D+1 			;$C29E = #00
-        iny                			;Increase Y
-        lda     (Low_tempvar),y 		;A = #b2
-        sta     LC2A1+1    			;$C2A2 = #b2
-        iny                			;Increase Y
-        lda     (Low_tempvar),y 		;A = #ff
-        sta     LC2AD+1    			;$C2AE = #ff
-        iny                			;Increase Y
-        lda     (Low_tempvar),y 		;A = #b5
-        sta     LC2B2+1    			;$C2B3 = #b5
-        iny                			;Increase Y
-        lda     (Low_tempvar),y 		;A = 00
-        sta     LC2A5+1    			;$C2A6 = #00
-        iny                			;Increase Y
-        lda     (Low_tempvar),y 		;A = #30
-        sta     LC2A9+1    			;C2AA = #30
+        stx     Low_tempvar 			; X = $fb (From $2a80. Passed with X = #bf)
+        sty     High_tempvar 			; Y = $fc (From $2a80. Passed with Y = #5b)
+        ldy     #$00       			; Y = #00
+        lda     (Low_tempvar),y 		; A = 5bbf,00. Start of the index set.
+        sta     Sub_C29D+1 			; $C29E = #00
+        iny                			; Increase Y
+        lda     (Low_tempvar),y 		; A = #b2
+        sta     LC2A1+1    			; $C2A2 = #b2
+        iny                			; Increase Y
+        lda     (Low_tempvar),y 		; A = #ff
+        sta     LC2AD+1    			; $C2AE = #ff
+        iny                			; Increase Y
+        lda     (Low_tempvar),y 		; A = #b5
+        sta     LC2B2+1    			; $C2B3 = #b5
+        iny                			; Increase Y
+        lda     (Low_tempvar),y 		; A = 00
+        sta     LC2A5+1    			; $C2A6 = #00
+        iny                			; Increase Y
+        lda     (Low_tempvar),y 		; A = #30
+        sta     LC2A9+1    			; C2AA = #30
         jsr     Sub_C29D
-        rts                			;Return from subroutine
+        rts                			; Return from subroutine
 
         .byte   $dc,$9d,$bd,$a0,$2a,$20,$80,$2a,$a2,$c3,$a0,$2a,$20,$80,$2a,$60
         .byte   $28,$04,$ff,$07,$28,$41,$28,$d8,$ff,$db,$28,$46,$ea,$ea,$ea,$a8
@@ -226,9 +227,9 @@ Var_CharacterXPosLow
 
 Sub_SetScreenControl
         sta     SpriteEnableRegister
-        lda     Adr_ScreenControl
+        lda     Adr_ScreenControl               ; ($d016)
         ora     #$08
-        sta     Adr_ScreenControl
+        sta     Adr_ScreenControl               ; ($d016)
         rts
 
         .byte   $ea,$1d
@@ -303,16 +304,11 @@ Jump_2C44
         jmp     LC694
 
 Sub_SetRandomVariables
-        ; Set initial values for LCFA7 and LCFA8
         lda     #$b0                            ; Load #$b0 into A register
         sta     LCFA7                           ; Store A into LCFA7
         sta     LCFA8                           ; Store A into LCFA8
-
-        ; Set initial value for LCFA9
         lda     #$b1                            ; Load #$b1 into A register
-        sta     LCFA9                           ; Store A into LCFA9
-
-        ; Jump to another subroutine
+        sta     LCFA9                           ; Store A into LCFA9        
         jmp     L2C00                           ; Jump to subroutine L2C00
 
 
@@ -328,9 +324,9 @@ Sub_SetInterruptsAndMem
         lda     #$05       			; A = #05
         sta     Adr_BorderColor 		; Set Adr_BorderColor ($d020) to #05 (Green).
         lda     #$0f       			; A = #0f
-        sta     Adr_BackgroundColor 		; BackgroundColor = #0f (Light grey)
+        sta     Adr_BackgroundColor 		; Set Adr_BackgroundColor ($d021) to #0f (Light grey)
         lda     #$15       			; A = #15
-        sta     Adr_MemorySetupRegister 	; Adr_MemorySetupRegister
+        sta     Adr_MemorySetupRegister 	; Set Adr_MemorySetupRegister ($d018) to #15 (0001 0101). 0001 1100 which means 0001 is screen memory ($0400) and 010 is character memory ($1000-$17FF).
         lda     #$93
         jsr     BSOUT
         lda     #$00				; A = #00
@@ -340,10 +336,11 @@ Sub_SetInterruptsAndMem
 
         .byte   $ea
 
-L2CE4   lda     L45FC                           ; Load A with $45fc (#20).
-        sta     LCA18+1 			; Update $ca19 to slow movement speed (Normal speed = #20 / Slow = #80).
-        lda     L45FD
-        sta     LCA06+1
+L2CE4                                           ; Part of load sequence.
+        lda     L45FC                           ; Load A with $45fc (#20).
+        sta     LCA18+1 			; Update $ca19 to normal movement speed (Normal speed = #20 / Slow = #80).
+        lda     L45FD                           ; Usually #08.
+        sta     LCA06+1                         ; Set LCA06+1 to #08. This is code modifying.
         jmp     L2EE3
 
 L2CF3   sta     L2E87                           ; Store A register value (from previous $45ee load) at memory address L2E87
@@ -534,7 +531,7 @@ _L2ECC  jmp     L2C19
         .byte   $ea,$a9,$00,$8d,$84,$03,$a9,$01,$8d,$81,$cf,$60,$a9,$00,$8d,$15
         .byte   $d0,$4c,$94,$c6
 
-L2EE3   lda     L45FE
+L2EE3   lda     L45FE                           ; Set A to L45FE (#00)
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
@@ -899,11 +896,11 @@ If_5526 dec     L54F7+3
         .byte   $65,$cf,$8d,$66,$cf,$20,$e7,$c6,$ee,$07,$d0,$e8,$e0,$15,$d0,$ed
         .byte   $69
 
-L5651   lda     L45FF
-        beq     If_565E
+L5651   lda     L45FF                           ; Load A with L45FF (Is #01)
+        beq     If_565E                         ; Wont branch.
         lda     #$00			        ; A = #00
-        sta     Var_4500
-        jmp     L570A
+        sta     Var_4500                        ; Set A to Var_4500 (#00)
+        jmp     L570A                           ; Jump to L570A
 
 If_565E jmp     Jump_5716
 
@@ -974,9 +971,9 @@ Sub_56BC
         .byte   $45,$8d,$00,$d0,$bd,$1a,$45,$8d,$01,$d0,$a9,$00,$8d,$10,$d0,$bd
         .byte   $1b,$45,$f0,$05,$a9,$01,$8d,$10,$d0,$60
 
-L570A   sta     Var_4501
-        lda     #$2c
-        sta     L2A0B+1
+L570A   sta     Var_4501                        ; Set Var_4501 to #00.
+        lda     #$2c                            ; Set A as #2c.
+        sta     L2A0B+1                         ; Set L2A0B+1 as #2c.
         jsr     Sub_2F47
         rts
 
@@ -1187,8 +1184,8 @@ SetupSpritePositions
         sta     Var_StartGame 			; Store #01 Var_StartGame ($5a06)
         ldx     Sprite0XCoords 		        ; Load X with Sprite0_X_Position
         lda     Sprite1XCoords 	                ; Load A with Sprite1_X_Position ($d002)
-        sta     Sprite0XCoords 		        ; Update Sprite0_X_Position with Sprite1_X_Position
-        stx     Sprite1XCoords 	                ; Update Sprite1_X_Position with Sprite0_X_Position
+        sta     Sprite0XCoords 		        ; Update Sprite0_X_Position ($d002) with Sprite1_X_Position
+        stx     Sprite1XCoords 	                ; Update Sprite1_X_Position ($d002) with Sprite0_X_Position
         ldx     Sprite0YPos 			; Load A with Sprite0_Y_Position
         jmp     ContSetupSpritePositions
 
@@ -1196,9 +1193,9 @@ SetupSpritePositions
 
 ResetGirl
         jsr     Sub_SetRandomVariables
-        lda     #$e0
-        sta     Sprite1XCoords 	                ; Set girl sprite position
-        sta     Sprite1YPosition 		; Set girl sprite position
+        lda     #$e0                            ; Set A to #e0
+        sta     Sprite1XCoords 	                ; Set girl sprite X position ($d002) to #e0.
+        sta     Sprite1YCoords 		        ; Set girl sprite Y position ($d002) to #e0.
         lda     #$06       			; Value will be used to set border to blue
         nop					; No operation.
         sta     Adr_BorderColor 		; Set Adr_BorderColor ($d020) to #06 (Blue).
@@ -1209,9 +1206,9 @@ ResetGirl
         .fill   2,$ea
 
 ContSetupSpritePositions
-        lda     Sprite1YPosition 		;Load A with Sprite1_Y_Position
+        lda     Sprite1YCoords 		;Load A with Sprite1_Y_Position
         sta     Sprite0YPos 			;Update Sprite0_Y_Position with Sprite1_Y_Position
-        stx     Sprite1YPosition 		;Update Sprite1_Y_Position with Sprite0_Y_Position
+        stx     Sprite1YCoords 		;Update Sprite1_Y_Position with Sprite0_Y_Position
         lda     SpriteXMSBRegister
         and     #$01       			;Isolate first bit in SpriteXMSBRegister
         tax                			;Store boy X-MSB flag in X
@@ -1328,7 +1325,7 @@ L59E6   lda     Var_Jumping 			; #01 jumping / #00 not jumping
         jsr     Sub_ReduceHealthBar 		; Reduce health while jumping
 _rts	rts
 
-+ 		jmp     MoveHealthDec
++ 	jmp     MoveHealthDec
 
         .fill   4,$ea
 Var_5a00
@@ -1393,11 +1390,12 @@ If_5A4F lda     #$0a
 
         .fill   11,$00
 
-L5A60   lda     #$02                            ; Set A to #02.
+SetBasicMovementVars   
+        lda     #$02                            ; Set A to #02.
         sta     Var_GoSlowRedZone               ; Set Var_GoSlowRedZone to not slow (#02 Not slow / #04 Slow).
         lda     #$00				; Set A to #00.
         sta     Var_RegMovingLeftRight          ; Set Var_RegMovingLeftRight to not moving left/right (#01 moving left or right / #00 not moving left or right).
-        jmp     Jump_ScreenSetup                ; Jump to Jump_ScreenSetup
+        jmp     SetScreenColours                ; Jump to SetScreenColours
 
         .fill   3,$00
 
@@ -1670,16 +1668,16 @@ L5C4F   jsr     Sub_5CD8
         nop					; No operation.
         lda     #$00				; A = #00
         sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #00 (Black).
-        sta     Adr_BackgroundColor
+        sta     Adr_BackgroundColor             ; Set Adr_BackgroundColor ($d021) to #00 (Black)
         sta     L5BF4+9
         jsr     L5C00
-        lda     Adr_ScreenControl
+        lda     Adr_ScreenControl               ; ($d016)
         ora     #$10
-        sta     Adr_ScreenControl
+        sta     Adr_ScreenControl               ; ($d016)
         lda     #$1c
-        sta     Adr_MemorySetupRegister
+        sta     Adr_MemorySetupRegister         ; Set Adr_MemorySetupRegister ($d018) to #1c. 0001 1100 which means 0001 is screen memory ($0400) and 110 is character memory (3000-$37FF).
         ldx     #$00
--		lda     RTS_5CFD+3,x
+-	lda     RTS_5CFD+3,x
         sta     $04d6,x
         lda     #$02
         sta     $d8d6,x
@@ -1782,13 +1780,13 @@ L5D22   ldy     #$b0
         inc     Low_tempvar
         bne     +
         inc     High_tempvar
-+		inc     Var_SpriteCollision
++	inc     Var_SpriteCollision
         bne     +
         inc     $fe
-+		inc     Var_SpriteCollision
++	inc     Var_SpriteCollision
         bne     +
         inc     $fe
-+		lda     $fe
++	lda     $fe
         cmp     #$db
         bne     -
         lda     Var_SpriteCollision
@@ -1807,16 +1805,16 @@ Sub_SetupSpritesEtc
         .byte   $ea,$ea,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00
 
-Jump_ScreenSetup
-        lda     Adr_ScreenControl
-        ora     #$10
-        sta     Adr_ScreenControl
-        lda     #$0b
-        sta     ExtraBackgroundColor2
-        lda     #$01
-        sta     $d024
-        jsr     If_5E0A
-        jmp     L5651
+SetScreenColours
+        lda     Adr_ScreenControl               ; Load A with Adr_ScreenControl ($d016).
+        ora     #$10                            ; Enable on Adr_ScreenControl ($d016)           
+        sta     Adr_ScreenControl               ; Enable multicolour mode on Adr_ScreenControl ($d016).
+        lda     #$0b                            ; Load A with #0b.
+        sta     ExtraBackgroundColor2           ; Set ExtraBackgroundColor2 to # 0b (Dark grey).
+        lda     #$01                            ; Load A with #01.
+        sta     ExtraBackgroundColor3           ; Set ExtraBackgroundColor3 to #01 (White).
+        jsr     If_5E0A                         ; Perform some weird looping - assuming for timing.
+        jmp     L5651                           ; Jump to L5651
 
 Sub_5D98
         jsr     Sub_GameOverText                ; Load game over text on screen
@@ -1839,18 +1837,33 @@ Jump_5DA9
         sta     Var_DamageOccuring		; Var_DamageOccuring = #00
         jmp     ThisRunsAfterDeath
 
-        .byte   $00,$00,$00,$00,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd
-        .byte   $dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd,$dd
-        .byte   $dd,$dd,$dd,$dd,$dd,$85,$fb,$a9,$80,$85,$fc,$a9,$fb,$a2,$00,$a0
-        .byte   $c0,$20,$d8,$ff,$60,$00,$00,$00,$00,$01,$45,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$a2,$0d,$a0,$5d,$20,$4f,$5c,$60,$00,$00
+        .byte   $00,$00,$00,$00
+        .byte   $dd,$dd,$dd,$dd
+        .byte   $dd,$dd,$dd,$dd
+        .byte   $dd,$dd,$dd,$dd
+        .byte   $dd,$dd,$dd,$dd
+        .byte   $dd,$dd,$dd,$dd
+        .byte   $dd,$dd,$dd,$dd
+        .byte   $dd,$dd,$dd,$dd
+        .byte   $dd,$dd,$dd,$dd
+        .byte   $dd,$85,$fb,$a9
+        .byte   $80,$85,$fc,$a9
+        .byte   $fb,$a2,$00,$a0
+        .byte   $c0,$20,$d8,$ff
+        .byte   $60,$00,$00,$00
+        .byte   $00,$01,$45,$00
+        .byte   $00,$00,$00,$00
+        .byte   $00,$00,$00,$00
+        .byte   $a2,$0d,$a0,$5d
+        .byte   $20,$4f,$5c,$60
+        .byte   $00,$00
 
-If_5E0A lda     $01
-        and     #$fe					; 
-        sta     $01
-        lda     $01
-        and     #$01
-        bne     If_5E0A
+If_5E0A lda     $01                             ; Load A with value from $01 (#37).
+        and     #$fe				; Disable the first bit from $01.
+        sta     $01                             ; Store the value back to $01.
+        lda     $01                             ; Load A with $01.
+        and     #$01                            ; Check if the first bit is 0
+        bne     If_5E0A                         ; Loop if not zero.
         rts
 
         .byte   $00
@@ -1909,7 +1922,7 @@ Sub_SetupScreen                                 ; X is the level select. 00=Fore
         sta     Sprite1XCoords
         iny
         lda     (Adr_MapLow),y
-        sta     Sprite1YPosition
+        sta     Sprite1YCoords
         iny
         lda     Var_EnemyXPosition-1
         and     #$fd
@@ -2247,7 +2260,7 @@ _rts    rts                                     ; Return from subroutine
 
 L75A7   lda     #$ea                            ; Load A with #ea
         sta     $0328                           ; Store #ea to $0328
-        jmp     L5A60                           ; Jump to L5A60. Resets default movement then setup screen.
+        jmp     SetBasicMovementVars            ; Jump to SetBasicMovementVars. Resets default movement then setup screen.
 
         .byte   $00
 
@@ -2297,7 +2310,7 @@ L7610   lda     $02ff                          ; Load the value at memory addres
         lda     ExtraBackgroundColor1          ; Load the value of ExtraBackgroundColor1 into the accumulator
         eor     #$02                           ; Perform an exclusive OR operation on the accumulator value with 2 ($02 in hex)
         sta     ExtraBackgroundColor1          ; Store the result of the exclusive OR operation back into ExtraBackgroundColor1
-        jmp     L7610                          ; Jump to label L7610 unconditionally
+        jmp     L7610                          ; Loop back to L7610.
 
 
 _L762E  lda     ExtraBackgroundColor2
@@ -2440,7 +2453,7 @@ Sub_ResetToMenu
         sta     ExtraBackgroundColor1           ; Store accumulator value into ExtraBackgroundColor1
         sta     ExtraBackgroundColor2           ; Store accumulator value into ExtraBackgroundColor2
         sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #00 (Black).
-        sta     Adr_BackgroundColor             ; Store accumulator value into Adr_BackgroundColor
+        sta     Adr_BackgroundColor             ; Set Adr_BackgroundColor ($d021) to #00 (Black)
 
         ; Load specific values into X and Y registers and call subroutine L5C4F
         ldx     #$00                            ; Load #$00 into the X register
@@ -2665,9 +2678,9 @@ LC011   lda     L4555      			; Load the value at memory address $4555 into the 
         bne     _rts     			; Branch if the zero flag is not set (result of comparison in LC525 is not equal)
         lda     L4555      			; Load the value at memory address $4555 into the accumulator (A)
         sta     LCF43      			; Store the value in the accumulator (A) into memory address $CF43
-        lda     Adr_ScreenControl 		; Load the value at Adr_ScreenControl into the accumulator (A)
+        lda     Adr_ScreenControl 		; Load the value at Adr_ScreenControl ($d016) into the accumulator (A)
         and     #$f7       			; Perform a bitwise AND operation with #$f7 to clear the 4th bit
-        sta     Adr_ScreenControl 		; Store the value in the accumulator (A) into Adr_ScreenControl
+        sta     Adr_ScreenControl 		; Store the value in the accumulator (A) into Adr_ScreenControl ($d016).
         jsr     If_C46B    			; Jump to subroutine If_C46B
 _rts  	rts                			; Return from the subroutine
 
@@ -3001,14 +3014,14 @@ RTS_C645
         rts
 
 JUMP_c646
-        jsr     ResetGirl
+        jsr     ResetGirl                       ; Reset girl variables
         jsr     Sub_SetupSpritesEtc
-        lda     L450F 				; Value is usually #f0 (Light grey)
-        sta     Adr_BackgroundColor             ; Set the background colour to light grey
+        lda     L450F 				; Value is usually #f0 (Light grey).
+        sta     Adr_BackgroundColor             ; Set Adr_BackgroundColor ($d021) to #f0 (Not sure this is correct).
         lda     #$08
         jsr     BSOUT                           ; Not sure why this exists
         nop					; No operation.
-        lda     #$00				; 
+        lda     #$00				; Set A to #00
         sta     SpriteEnableRegister            ; Disable all sprites
         nop					; No operation.
         nop					; No operation.
@@ -3028,9 +3041,9 @@ JUMP_c646
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
-        ldx     #$c0
-        ldy     #$56
-        jsr     Sub_2A80
+        ldx     #$c0                            ; Set X to #c0
+        ldy     #$56                            ; Set Y to #56
+        jsr     Sub_2A80                        ; Jump to subroutine at Sub_2A80
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
@@ -3065,7 +3078,7 @@ LC694   lda     Var_Num01                       ; Load the value at Var_Num01 in
         lda     #$00                            ; A = #00
         sta     Var_CurrentEnemyIndex           ; Set Var_CurrentEnemyIndex to 0 (initialize enemy index to the first enemy).
 
-- 		jsr     Sub_UpdateEnemySprites	; Call the subroutine Sub_UpdateEnemySprites to update the enemy sprites.
+- 	jsr     Sub_UpdateEnemySprites	        ; Call the subroutine Sub_UpdateEnemySprites to update the enemy sprites.
         inc     Var_CurrentEnemyIndex           ; Increment the enemy index.
         lda     Var_CurrentEnemyIndex           ; Load the value of Var_CurrentEnemyIndex into the accumulator (A).
         cmp     Var_Num01+1                     ; Compare the value in A with the value at Var_Num01+1.
@@ -3073,7 +3086,7 @@ LC694   lda     Var_Num01                       ; Load the value at Var_Num01 in
 
 If_C6AC jsr     LC032                           ; Call the subroutine at label LC032.
         lda     #$1c                            ; A = #$1c
-        sta     Adr_MemorySetupRegister         ; Store the value of A into the address specified by Adr_MemorySetupRegister.
+        sta     Adr_MemorySetupRegister         ; Set Adr_MemorySetupRegister ($d018) to #1c. 0001 1100 which means 0001 is screen memory ($0400) and 110 is character memory (3000-$37FF).
         lda     #$0f                            ; A = #$0f
         sta     $ffff                           ; Store the value of A into the address $ffff.
         lda     #$f8                            ; A = #$f8
@@ -3120,9 +3133,10 @@ If_C6F1 dec     LCF67
         tay
         rts
 
-LC700   lda     SpritePointer1            	; Load the value of SpritePointer1 into the accumulator (A)
+LC700                                           ; Seems to be never taken.
+        lda     SpritePointer1            	; Load the value of SpritePointer1 (Girl) into the accumulator (A)
         clc                              	; Clear the carry flag
-        sbc     #$df                      	; Subtract the value #$df from the accumulator (A), with borrow
+        sbc     #$df                      	; Subtract the value #$df (1101 1111) from the accumulator (A), with borrow
         ldx     #$01                      	; Load the X register with #$01, representing the direction (01 = down)
         jsr     Sub_UpdateSpritePositions 	; Call the subroutine Sub_UpdateSpritePositions with A holding the sprite data and X holding the direction
         cpy     #$00                      	; Compare the value in the Y register with #$00
@@ -3235,10 +3249,10 @@ LC7D4   and     #$02       			;Perform a bitwise AND operation with the value #$
         lda     #$02       			;Load the value #$02 into the accumulator.
         ora     SpriteEnableRegister 		;Perform a bitwise OR operation with the value of a variable called SpriteEnableRegister.
         sta     SpriteEnableRegister 		;Store the result in the variable called SpriteEnableRegister.
-        lda     Sprite0XCoords 		;Load the value of a variable called Sprite0XCoords into the accumulator.
+        lda     Sprite0XCoords 		        ;Load the value of a variable called Sprite0XCoords into the accumulator.
         sta     Sprite1XCoords 	                ;Store the result in a variable called Sprite1XCoords.
         lda     Sprite0YPos 			;Load the value of a variable called Sprite0YPos into the accumulator.
-        sta     Sprite1YPosition 		;Store the result in a variable called Sprite1YPosition.
+        sta     Sprite1YCoords 		;Store the result in a variable called Sprite1YCoords.
         lda     SpriteXMSBRegister 		;Load the value of a variable called SpriteXMSBRegister into the accumulator.
         and     #$01       			;Perform a bitwise AND operation with the value #$01.
         tay                 			;Transfer the result to the Y register.

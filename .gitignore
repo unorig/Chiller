@@ -3,3 +3,4 @@
 .cache/chill.prg_acme.prg
 .cache/chill.prg_acme.report
 test.asm
+.vscode/tasks.json

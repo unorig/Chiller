@@ -88,7 +88,7 @@ L2A0B   sbc     #$2c       			; Subtract with carry. Removing top border height.
         lsr     a          			; Divide by 2
         lsr     a          			; Divide by 2. This is to devide by 8 to work out number of characters from the top of the screen.
         tay                			; Transfer A to Y.
-        lda     Sprite0XCoords 		; A = Sprite0XCoords
+        lda     Sprite0XCoords 		        ; A = Sprite0XCoords
         sec                			; Set carry
         sbc     #$0c       			; Subtract with carry #0c (12)
         bcc     L2A00      			; Branch if carry clear
@@ -915,7 +915,7 @@ Sub_VerticalMovingEnemies
         rts
 
 L566D   ldx     #$00
-- 		lda     L45E7,x
+- 	lda     L45E7,x
         sta     LCF76,x
         inx
         cpx     #$05
@@ -1012,12 +1012,12 @@ L576B   jsr     Sub_WaitForCurrentRaster 	; JSR from $5d65
         lda     SpriteEnableRegister            ; Set A to SpriteEnableRegister ($d015).
         ora     #$03                            ; Turn off all sprites other than boy and girl ($d015).
         sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A.
-        lda     Var_BoyGirlToggle
+        lda     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
         beq     If_5783    			; Have not seen this executed yet.
         jmp     Jump_57BD
 
 If_5783 lda     #$01
-        sta     Var_BoyGirlToggle
+        sta     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
         lda     #$e8
         sta     L582C+1
         lda     #$ec
@@ -1042,7 +1042,7 @@ If_5783 lda     #$01
 
 Jump_57BD
         lda     #$00				; A = #00
-        sta     Var_BoyGirlToggle
+        sta     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
         lda     #$d8
         sta     L582C+1
         lda     #$dc
@@ -1336,7 +1336,7 @@ Var_StartGame                                   ; $5a06
         .fill   1,$00
 Temp_SpiteXMSBReg
         .byte   $20
-Var_BoyGirlToggle                                ;
+Var_BoyGirlToggle                                ; ($5a08) #00 = Boy / #01 = Girl.
         .byte   $01
 Var_JumpSkipDamage
         .byte   $64
@@ -1378,13 +1378,13 @@ _rts    rts
         .byte   $ff,$ff,$ff,$f6
 
 L5A41   jsr     L7659
-        lda     Var_BoyGirlToggle
-        bne     If_5A4F
-        lda     #$06
+        lda     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl
+        bne     If_5A4F                         ; Branch if girl.
+        lda     #$06                            ; Set A to #06.
         sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #06 (Blue).
         rts
 
-If_5A4F lda     #$0a
+If_5A4F lda     #$0a                            ; Set A to #0a.
         sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #0a (Pink).
         rts
 
@@ -1583,13 +1583,13 @@ If_5BA0 dec     Var_DamageCounter+1
 If_5BAD jmp     L7673
 
 Sub_WaitForCurrentRaster
-        lda     CurrentRasterLine 		;JSR from $576b
-        cmp     #$10       			;Check if rasterline is #10
-        bne     Sub_WaitForCurrentRaster 	;Loop back two instructions if raster not #10
-        lda     ScreenControlRegister 		;Would be #1b (0001 1011)
-        and     #$80       			;(1000 0000)
+        lda     CurrentRasterLine 		; JSR from $576b
+        cmp     #$10       			; Check if rasterline is #10
+        bne     Sub_WaitForCurrentRaster 	; Loop back two instructions if raster not #10
+        lda     ScreenControlRegister 		; Would be #1b (0001 1011)
+        and     #$80       			; (1000 0000)
         bne     Sub_WaitForCurrentRaster
-        rts                			;Return from subroutine
+        rts                			; Return from subroutine
 
         .byte   $00,$b2,$ff,$b5,$00,$30,$ea,$ea
 
@@ -1671,9 +1671,9 @@ L5C4F   jsr     Sub_5CD8
         sta     Adr_BackgroundColor             ; Set Adr_BackgroundColor ($d021) to #00 (Black)
         sta     L5BF4+9
         jsr     L5C00
-        lda     Adr_ScreenControl               ; ($d016)
-        ora     #$10
-        sta     Adr_ScreenControl               ; ($d016)
+        lda     Adr_ScreenControl               ; Set A to Adr_ScreenControl ($d016)
+        ora     #$10                            ; ORA on A with #10 (0001 0000).
+        sta     Adr_ScreenControl               ; Set Adr_ScreenControl ($d016) to A turning multicolor mode on.
         lda     #$1c
         sta     Adr_MemorySetupRegister         ; Set Adr_MemorySetupRegister ($d018) to #1c. 0001 1100 which means 0001 is screen memory ($0400) and 110 is character memory (3000-$37FF).
         ldx     #$00
@@ -1797,8 +1797,8 @@ L5D22   ldy     #$b0
         .fill   4,$00
 
 Sub_SetupSpritesEtc
-        lda     #$01                            ; JSR from $c649
-        sta     Var_BoyGirlToggle               ; This variable changes between boy (Blue) and girl (Red)
+        lda     #$01                            ; Set A to #01
+        sta     Var_BoyGirlToggle               ; Set Var_BoyGirlToggle to #01. This variable ($5a08) changes between boy (#00) and girl (#01).
         jsr     L576B                           ; Setup sprites etc.
         rts
 
@@ -1807,8 +1807,8 @@ Sub_SetupSpritesEtc
 
 SetScreenColours
         lda     Adr_ScreenControl               ; Load A with Adr_ScreenControl ($d016).
-        ora     #$10                            ; Enable on Adr_ScreenControl ($d016)           
-        sta     Adr_ScreenControl               ; Enable multicolour mode on Adr_ScreenControl ($d016).
+        ora     #$10                            ; ORA on Adr_ScreenControl ($d016)           
+        sta     Adr_ScreenControl               ; Set Adr_ScreenControl ($d016) to A turning multicolor mode on.
         lda     #$0b                            ; Load A with #0b.
         sta     ExtraBackgroundColor2           ; Set ExtraBackgroundColor2 to # 0b (Dark grey).
         lda     #$01                            ; Load A with #01.
@@ -2150,19 +2150,19 @@ Var_DamageLoopCounter
         .byte   $04
 		
 Sub_DamageRoutine
-        jsr     Sub_ReduceHealthBar 	        ;Subroutine to reduce health bar
-        dec     Var_DamageLoopCounter 	        ;Counter to time when border should flash
+        jsr     Sub_ReduceHealthBar 	        ; Subroutine to reduce health bar
+        dec     Var_DamageLoopCounter 	        ; Counter to time when border should flash
         bne     +     				; RTS if not #00. If #00 will flash border.
-        lda     #$04       			;A = #04
-        sta     Var_DamageLoopCounter 	        ;72b9 = #04
--	lda     CurrentRasterLine 	        ;Get current raster line position
-        cmp     #$10       			;Compare raster line to #10
-        bne     -      				;Loop if raster line is not #10
-        lda     ScreenControlRegister 	        ;Load screen control register
+        lda     #$04       			; A = #04
+        sta     Var_DamageLoopCounter 	        ; 72b9 = #04
+-	lda     CurrentRasterLine 	        ; Get current raster line position
+        cmp     #$10       			; Compare raster line to #10
+        bne     -      				; Loop if raster line is not #10
+        lda     ScreenControlRegister 	        ; Load screen control register
         and     #$80
         bne     -
         lda     Adr_BorderColor 		; Set A to Adr_BorderColor ($d020).
-        eor     #$08       			;Alternate colour between #f6 (Blue) and #fe (Light blue)
+        eor     #$08       			; Alternate colour between #f6 (Blue) and #fe (Light blue)
         sta     Adr_BorderColor 		; Set Adr_BorderColor ($d020) based on logic above.
 +		rts
 
@@ -2267,7 +2267,7 @@ L75A7   lda     #$ea                            ; Load A with #ea
 Branch_DamageBorderColour                       ; $75a7
         lda     Var_DamageOccuring         	; Load the value of Var_DamageOccuring (#00 No damage / #01 Damage) into the accumulator (A).
         bne     Branch_Damage            	; Branch if damage has been received (not equal to #00).
-        lda     Var_BoyGirlToggle           	; Load the value of Var_BoyGirlToggle into the accumulator (A).
+        lda     Var_BoyGirlToggle           	; Load the value of Var_BoyGirlToggle ($5a08) into the accumulator (A). #00 = Boy / #01 = Girl.
         bne     +                          	; Branch to next symbol if girl (#01) is selected (Boy = #00 / Girl = #01).
         lda     #$06                       	; Set the accumulator (A) to #$06 (Blue).
         sta     Adr_BorderColor            	; Set Adr_BorderColor ($d020) to #06 (Blue).
@@ -2374,8 +2374,8 @@ L7680   stx     L767B+4                         ;
         inx                                     ; Increase X
         inx                                     ; Increase X
         jsr     Sub_SetupScreen                 ;
-        lda     Var_BoyGirlToggle
-        beq     +
+        lda     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
+        beq     +                               ; Branch if boy.
         lda     SpritePointer0
         ldx     SpritePointer1
         sta     SpritePointer1
@@ -2563,14 +2563,14 @@ L7F50   lda     High_tempvar 			; A = #fc
         lda     (Low_tempvar),y
         and     #$04
         tax
-        lda     Var_BoyGirlToggle
-        beq     _L7F67
-        cpx     #$00
+        lda     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
+        beq     _L7F67                          ; Branch to _L7F67 if boy.
+        cpx     #$00                            ; Compare X to #00
         beq     _L7F6C
         rts
 
-_L7F67  cpx     #$04
-        beq     _L7F6C
+_L7F67  cpx     #$04                            ; Compare X to #04
+        beq     _L7F6C                          ;
         rts
 
 _L7F6C  lda     High_tempvar 			; A = $fc (Low byte of screen address)
@@ -2589,7 +2589,6 @@ L7F80   dec     Var_5a16               	        ; Decrease the value at memory l
         sta     Var_5a16                        ; Store the value #28 into memory location Var_5a16
         ldy     #$5d                            ; Load the value #5d into the Y register
         ldx     #$00                            ; Load the value #00 into the X register
-
 -       iny                                     ; Increase the Y register
         lda     (Adr_MapLow),y                  ; Load the value from the address (Adr_MapLow + Y) into the accumulator (A)
         sta     Low_tempvar                     ; Store the value from the accumulator (A) into Low_tempvar
@@ -2679,8 +2678,8 @@ LC011   lda     L4555      			; Load the value at memory address $4555 into the 
         lda     L4555      			; Load the value at memory address $4555 into the accumulator (A)
         sta     LCF43      			; Store the value in the accumulator (A) into memory address $CF43
         lda     Adr_ScreenControl 		; Load the value at Adr_ScreenControl ($d016) into the accumulator (A)
-        and     #$f7       			; Perform a bitwise AND operation with #$f7 to clear the 4th bit
-        sta     Adr_ScreenControl 		; Store the value in the accumulator (A) into Adr_ScreenControl ($d016).
+        and     #$f7       			; AND on Adr_ScreenControl with #f7 (1111 0111).
+        sta     Adr_ScreenControl 		; Set Adr_ScreenControl ($d016) to A turning multicolor mode off.
         jsr     If_C46B    			; Jump to subroutine If_C46B
 _rts  	rts                			; Return from the subroutine
 
@@ -2881,10 +2880,10 @@ If_C459 lda     $06ee,x
         bne     If_C459
         rts
 
-If_C46B lda     CurrentRasterLine
-        cmp     #$4b
-        bne     If_C46B
-        jsr     LC412
+If_C46B lda     CurrentRasterLine               ; Set A to CurrentRasterLine ($d012).
+        cmp     #$4b                            ; Compare CurrentRasterLine to #4b (75).
+        bne     If_C46B                         ; Loop to If_C46B until true.
+        jsr     LC412                           ; Jump to subroutine LC412.
         jmp     Jump_C47F
 
         .byte   $ea,$ad,$76,$c4,$ea,$ea,$ea
@@ -3104,7 +3103,6 @@ If_C6C9 sta     LCF1A,x                         ; Store the value of A into the 
         inx                                     ; Increment the value of X.
         cpx     #$05                            ; Compare the value of X with #$05.
         bne     If_C6C9                         ; If the values are not equal, branch back to label If_C6C9 to continue storing values.
-
         lda     Adr_SpriteCollision             ; Load the value at Adr_SpriteCollision into the accumulator (A).
         jmp     L2D00                           ; Jump to the label L2D00.
 
@@ -3921,9 +3919,9 @@ If_CD55 inc     LCF45
         jsr     Sub_UpdateSpritePositions       ; A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         cpy     #$ff
         bne     RTS_CD79
-        lda     SpriteEnableRegister            ; ($d015)
-        and     #$7f
-        sta     SpriteEnableRegister            ; ($d015)
+        lda     SpriteEnableRegister            ; Set A to SpriteEnableRegister ($d015).
+        and     #$7f                            ; And on SpriteEnableRegister ($d015) with #7f (0111 1111)
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A which will turn off Boy sprite.
 RTS_CD79
         rts
 

@@ -226,10 +226,10 @@ Var_CharacterXPosLow
         .byte   $ec,$2a,$60
 
 Sub_SetScreenControl
-        sta     SpriteEnableRegister
-        lda     Adr_ScreenControl               ; ($d016)
-        ora     #$08
-        sta     Adr_ScreenControl               ; ($d016)
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister to A .... ($d015)
+        lda     Adr_ScreenControl               ; Set A to Adr_ScreenControl ($d016)
+        ora     #$08                            ; ORA on Adr_ScreenControl
+        sta     Adr_ScreenControl               ; Set the screen to 40 columns ($d016). 
         rts
 
         .byte   $ea,$1d
@@ -263,8 +263,8 @@ L2C19   ldx     #$03
         .byte   $a9,$60,$8d,$fc,$ca,$20,$86,$ca,$a9,$4c,$8d,$fc,$ca,$60,$ea
 
 Jump_2C44
-        lda     #$01
-        sta     SpriteEnableRegister
+        lda     #$01                            ; Set A to #01
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to #01. Enable Boy sprite only.
         ldx     #$00
 - 	lda     $05ef,x
         sta     $0345,x
@@ -438,7 +438,7 @@ MainMenuLoop
 
 ThisRunsAfterDeath
         lda     #$00                            ; Set the accumulator (A) to #00.
-        sta     SpriteEnableRegister            ; Disable all sprites by storing #00 to the SpriteEnableRegister.
+        sta     SpriteEnableRegister            ; Disable all sprites by storing #00 to the SpriteEnableRegister ($d015).
         lda     L45EE                           ; Load A with the value at address L45EE, which is #01.
         jsr     L2CF3                           ; Call subroutine at L2CF3. It appears to be abandoned code.
         lda     #$ff                            ; Set the accumulator (A) to #ff.
@@ -514,8 +514,8 @@ L2EB3   jmp     LCA27
         .byte   $ea
 
 L2EB7   lda     Var_BinaryEnemyNum,x 		; Load the value at address Var_BinaryEnemyNum+x into the accumulator.
-        and     SpriteEnableRegister 		; Perform a bitwise AND operation with the value of a variable called SpriteEnableRegister.
-        cmp     #$00       			; Compare the result to the value #$00.
+        and     SpriteEnableRegister 		; Mask out Var_BinaryEnemyNum,x on SpriteEnableRegister ($d015).
+        cmp     #$00       			; Check if Var_BinaryEnemyNum,x is enabled
         beq     L2EC4      			; If it's equal to #$00, branch to a label called L2EC4.
         jmp     L2D52      			; Otherwise, jump to a label called L2D52.
 
@@ -594,7 +594,7 @@ Sub_EnemyPositionLoop
 Loop_NextEnemy
                                                 ; Check if the enemy is visible. If so, skip to next enemy.
 	lda     Var_BinaryEnemyNum,x            ; Load binary enemy number at index X
-        and     SpriteEnableRegister            ; AND with SpriteEnableRegister to check if the enemy is visible
+        and     SpriteEnableRegister            ; AND with SpriteEnableRegister ($d015) to check if the enemy is visible
         cmp     #$00                            ; Compare the result to 0
         bne     NextEnemy                  	; If enemy is visible, skip to NextEnemy
 		
@@ -1009,9 +1009,9 @@ L576B   jsr     Sub_WaitForCurrentRaster 	; JSR from $5d65
         nop					; No operation.
         nop					; No operation.
         jsr     SetupSpritePositions
-        lda     SpriteEnableRegister
-        ora     #$03
-        sta     SpriteEnableRegister
+        lda     SpriteEnableRegister            ; Set A to SpriteEnableRegister ($d015).
+        ora     #$03                            ; Turn off all sprites other than boy and girl ($d015).
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A.
         lda     Var_BoyGirlToggle
         beq     If_5783    			; Have not seen this executed yet.
         jmp     Jump_57BD
@@ -1206,9 +1206,9 @@ ResetGirl
         .fill   2,$ea
 
 ContSetupSpritePositions
-        lda     Sprite1YCoords 		;Load A with Sprite1_Y_Position
+        lda     Sprite1YCoords 		        ;Load A with Sprite1_Y_Position
         sta     Sprite0YPos 			;Update Sprite0_Y_Position with Sprite1_Y_Position
-        stx     Sprite1YCoords 		;Update Sprite1_Y_Position with Sprite0_Y_Position
+        stx     Sprite1YCoords 		        ;Update Sprite1_Y_Position with Sprite0_Y_Position
         lda     SpriteXMSBRegister
         and     #$01       			;Isolate first bit in SpriteXMSBRegister
         tax                			;Store boy X-MSB flag in X
@@ -1428,7 +1428,7 @@ L5A9A   cmp     #$4d       			;Check if current character is complete bridge
         cpy     #$50
         beq     +
         jmp     PlayerMidAir
-+ 		dec     Counter_HealthIncLoop2+2
++ 	dec     Counter_HealthIncLoop2+2
         beq     If_UpdateBridge
 _rts    rts
 
@@ -1597,7 +1597,7 @@ L5BC7   ldx     #$bf
         ldy     #$5b
         jsr     Sub_2A80   			; JSR $2a80 with Y = #5b / X = #bf
         lda     #$00				; A = #00
-        sta     SpriteEnableRegister 		; Disable all sprites
+        sta     SpriteEnableRegister 		; Disable all sprites ($d015)
         lda     #$00				; A = #00
         sta     ExtraBackgroundColor1 		; Extra Background Color 1 = Black
         sta     ExtraBackgroundColor2 		; Extra Background Color 2 = Black
@@ -1659,7 +1659,7 @@ _L5C34  tya
         lda     #$00				; A = #00
         sta     L5BF4+10
         iny
-+  		jmp     Jump_5C1B
++  	jmp     Jump_5C1B
 
         .byte   $60
 
@@ -1702,7 +1702,7 @@ Sub_5C87
         sbc     #$63
         sta     L5BF4+11
         rts
-+ 		lda     L5BF4+11
++ 	lda     L5BF4+11
         clc
         adc     #$19
         sta     L5BF4+11
@@ -1768,7 +1768,7 @@ L5D22   ldy     #$b0
         sta     Var_SpriteCollision
         lda     #$d8
         sta     $fe
--		ldy     #$00
+-	ldy     #$00
         lda     (Low_tempvar),y
         sta     (Var_SpriteCollision),y
         iny
@@ -2085,7 +2085,7 @@ Sub_SetupScreen                                 ; X is the level select. 00=Fore
 
 Sub_5FC0
         ldx     #$00
-- 		iny
+- 	iny
         lda     (Adr_MapLow),y
         sta     Low_tempvar
         iny
@@ -2134,7 +2134,7 @@ L60A0  lda     #$05                             ;A = 05
         rts
 
 
-		.include "Music/v1music.asm"
+	.include "Music/v1music.asm"
 
 
 L7280   .byte   $a0,$73,$b1,$11,$c9,$0a,$30,$03,$4c,$6b,$57,$60,$00,$00,$00,$00
@@ -2155,7 +2155,7 @@ Sub_DamageRoutine
         bne     +     				; RTS if not #00. If #00 will flash border.
         lda     #$04       			;A = #04
         sta     Var_DamageLoopCounter 	        ;72b9 = #04
--		lda     CurrentRasterLine 	;Get current raster line position
+-	lda     CurrentRasterLine 	        ;Get current raster line position
         cmp     #$10       			;Compare raster line to #10
         bne     -      				;Loop if raster line is not #10
         lda     ScreenControlRegister 	        ;Load screen control register
@@ -2290,11 +2290,11 @@ SetTitleScreenTopRow
 
         .fill   19,$00
 
-L7600   iny
-        lda     (Adr_MapLow),y
-        sta     Var_MagicCrossesLeft
-        lda     #$03
-        sta     SpriteEnableRegister
+L7600   iny                                     ; Increase Y
+        lda     (Adr_MapLow),y                  ; Set A to (Adr_MapLow),y 
+        sta     Var_MagicCrossesLeft            ; Set Var_MagicCrossesLeft to (Adr_MapLow),y 
+        lda     #$03                            ; Set A to #03
+        sta     SpriteEnableRegister            ; Turn off all sprites other than boy and girl ($d015)
         rts
 
         .fill   4,$00
@@ -2393,12 +2393,12 @@ Jump_76C0
         lda     (Adr_MapLow),y
         cmp     #$0a
         bmi     +
-        lda     #$03
-        sta     SpriteEnableRegister
+        lda     #$03                            ; Set A to #03.
+        sta     SpriteEnableRegister            ; Turn off all sprites other than boy and girl ($d015)
         rts
         .fill   2,$ea
-+ 	lda     #$01
-        sta     SpriteEnableRegister
++ 	lda     #$01                            ; Set A to #01
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A. Enabling only Boy.
         rts
 
 Var_76DB
@@ -2449,7 +2449,7 @@ Sub_ResetToMenu
 
         ; Load default value into accumulator and initialize specific memory locations
         lda     #$00                            ; Load #$00 into the accumulator
-        sta     SpriteEnableRegister            ; Store accumulator value into SpriteEnableRegister
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to #00. Disable all sprites.
         sta     ExtraBackgroundColor1           ; Store accumulator value into ExtraBackgroundColor1
         sta     ExtraBackgroundColor2           ; Store accumulator value into ExtraBackgroundColor2
         sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #00 (Black).
@@ -2530,7 +2530,7 @@ AllCrossesCollected                             ; $7f06
         nop					; No operation.
         nop					; No operation.
         lda     #$03       			; A = #03
-        sta     SpriteEnableRegister 	        ; Turn off all sprites other than boy and girl
+        sta     SpriteEnableRegister 	        ; Turn off all sprites other than boy and girl ($d015)
         ldy     #$73       			; Y = #73
         lda     (Adr_MapLow),y 			; A = ($11),y - which is ($11),73
         tax                                     ; Transfer A to X
@@ -2661,7 +2661,7 @@ L7FE9   .byte   $78,$00,$e0,$00,$e4,$00,$e8,$00,$ec,$00,$00,$00,$00,$00,$00,$4e
 		.include "Data/b5ff.asm"	; Basic junk data
 
 LC000   lda     LCF46,x				;
-        and     SpriteEnableRegister	        ;
+        and     SpriteEnableRegister	        ; Disable/enable sprites on SpriteEnableRegister ($d015) based on LCF46,x with AND operation.
         beq     _LC00E
         nop					; No operation.								;
         nop					; No operation.
@@ -2703,13 +2703,13 @@ Var_CurrentEnemy
         .byte   $01
 
 Sub_UpdateEnemySprites
-        jsr     Sub_VerticalMovingEnemies 	;A = Active enemy index
-        jsr     Sub_EnemyMSB 			;A = Active enemy index
-        lda     Var_CurrentEnemy 		;A = C0e3 (Alternates between #00-04)
-        tax                			;Transfer A to X
-        lda     LCF46,x    			;Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
-        ora     SpriteEnableRegister 		;Enable/disable sprite in $d015
-        sta     SpriteEnableRegister 		;Update sprite register
+        jsr     Sub_VerticalMovingEnemies 	; A = Active enemy index
+        jsr     Sub_EnemyMSB 			; A = Active enemy index
+        lda     Var_CurrentEnemy 		; A = C0e3 (Alternates between #00-04)
+        tax                			; Transfer A to X
+        lda     LCF46,x    			; Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
+        ora     SpriteEnableRegister 		; Disable/enable sprites on SpriteEnableRegister ($d015) based on LCF46,x with AND operation.
+        sta     SpriteEnableRegister 		; Update sprite register ($d015).
         lda     LCF68,x
         sta     SpritePointers,x
         jmp     LC6E0
@@ -2740,14 +2740,12 @@ Var_Jumping                                     ; $C19C
 Jump_C19D
         lda     L45FF                           ; Load the value at memory address $45FF into the accumulator (A)
         bne     +                               ; Branch if A is not equal to #00. Seems like $45ff is always #01.
-        lda     SpriteEnableRegister            ; Load the value at SpriteEnableRegister into the accumulator (A)
+        lda     SpriteEnableRegister            ; Load the value at SpriteEnableRegister ($d015) into the accumulator (A).
         jmp     LC7D4                           ; Jump to the label LC7D4
-
 +       lda     Var_Jumping                     ; Load the value at Var_Jumping into the accumulator (A) (#01 jumping / #00 not jumping)
         beq     +                               ; Branch if A is equal to #00 (not jumping)
         jmp     CheckLeftRightInput             ; Jump to the label CheckLeftRightInput if jumping
 +       jmp     L5418                           ; Jump to the label L5418
-
 
         .byte   $ea
 
@@ -2938,9 +2936,9 @@ If_C4BE lda     LC410
 LC4FB   cmp     #$01
         bne     If_C508
 Jump_C4FF
-        lda     SpriteEnableRegister
-        and     #$fd
-        sta     SpriteEnableRegister
+        lda     SpriteEnableRegister            ; Set A to SpriteEnableRegister ($d015).
+        and     #$fd                            ; Turn off Girl sprite.
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A.
         rts
 
 If_C508 lda     SpritePointer1
@@ -3003,9 +3001,9 @@ LC607   dec     LCF82,x
         cmp     #$fc
         bne     If_C63F
         lda     LCF46,x
-        eor     #$ff
-        and     SpriteEnableRegister
-        sta     SpriteEnableRegister
+        eor     #$ff                            ; Inverts all the bits in A.
+        and     SpriteEnableRegister            ; ($d015)
+        sta     SpriteEnableRegister            ; ($d015)
         lda     #$00				; A = #00
         sta     LCF4F,x
 If_C63F lda     L455B,x
@@ -3022,7 +3020,7 @@ JUMP_c646
         jsr     BSOUT                           ; Not sure why this exists
         nop					; No operation.
         lda     #$00				; Set A to #00
-        sta     SpriteEnableRegister            ; Disable all sprites
+        sta     SpriteEnableRegister            ; Disable all sprites ($d015)
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
@@ -3247,8 +3245,8 @@ LC7D4   and     #$02       			;Perform a bitwise AND operation with the value #$
         adc     #$e0       			;Add the value #$e0 to the accumulator with carry.
         jsr     L2D8D      			;Jump to a subroutine called L2D8D.
         lda     #$02       			;Load the value #$02 into the accumulator.
-        ora     SpriteEnableRegister 		;Perform a bitwise OR operation with the value of a variable called SpriteEnableRegister.
-        sta     SpriteEnableRegister 		;Store the result in the variable called SpriteEnableRegister.
+        ora     SpriteEnableRegister 		;ORA on SpriteEnableRegister ($d015).
+        sta     SpriteEnableRegister 		;Set SpriteEnableRegister ($d015) to A. Enable Girl sprite.
         lda     Sprite0XCoords 		        ;Load the value of a variable called Sprite0XCoords into the accumulator.
         sta     Sprite1XCoords 	                ;Store the result in a variable called Sprite1XCoords.
         lda     Sprite0YPos 			;Load the value of a variable called Sprite0YPos into the accumulator.
@@ -3585,7 +3583,7 @@ If_CA51 jsr     LC011                           ;Not sure what this does as it n
 If_CA61 jmp     LCA00
 
 LCA64   lda     Var_MovingLeftRight,x
-        and     SpriteEnableRegister
+        and     SpriteEnableRegister            ; ($d015)
         beq     RTS_CA6F
         jsr     LC37A
 RTS_CA6F
@@ -3610,7 +3608,7 @@ If_CA7D jmp     If_CD55
 Jump_CAED
         dec     LCF7C
         lda     #$01
-        sta     SpriteEnableRegister
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to #01. Enable only the girl sprite.
         jsr     Sub_56BC
         rts
 
@@ -3823,10 +3821,10 @@ Jump_CC81
         lda     L4538,x
         cmp     #$00
         bne     If_CCA4
-        jsr     LCEEE
-        eor     #$ff
-        and     SpriteEnableRegister
-        sta     SpriteEnableRegister
+        jsr     LCEEE                           ; Jump to subroutine at LCEEE
+        eor     #$ff                            ; EOR with #ff. Inversing the bits.
+        and     SpriteEnableRegister            ; Mask out the bits using SpriteEnableRegister ($d015).
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A.
         rts
 
 If_CCA4 jmp     LCC1F
@@ -3868,10 +3866,10 @@ RTS_CCF2
 
         .fill   2,$ea
 
-LCCF5   lda     SpriteEnableRegister            ;A = SpriteEnableRegister
-        and     #$80                            ;Isolate girl
-        cmp     #$00                            ;Check if girl is visible
-        beq     If_CD01                         ;Branch if girl not visible
+LCCF5   lda     SpriteEnableRegister            ; A = SpriteEnableRegister ($d015)
+        and     #$80                            ; Isolate girl (The one on the right)
+        cmp     #$00                            ; Check if girl is visible
+        beq     If_CD01                         ; Branch if girl not visible
         jmp     If_CD55
 
 If_CD01 jsr     LCD7B
@@ -3888,9 +3886,9 @@ If_CD09 jsr     LC9F1
 LCD17   cmp     #$04
         beq     If_CD55
         sta     LCF44
-        lda     SpriteEnableRegister
-        ora     #$80
-        sta     SpriteEnableRegister
+        lda     SpriteEnableRegister            ; Set A to SpriteEnableRegister ($d015)
+        ora     #$80                            ; ORA on SpriteEnableRegister ($d015) value.
+        sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A which will turn the Girl (Most right) on.
         lda     L454D
         sta     $d02e
         txa
@@ -3920,12 +3918,12 @@ If_CD55 inc     LCF45
         sta     LCF45
         lda     LCF44
         ldx     #$07
-        jsr     Sub_UpdateSpritePositions       ;A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
+        jsr     Sub_UpdateSpritePositions       ; A = Sprite / X = Direction (00 = up / 01 = down / 02 = left / 03 = right)
         cpy     #$ff
         bne     RTS_CD79
-        lda     SpriteEnableRegister
+        lda     SpriteEnableRegister            ; ($d015)
         and     #$7f
-        sta     SpriteEnableRegister
+        sta     SpriteEnableRegister            ; ($d015)
 RTS_CD79
         rts
 

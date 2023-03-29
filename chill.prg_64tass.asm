@@ -42,6 +42,7 @@ ExtraBackgroundColor2 = $d023
 ExtraBackgroundColor3 = $d024
 Adr_SprExtraCol1 = $d025
 Adr_SprExtraCol2 = $d026
+EnemySprColour = $d029
 Adr_Voice3Control = $d412
 Adr_Voice3AttackDecay = $d413
 FilterCutoffFrequencyLow = $d415
@@ -105,10 +106,10 @@ L2A29 	lsr     a          			; Divide by 2
         tya                			; Transfer Y to A. Y = (Y Pos - #2c) / 8 
         asl     a          			; Multiply by 2. This is to get the 
         tay                			; Transfer A to Y
-        ; *******************************************************************************
-        ; * $5100 is the top left character. Y is the number of characters from $5100   *
-        ; * from left to right. $fc is the high byte / $fb is the low byte.             *
-        ; *******************************************************************************
+                                                ; *******************************************************************************
+                                                ; * $5100 is the top left character. Y is the number of characters from $5100   *
+                                                ; * from left to right. $fc is the high byte / $fb is the low byte.             *
+                                                ; *******************************************************************************
         lda     Low_ScreenMap,y
         sta     Low_tempvar 			; Player position
         lda     High_ScreenMap,y
@@ -353,9 +354,7 @@ L2CF3   sta     L2E87                           ; Store A register value (from p
         .fill   2,$ea
 
 L2D00
-		ldx     #$00
-
-; The loop copies 5 bytes of data from the L45E7 address to the LCF76 address.
+	ldx     #$00                            ; The loop copies 5 bytes of data from the L45E7 address to the LCF76 address.
 -       lda     L45E7,x        			; Load data from the L45E7 address indexed by X into the accumulator (A).
         sta     LCF76,x        			; Store the data in the accumulator (A) to the LCF76 address indexed by X.
         inx                    			; Increment loop index X.
@@ -556,8 +555,8 @@ If_2F0A lda     L45B3,x
         .byte   $45,$85,$fc,$a0,$00,$b1,$fb,$99,$ff,$ff,$c8,$c0,$07,$d0,$f6,$68
         .byte   $aa,$60
 
-L2F38   sta     $d029,x
-        lda     L574A+20,x
+L2F38   sta     EnemySprColour,x                ; Store colour value to EnemySprColour,x (From Adr_EnemySprColour,x)
+        lda     L575E,x
         sta     Low_tempvar
         lda     LCF24,x
         sta     High_tempvar
@@ -577,47 +576,40 @@ L2F4D   jsr     Sub_SIDSetup
         .byte   $5f,$cf,$20,$6e,$ce,$60,$a9,$00,$8d,$ff,$ff,$20,$80,$ca,$4c,$d0
         .byte   $2e
 
-Sub_StartEnemyUpdate
-        inc     LCF75      			; Increment $cfb2
-        lda     LCF75      			; A = $cfb2
-        cmp     #$ff       			; Check if $cfb2 is up to 255 loops
-        beq     Sub_EnemyPositionLoop 		; Branch if looped through 254 times
+Sub_StartEnemyUpdate                            ; $2fb2
+        inc     EnemyLoopCount      		; Increment EnemyLoopCount
+        lda     EnemyLoopCount      		; Set A to EnemyLoopCount
+        cmp     #$ff       			; Check if A = 255
+        beq     Sub_EnemyPositionLoop 		; Branch if completed 255 loops, if not RTS.
         rts                			; Return from subroutine (Back to $ca57)
 
                                                 ;***************************************
                                                 ;*        Enemy positioning loop       *
                                                 ;***************************************
 Sub_EnemyPositionLoop
-        lda     #$00                            ; Clear A register
-        sta     LCF75                      	; Initialize LCF75 to 0
+        lda     #$00                            ; Set A to #00
+        sta     EnemyLoopCount                  ; Reset EnemyLoopCount to #00
         ldx     #$00                            ; Initialize loop index X to 0 (Enemy index)
-Loop_NextEnemy
-                                                ; Check if the enemy is visible. If so, skip to next enemy.
+Loop_NextEnemy                                  ; Check if the enemy is visible. If so, skip to next enemy.
 	lda     Var_BinaryEnemyNum,x            ; Load binary enemy number at index X
         and     SpriteEnableRegister            ; AND with SpriteEnableRegister ($d015) to check if the enemy is visible
         cmp     #$00                            ; Compare the result to 0
-        bne     NextEnemy                  	; If enemy is visible, skip to NextEnemy
-		
-		                                ; Load the value at LCF76+the loop index. If the value is zero, skip to next enemy.
+        bne     NextEnemy                  	; If enemy is visible, skip to NextEnemy				                                
         lda     LCF76,x                         ; Load LCF76 value at index X
         cmp     #$00                            ; Compare the value to 0
         beq     NextEnemy                  	; If equal to 0, skip to NextEnemy
-
         txa                                     ; Transfer X (Current index) to A
         pha                                     ; Push accumulator to the stack
         jsr     LC9F1                           ; Call subroutine LC9F1
         pla                                     ; Pull accumulator from the stack
         tax                                     ; Transfer A back to X
-
         tya                                     ; Transfer Y to A
         and     #$7f                            ; AND A with $7F (masking upper bit)
         cmp     L45E2,x                         ; Compare A to the value at L45E2 indexed by X
         bpl     NextEnemy                  	; If result is positive, skip to NextEnemy
-
         txa                                     ; Transfer X (Enemy index) to A
         jsr     Sub_UpdateEnemySprites          ; Call subroutine to update enemy sprites using A as the enemy index
         dec     LCF76,x                         ; Decrement the value at LCF76 indexed by X
-
         lda     #$01                            ; Load 1 into A
         sta     LCF29,x                         ; Store A (1) at LCF29 indexed by X
         lda     #$00                            ; Clear A register
@@ -914,15 +906,15 @@ Sub_VerticalMovingEnemies
         txa                			;Transfer X to A
         rts
 
-L566D   ldx     #$00
-- 	lda     L45E7,x
-        sta     LCF76,x
-        inx
-        cpx     #$05
-        bne     -
-        lda     L45EC
-        sta     SpritePointer0
-        rts
+L566D   ldx     #$00                            ; Set X to #00
+- 	lda     L45E7,x                         ; Set A to L45E7,x.
+        sta     LCF76,x                         ; Set LCF76,x to A.
+        inx                                     ; Increase X.
+        cpx     #$05                            ; Compare X to #05
+        bne     -                               ; Loop if not at 5.
+        lda     L45EC                           ; Set A to L45EC
+        sta     SpritePointer0                  ; Set SpritePointer0 to A.
+        rts                                     ; RTS
 
 L5681   ldx     #$00
 L5683   lda     L3408+224,x
@@ -1001,7 +993,9 @@ Sub_5733
         rts					; Return from subroutine.
 
 L574A   .byte   $90,$92,$85,$93,$93,$a0,$83,$94,$92,$8c,$a0,$86,$8f,$92,$a0,$8d
-        .byte   $85,$8e,$95,$ea,$1e,$20,$1e,$1e,$22,$ea,$ea,$ea,$ea,$ea
+        .byte   $85,$8e,$95,$ea,
+L575E   .byte   $1e,$20,$1e,$1e,$22
+        .byte   $ea,$ea,$ea,$ea,$ea
 
 L5768   jmp     L7280
 
@@ -1765,7 +1759,7 @@ L5D22   ldy     #$b0
         stx     Low_tempvar
         sty     High_tempvar
         lda     #$00					; A = #00
-        sta     Var_SpriteCollision
+        sta     Var_SpriteCollision                     ; Reset Var_SpriteCollision.
         lda     #$d8
         sta     $fe
 -	ldy     #$00
@@ -1933,7 +1927,7 @@ Sub_SetupScreen                                 ; X is the level select. 00=Fore
         sta     SpritePointer1
         iny
         lda     (Adr_MapLow),y
-        sta     LCF68
+        sta     EnemyStartSprPointer
         iny
         lda     (Adr_MapLow),y
         sta     LCF69
@@ -1978,10 +1972,10 @@ Sub_SetupScreen                                 ; X is the level select. 00=Fore
         sta     LCF3C
         iny
         lda     (Adr_MapLow),y
-        sta     Var_Num01+2
+        sta     Adr_EnemySprColour
         iny
         lda     (Adr_MapLow),y
-        sta     Var_Num01+3
+        sta     L45AE
         iny
         lda     (Adr_MapLow),y
         sta     L45AF
@@ -2038,19 +2032,19 @@ Sub_SetupScreen                                 ; X is the level select. 00=Fore
         sta     L45E6
         iny
         lda     (Adr_MapLow),y
-        sta     L574A+20
+        sta     L575E
         iny
         lda     (Adr_MapLow),y
-        sta     L574A+21
+        sta     L575E+1
         iny
         lda     (Adr_MapLow),y
-        sta     L574A+22
+        sta     L575E+2
         iny
         lda     (Adr_MapLow),y
-        sta     L574A+23
+        sta     L575E+3
         iny
         lda     (Adr_MapLow),y
-        sta     L574A+24
+        sta     L575E+4
         iny
         lda     (Adr_MapLow),y
         sta     LCF24
@@ -2555,7 +2549,7 @@ L7F2E   sta     Var_EnemyXPosition-1
 
         .fill   27,$00
 
-L7F50   lda     High_tempvar 			; A = #fc
+L7F50   lda     High_tempvar 			; Set A to High_tempvar ($fc).
         nop					; No operation.
         clc                			; Clear carry
         adc     #$d4       			; Add 
@@ -2565,8 +2559,8 @@ L7F50   lda     High_tempvar 			; A = #fc
         tax
         lda     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
         beq     _L7F67                          ; Branch to _L7F67 if boy.
-        cpx     #$00                            ; Compare X to #00
-        beq     _L7F6C
+        cpx     #$00                            ; Compare X to #00.
+        beq     _L7F6C                          ; Branch to _L7F6C if X = #00.
         rts
 
 _L7F67  cpx     #$04                            ; Compare X to #04
@@ -2578,7 +2572,7 @@ _L7F6C  lda     High_tempvar 			; A = $fc (Low byte of screen address)
         sbc     #$d4
         sta     High_tempvar
         lda     #$a0       			; A = #a0 (Blank sprite)
-        sta     (Low_tempvar),y 		; Remove cross from ($fb),y which is screen address
+        sta     (Low_tempvar),y 		; Replace cross with blank space at ($fb),y (Screen address)
         jmp     IncMagicCrossNumRight
 
         .fill   6,$ea
@@ -2659,8 +2653,8 @@ L7FE9   .byte   $78,$00,$e0,$00,$e4,$00,$e8,$00,$ec,$00,$00,$00,$00,$00,$00,$4e
                                                 ;***************************************
 		.include "Data/b5ff.asm"	; Basic junk data
 
-LC000   lda     LCF46,x				;
-        and     SpriteEnableRegister	        ; Disable/enable sprites on SpriteEnableRegister ($d015) based on LCF46,x with AND operation.
+LC000   lda     EnemyBinarySelect,x				; Set A to EnemyBinarySelect,x. This returns the binary sprite to enable/disable (0000 0100, 0000 1000, 0001 0000, 0010 0000, 0100 0000).      
+        and     SpriteEnableRegister	        ; Disable/enable sprites on SpriteEnableRegister ($d015) based on EnemyBinarySelect,x with AND operation.
         beq     _LC00E
         nop					; No operation.								;
         nop					; No operation.
@@ -2706,11 +2700,11 @@ Sub_UpdateEnemySprites
         jsr     Sub_EnemyMSB 			; A = Active enemy index
         lda     Var_CurrentEnemy 		; A = C0e3 (Alternates between #00-04)
         tax                			; Transfer A to X
-        lda     LCF46,x    			; Load value to select sprite to enable/disable (#04,#08,#10,#20,#40)
-        ora     SpriteEnableRegister 		; Disable/enable sprites on SpriteEnableRegister ($d015) based on LCF46,x with AND operation.
+        lda     EnemyBinarySelect,x    		; Set A to EnemyBinarySelect,x. This returns the binary sprite to enable/disable (0000 0100, 0000 1000, 0001 0000, 0010 0000, 0100 0000).
+        ora     SpriteEnableRegister 		; Enable enemy sprite at SpriteEnableRegister ($d015).
         sta     SpriteEnableRegister 		; Update sprite register ($d015).
-        lda     LCF68,x
-        sta     SpritePointers,x
+        lda     EnemyStartSprPointer,x          ; Load the starting sprite pointer for the enemy.
+        sta     SpritePointers,x                ; Update enemy sprite pointer to starting point.
         jmp     LC6E0
 
         .byte   $80,$40,$20,$10,$08,$04,$02,$01,$a0,$00,$a9,$78,$85,$fb,$a9,$04
@@ -2786,7 +2780,7 @@ Sub_C29D
 LC2A1   lda     #$a8
         sta     High_tempvar
 LC2A5   lda     #$00
-        sta     Var_SpriteCollision
+        sta     Var_SpriteCollision                     ; Reset Var_SpriteCollision.
 LC2A9   lda     #$30
         sta     $fe
 LC2AD   lda     #$ff
@@ -2995,11 +2989,11 @@ LC607   dec     LCF82,x
         lda     LCF54,x
         cmp     #$00
         bne     RTS_C645
-        inc     SpritePointers,x
-        lda     SpritePointers,x
-        cmp     #$fc
-        bne     If_C63F
-        lda     LCF46,x
+        inc     SpritePointers,x                ; Increase SpritePointers,x ($07fa,x which is $07fa with the offset of the enemy). This will move to next enemy
+        lda     SpritePointers,x                ; Set A to SpritePointers,x ($07fa,x which is $07fa with the offset of the enemy).
+        cmp     #$fc                            ; Compare A (SpritePointers,x) to #fc.
+        bne     If_C63F                         ;       
+        lda     EnemyBinarySelect,x                         ; Set A to EnemyBinarySelect,x. This returns the binary enemy sprite to enable/disable (0000 0100, 0000 1000, 0001 0000, 0010 0000, 0100 0000).
         eor     #$ff                            ; Inverts all the bits in A.
         and     SpriteEnableRegister            ; ($d015)
         sta     SpriteEnableRegister            ; ($d015)
@@ -3069,8 +3063,8 @@ JUMP_c646
         nop					; No operation.
         nop					; No operation.
 		
-LC694   lda     Var_Num01                       ; Load the value at Var_Num01 into the accumulator (A).
-        bne     If_C6AC                         ; Branch to label If_C6AC if A is not equal to 0 (if Var_Num01 is not 0).
+LC694   lda     L45AB                           ; Load the value at L45AB into the accumulator (A).
+        bne     If_C6AC                         ; Branch to label If_C6AC if A is not equal to 0 (if L45AB is not 0).
 
         lda     #$00                            ; A = #00
         sta     Var_CurrentEnemyIndex           ; Set Var_CurrentEnemyIndex to 0 (initialize enemy index to the first enemy).
@@ -3078,7 +3072,7 @@ LC694   lda     Var_Num01                       ; Load the value at Var_Num01 in
 - 	jsr     Sub_UpdateEnemySprites	        ; Call the subroutine Sub_UpdateEnemySprites to update the enemy sprites.
         inc     Var_CurrentEnemyIndex           ; Increment the enemy index.
         lda     Var_CurrentEnemyIndex           ; Load the value of Var_CurrentEnemyIndex into the accumulator (A).
-        cmp     Var_Num01+1                     ; Compare the value in A with the value at Var_Num01+1.
+        cmp     L45AC                           ; Compare the value in A with the value at L45AC.
         bne     -                  		; If the values are not equal, branch back to label - to continue updating enemy sprites.
 
 If_C6AC jsr     LC032                           ; Call the subroutine at label LC032.
@@ -3103,12 +3097,11 @@ If_C6C9 sta     LCF1A,x                         ; Store the value of A into the 
         inx                                     ; Increment the value of X.
         cpx     #$05                            ; Compare the value of X with #$05.
         bne     If_C6C9                         ; If the values are not equal, branch back to label If_C6C9 to continue storing values.
-        lda     Adr_SpriteCollision             ; Load the value at Adr_SpriteCollision into the accumulator (A).
+        lda     Adr_SpriteCollision             ; Load the value at Adr_SpriteCollision ($d01e) into the accumulator (A).
         jmp     L2D00                           ; Jump to the label L2D00.
 
-LC6E0   lda     Var_Num01+2,x                   ; Load the value at Var_Num01+2+x into the accumulator (A).
+LC6E0   lda     Adr_EnemySprColour,x            ; Load the value at Adr_EnemySprColour+x into the accumulator (A).
         jmp     L2F38                           ; Jump to the label L2F38.
-
 
         .byte   $60
 
@@ -3504,29 +3497,14 @@ Var_SpriteMSBOn
         .byte   $40
         .byte   $80
 
-; SUBROUTINE: LC9F1 - Perform a custom XOR operation using an index address based on the value at LCF14 and memory location $a2
-; This subroutine increments the value at LCF14, then performs an XOR operation between the value
-; at LC000+X (where X is the value from LCF14) and the value at memory location $a2. The result
-; of this operation is transferred to the Y register, and the X register is set to #$20 before
-; returning from the subroutine.
-LC9F1   
-    ; Increment LCF14 and load its value into X register
+LC9F1                                                   
     inc     LCF14                               ; Increment the value stored at LCF14
-    ldx     LCF14                               ; Load the value stored at LCF14 into X register
-
-    ; Perform EOR operation between the value at LC000+X and the value at $a2
+    ldx     LCF14                               ; Load the value stored at LCF14 into X register    
     lda     LC000,x                             ; Load the value stored at LC000+X into A register
-    eor     $a2                                 ; Perform an XOR operation between the value in A and the value in $a2
-
-    ; Transfer the result to Y register and set X register to #$20
+    eor     $a2                                 ; Perform an XOR operation between the value in A and the value in $a2    
     tay                                         ; Transfer the result from A register to Y register
-    ldx     #$20                                ; Load the value #$20 into X register
-
-    ; Return from subroutine
+    ldx     #$20                                ; Load the value #$20 into X register    
     rts                                         ; Return from subroutine
-
-
-
 
 LCA00   jsr     Branch_DamageBorderColour
         jsr     L5800
@@ -3771,7 +3749,7 @@ If_CC2D lda     #$00                            ; Set A to #00
         beq     If_CC3C
         jmp     Jump_CC65
 
-If_CC3C lda     L574A+20,x
+If_CC3C lda     L575E,x
         sta     Low_tempvar
         lda     LCF24,x
         sta     High_tempvar
@@ -3797,7 +3775,7 @@ Jump_CC65
         and     #$3f
         tay
         ldx     Temp_CurrentEnemy
-        lda     L574A+20,x
+        lda     L575E,x
         sta     Low_tempvar
         lda     LCF24,x
         sta     High_tempvar
@@ -3902,7 +3880,7 @@ LCD17   cmp     #$04
         lda     #$7f
         and     SpriteXMSBRegister
         sta     SpriteXMSBRegister
-        and     LCF46,x
+        and     EnemyBinarySelect,x                         ; Set A to EnemyBinarySelect,x. This returns the binary sprite to enable/disable (0000 0100, 0000 1000, 0001 0000, 0010 0000, 0100 0000).
         cmp     #$00
         beq     If_CD55
         lda     #$80
@@ -3947,23 +3925,20 @@ RTS_CD96
 
 LCD9D   lda     Var_SpriteCollision 	        ; Load the value at Var_SpriteCollision into the accumulator (A).
         and     #$02       			; Perform a bitwise AND operation with #$02 to isolate the second bit, which might represent the girl's collision information.
-        bne     If_CDA6    			; Branch to label If_CDA6 if the collision is related to the second bit (Girl's collision).
-        jmp     RTS_CD96   			; Jump to the label RTS_CD96 and return from the subroutine if the collision is not related to the second bit.
-
-
-If_CDA6 ldx     #$00                            ;X = #00
-        ldy     #$00                            ;Y = #00
-IF_CDAA lda     LCF46,x
-        and     Var_SpriteCollision
+        bne     +    			        ; Branch to next symbol if the collision is related to the second bit (Girl's collision).
+        jmp     RTS_CD96   			; RTS if the collision is not on the girl.
++       ldx     #$00                            ; X = #00
+        ldy     #$00                            ; Y = #00
+-       lda     EnemyBinarySelect,x                         ; Set A to EnemyBinarySelect,x. This returns the binary sprite to enable/disable (0000 0100, 0000 1000, 0001 0000, 0010 0000, 0100 0000).
+        and     Var_SpriteCollision             ; AND on Var_SpriteCollision.
         beq     If_CDB2
-        iny
-If_CDB2 inx
-        cpx     #$05
-        bne     IF_CDAA
-        cpy     #$00
-        bne     If_CDBE
-        jmp     RTS_CD96
-
+        iny                                     ; Increase Y
+If_CDB2 inx                                     ; Increase X
+        cpx     #$05                            ; Compare X to #05. This checks to see if has checked the last enemy.
+        bne     -                               ; If not last enemy, begin next sprite enemy check.
+        cpy     #$00                            ; Compare Y to #00.
+        bne     If_CDBE                         ; Branch if Y != #00
+        jmp     RTS_CD96                        ; RTS
 If_CDBE ldx     #$02
         jsr     Update_DamageOccuring
         rts
@@ -4021,7 +3996,7 @@ Temp_Something1
         .byte   $ae,$4e,$cf,$bd,$60,$45,$8d,$5a,$cf,$bd,$65,$45,$8d,$5b,$cf,$bd
         .byte   $6a,$45,$8d,$5c,$cf,$20,$42,$ce,$60,$ea,$ea,$ea
 
-LCE87   lda     Adr_SpriteCollision   	        ; Load the value at Adr_SpriteCollision into the accumulator (A).
+LCE87   lda     Adr_SpriteCollision   	        ; Load the value at Adr_SpriteCollision ($d01e) into the accumulator (A).
         sta     Var_SpriteCollision             ; Store the value in the accumulator (A) into Var_SpriteCollision.
         and     #$01                            ; Perform a bitwise AND operation with #$01 to isolate the boy's collision information.
         bne     +                               ; Branch as the boy has had a collision.
@@ -4032,7 +4007,7 @@ LCE87   lda     Adr_SpriteCollision   	        ; Load the value at Adr_SpriteCol
         rts                                     ; Return from the subroutine if the girl has a collision.
 +       ldx     #$00                            ; Set the X register to #00, initializing it.
         ldy     #$00                            ; Set the Y register to #00, initializing it.
--       lda     LCF46,x                         ; Load the value at address LCF46+x into the accumulator (A). This will increase through each enemy (#04, #08, #10, #20, #40).
+-       lda     EnemyBinarySelect,x                         ; Set A to EnemyBinarySelect,x. This returns the binary sprite to enable/disable (0000 0100, 0000 1000, 0001 0000, 0010 0000, 0100 0000).
         and     Var_SpriteCollision             ; Perform a bitwise AND operation with Var_SpriteCollision to check if the selected sprite caused a collision.
         beq     +                               ; Branch to the next code block (marked as '+') if the selected enemy caused a collision.
         iny                                     ; Increment the Y register. This is used to confirm that an enemy was found.
@@ -4152,7 +4127,7 @@ LCF41   .byte   $38
 LCF43   .byte   $3c
 LCF44   .byte   $02
 LCF45   .byte   $2f
-LCF46   .byte   $04,$08,$10,$20,$40,$80
+EnemyBinarySelect   .byte   $04,$08,$10,$20,$40,$80
 LCF4C   .byte   $49,$10,$02
 LCF4F   .fill   5,$00
 LCF54   .byte   $40,$08,$04,$08,$04,$0a
@@ -4171,14 +4146,16 @@ Temp_EnemyCollidedInt
 LCF65   .byte   $ff
 LCF66   .byte   $00
 LCF67   .byte   $00
-LCF68   .byte   $a0
+EnemyStartSprPointer   
+        .byte   $a0
 LCF69   .byte   $a4
 LCF6A   .byte   $94
 LCF6B   .byte   $90
 LCF6C   .byte   $38,$ba,$c1,$c8,$cf,$d6,$ea
 LCF73   .byte   $00
 LCF74   .byte   $00
-LCF75   .byte   $c1
+EnemyLoopCount   
+        .byte   $c1
 LCF76   .byte   $c6,$c6,$14,$00,$c6,$40
 LCF7C   .byte   $b3
 Var_GameOverFlag   .byte   $00                  ; (#01 Game over / #00 Not over)

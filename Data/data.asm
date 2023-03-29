@@ -1457,10 +1457,10 @@ L457A   .byte   $ff
         .byte   $0f
         .byte   $0e
         .byte   $0e
-Var_Num01
-        .byte   $01
-        .byte   $05
-        .byte   $00
+L45AB   .byte   $01                             ; $45ab
+L45AC   .byte   $05                             ; $45ac
+Adr_EnemySprColour   
+        .byte   $00                             ; $45ad
 L45AE   .byte   $0b
 L45AF   .byte   $01
 L45B0   .byte   $08

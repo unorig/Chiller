@@ -1007,55 +1007,56 @@ L576B   jsr     Sub_WaitForCurrentRaster 	; JSR from $5d65
         ora     #$03                            ; Turn off all sprites other than boy and girl ($d015).
         sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A.
         lda     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
-        beq     If_5783    			; Have not seen this executed yet.
-        jmp     Jump_57BD
+        beq     ChangeToGirl    		; Branch if boy active.
+        jmp     ChangeToBoy                     ; Jump if girl active.
 
-If_5783 lda     #$01
-        sta     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
-        lda     #$e8
-        sta     L582C+1
-        lda     #$ec
-        sta     L5831+1
-        lda     #$f0
-        sta     Jump_58A8+1
-        lda     #$f1
+ChangeToGirl 
+        lda     #$01                            ; Set A to #01
+        sta     Var_BoyGirlToggle               ; Set Var_BoyGirlToggle ($5a08) to Girl (#01). #00 = Boy / #01 = Girl.
+        lda     #$e8                            ; Set A to #e8
+        sta     L582C+1                         ; Set L582C+1 to #e8. This will update L582C value.
+        lda     #$ec                            ; Set A to #ec
+        sta     L5831+1                         ; Set L5831+1 to #e8. This will update L5831 value.
+        lda     #$f0                            ; Set A to #f0.
+        sta     Jump_58A8+1                     ; Set Jump_58A8 to #f0. This wil update Jump_58A8 value.
+        lda     #$f1                            ; Set A to #f1.
         sta     L5847+1
-        lda     #$f6
+        lda     #$f6                            ; Set A to #f6.
         sta     L584B+1
-        lda     #$f2
+        lda     #$f2                            ; Set A to #f2
         sta     L5875+1
-        lda     #$f6
+        lda     #$f6                            ; Set A to #f6
         sta     If_587A+1
-        lda     #$f1
+        lda     #$f1                            ; Set A to #f1
         sta     If_58a3+1
-        lda     #$f0
+        lda     #$f0                            ; Set A to #f0
         sta     L589A+1
-        lda     #$0a
+        lda     #$0a                            ; Set A to #0a.
         sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #0a (Pink).
         jmp     Jump_5844
 
-Jump_57BD
+ChangeToBoy
         lda     #$00				; A = #00
-        sta     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
-        lda     #$d8
+        sta     Var_BoyGirlToggle               ; Set Var_BoyGirlToggle ($5a08) to Boy (#00). #00 = Boy / #01 = Girl.
+        lda     #$d8                            ; Set A to
         sta     L582C+1
-        lda     #$dc
+        lda     #$dc                            ; Set A to
         sta     L5831+1
-        lda     #$e0
+        lda     #$e0                            ; Set A to
         sta     Jump_58A8+1
-        lda     #$e1
+        lda     #$e1                            ; Set A to
         sta     L5847+1
-        lda     #$e6
+        lda     #$e6                            ; Set A to
         sta     L584B+1
-        lda     #$e2
+        lda     #$e2                            ; Set A to
         sta     L5875+1
-        lda     #$e6
+        lda     #$e6                            ; Set A to
         sta     If_587A+1
-        lda     #$e1
+        lda     #$e1                            ; Set A to
         sta     If_58a3+1
-        lda     #$e0
+        lda     #$e0                            ; Set A to
         sta     L589A+1
-        lda     #$06
+        lda     #$06                            ; Set A to #06
         sta     Adr_BorderColor                 ; Set Adr_BorderColor ($d020) to #06 (Blue)
         jmp     Jump_5844
 
@@ -1079,10 +1080,10 @@ L5800   inc     Var_SomethingRandom 		; Increase Var_SomethingRandom
         lda     #$ad                            ; Load A with #ad. This changes the Sprite 0 frame update to a 'Load function'.
         sta     UpdateSprPointer0               ; Set UpdateSprPointer0 to #ad. This returns the function to an LDA from a previou RTS.
         jsr     Sub_CheckSlidingOnRope
-L582C   lda     #$e8
-        sta     LC79B+1
-L5831   lda     #$ec
-        sta     LC7C5+1
+L582C   lda     #$e8                            ; Value will be manipulated based on boy/girl switch.
+        sta     LC79B+1                         ; Store value to an operation relating to spritepointers.
+L5831   lda     #$ec                            ; Value will be manipulated based on boy/girl switch.
+        sta     LC7C5+1                         ; Store value to an operation relating to spritepointers.
 If_5836 jmp     L59E6
 
         .fill   11,$ea
@@ -3196,8 +3197,8 @@ LC71B   lda     #$00                		; A = #00
         and     #$03       			;Perform a bitwise AND operation with the value #$03.
         clc                 			;Clear the carry flag.
 
-LC79B   adc     #$e8       			;Add the value #$e8 to the accumulator (which contains a sprite pointer) with carry.
-        sta     SpritePointer0 			;Store the result in the variable called SpritePointer0.
+LC79B   adc     #$e8       			; Add the value #$e8 to the accumulator (which contains a sprite pointer) with carry.
+        sta     SpritePointer0 			; Store the result in the variable called SpritePointer0.
 +       lda     Var_LeftRightInput 		; Load the value of a variable called Var_LeftRightInput into the accumulator.
         cmp     #$01       			; Compare it to the value #$01, which means "going right".
         bne     +          			; If it's not equal to #$01, branch to the next code block (i.e. skip the code that follows).
@@ -3797,7 +3798,7 @@ Jump_CC81
         lda     L4538,x
         cmp     #$00
         bne     If_CCA4
-        jsr     LCEEE                           ; Jump to subroutine at LCEEE
+        jsr     LCEEE                           ; Jump to subroutine at LCEEE. Returns with Var_BinaryEnemyNum,x.
         eor     #$ff                            ; EOR with #ff. Inversing the bits.
         and     SpriteEnableRegister            ; Mask out the bits using SpriteEnableRegister ($d015).
         sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A.

@@ -176,12 +176,12 @@ Var_JumpAscDesc
 Var_JumpAscDescTimer                            ; $2a7f
         .byte   $09
 
-Sub_2A80
-        stx     Low_tempvar 			; X = $fb (From $2a80. Passed with X = #bf)
-        sty     High_tempvar 			; Y = $fc (From $2a80. Passed with Y = #5b)
+Sub_2A80                                        ; Pretty sure this is the load charset self-modifying code        
+        stx     Low_tempvar 			; X = $fb 
+        sty     High_tempvar 			; Y = $fc 
         ldy     #$00       			; Y = #00
         lda     (Low_tempvar),y 		; A = 5bbf,00. Start of the index set.
-        sta     Sub_C29D+1 			; $C29E = #00
+        sta     LoadCharSet+1 			; $C29E = #00
         iny                			; Increase Y
         lda     (Low_tempvar),y 		; A = #b2
         sta     LC2A1+1    			; $C2A2 = #b2
@@ -197,7 +197,7 @@ Sub_2A80
         iny                			; Increase Y
         lda     (Low_tempvar),y 		; A = #30
         sta     LC2A9+1    			; C2AA = #30
-        jsr     Sub_C29D
+        jsr     LoadCharSet
         rts                			; Return from subroutine
 
         .byte   $dc,$9d,$bd,$a0,$2a,$20,$80,$2a,$a2,$c3,$a0,$2a,$20,$80,$2a,$60
@@ -2775,35 +2775,35 @@ Var_UpInput
         .byte   $8d,$10,$d0,$88,$c0,$00,$a9,$00,$a2,$00,$e8,$e0,$00,$d0,$fb,$aa
         .byte   $e8,$8a,$c9,$06,$d0,$f2,$c0,$00,$d0,$d7,$60,$ea,$ea,$ea
 
-Sub_C29D
-        lda     #$00					; A = #00
-        sta     Low_tempvar
-LC2A1   lda     #$a8
-        sta     High_tempvar
-LC2A5   lda     #$00
-        sta     Var_SpriteCollision                     ; Reset Var_SpriteCollision.
-LC2A9   lda     #$30
-        sta     $fe
-LC2AD   lda     #$ff
-        sta     $0390
-LC2B2   lda     #$ab
-        sta     $0391
-        ldy     #$00
-If_C2B9 lda     (Low_tempvar),y
-        sta     (Var_SpriteCollision),y
-        inc     Low_tempvar
-        bne     If_C2C3
-        inc     High_tempvar
-If_C2C3 inc     Var_SpriteCollision
-        bne     If_C2C9
-        inc     $fe
-If_C2C9 lda     $0391
-        cmp     High_tempvar
-        bne     If_C2B9
-        lda     $0390
-        cmp     Low_tempvar
-        bne     If_C2B9
-        rts
+LoadCharSet
+        lda     #$00				; A = #00
+        sta     Low_tempvar                     ; Set Low_tempvar to #00
+LC2A1   lda     #$a8                            ; Set A to #a8
+        sta     High_tempvar                    ; Set High_tempvar to #a8
+LC2A5   lda     #$00                            ; Set A to #00
+        sta     Var_SpriteCollision             ; Reset Var_SpriteCollision.
+LC2A9   lda     #$30                            ; Set A to #30
+        sta     $fe                             ; Set $fe to #30
+LC2AD   lda     #$ff                            ; Set A to #ff
+        sta     $0390                           ; Set $0390 to #ff
+LC2B2   lda     #$ab                            ; Set A to #ab
+        sta     $0391                           ; Set $0391 to #ab
+        ldy     #$00                            ; Set Y to #00
+-       lda     (Low_tempvar),y                 ; Set A to $b200,00 initially
+        sta     (Var_SpriteCollision),y         ; Set $3000,y to $b200,00
+        inc     Low_tempvar                     ; Increase Low_tempvar.
+        bne     +                               ; Branch if not #00
+        inc     High_tempvar                    ; Increase High_tempvar
++       inc     Var_SpriteCollision             ; Var_SpriteCollision
+        bne     +                               ; Branch if not #00
+        inc     $fe                             ; Increase $fe
++       lda     $0391                           ; Set A to $0391
+        cmp     High_tempvar                    ; Compare High_tempvar to $0391
+        bne     -                               ; Branch if not equal
+        lda     $0390                           ; Se A to #0390
+        cmp     Low_tempvar                     ; Compare Low_tempvar to $0390
+        bne     -                               ; Branch if not equal
+        rts                                     ; RTS
 
         .byte   $a2,$00,$a9,$0b,$9d,$00,$d8,$9d,$00,$d9,$9d,$00,$da,$9d,$00,$db
         .byte   $a9,$a0,$9d,$00,$04,$9d,$00,$05,$9d,$00,$06,$9d,$00,$07,$e8,$e0
@@ -2883,17 +2883,17 @@ If_C46B lda     CurrentRasterLine               ; Set A to CurrentRasterLine ($d
 
         .byte   $ea,$ad,$76,$c4,$ea,$ea,$ea
 
-Jump_C47F
-        lda     #$bf
-        sta     Low_tempvar
-        lda     #$07
-        sta     High_tempvar
-        lda     #$bf
-        sta     Var_SpriteCollision
-        lda     #$db
-        sta     $fe
-If_C48F ldy     #$00
-        lda     (Low_tempvar),y
+Jump_C47F                                       ; I cant see when this is executed.
+        lda     #$bf                            ; Set A to #bf
+        sta     Low_tempvar                     ; Set Low_tempvar to #bf
+        lda     #$07                            ; Set A to #07
+        sta     High_tempvar                    ; Set High_tempvar to #07
+        lda     #$bf                            ; Set A to #bf
+        sta     Var_SpriteCollision             ; Set Var_SpriteCollision to #bf (1011 1111)
+        lda     #$db                            ; Set A to #db
+        sta     $fe                             ; Set $fe to#db
+If_C48F ldy     #$00                            ; Set Y to #00
+        lda     (Low_tempvar),y                 ; 
         tax
         lda     (Var_SpriteCollision),y
         ldy     #$28

@@ -754,7 +754,7 @@ Sub_SetTempSprite0YPos                          ; Set Temp_Sprite0YPos to the Sp
 Sub_UpdateYPosJumping   
         lda     Sprite0YPos          	        ; Load the Y position of Sprite0 into the accumulator (A)
         cmp     Temp_Sprite0YPos     	        ; Compare the current Y position with the temporary Y position of Sprite0
-        bne     +              		        ; Branch if the positions are not equal (i.e., Sprite0 has moved vertically)
+        bne     +              		            ; Branch if the positions are not equal (i.e., Sprite0 has moved vertically)
         lda     #$01                 	        ; Load the value #01 into the accumulator (A)
         sta     Var_FallingStanding             ; Store the value #01 into Var_FallingStanding, indicating that the sprite is now falling.
 + 	inc     Var_JumpAscDesc                 ; Increment the value at memory location Var_JumpAscDesc by 1
@@ -777,7 +777,7 @@ L5467   lda     Sprite0YPos                     ; Load accumulator with value in
         rts                                     ; Return from the subroutine
 
 +	lda     #$00
-        sta     Var_Jumping 			;#01 jumping / #00 not jumping
+        sta     Var_Jumping 			        ;#01 jumping / #00 not jumping
         rts
 
         .fill   2,$ea
@@ -785,7 +785,7 @@ L5467   lda     Sprite0YPos                     ; Load accumulator with value in
 Jump_JumpSound
         lda     #$00				; A = #00
         sta     Adr_Voice3Control
-        lda     #$0d
+        lda     #$03
         sta     Adr_Voice3AttackDecay
         lda     #$00				; A = #00
         sta     FilterCutoffFrequencyLow-1
@@ -890,7 +890,7 @@ If_5526 dec     L54F7+3
 
 L5651   lda     L45FF                           ; Load A with L45FF (Is #01)
         beq     If_565E                         ; Wont branch.
-        lda     #$00			        ; A = #00
+        lda     #$00			                ; A = #00
         sta     Var_4500                        ; Set A to Var_4500 (#00)
         jmp     L570A                           ; Jump to L570A
 
@@ -900,10 +900,10 @@ If_565E jmp     Jump_5716
 
 Sub_VerticalMovingEnemies
         sta     Var_CurrentEnemy
-        tax                			;Transfer A to X (Current enemy)
-        lda     #$01      			;A = #01
-        sta     LCF33,x    			;$cf33,x = #01 ($cf33, current enemy)
-        txa                			;Transfer X to A
+        tax                			            ;Transfer A to X (Current enemy)
+        lda     #$01      			            ;A = #01
+        sta     LCF33,x    			            ;$cf33,x = #01 ($cf33, current enemy)
+        txa                			            ;Transfer X to A
         rts
 
 L566D   ldx     #$00                            ; Set X to #00
@@ -993,7 +993,7 @@ Sub_5733
         rts					; Return from subroutine.
 
 L574A   .byte   $90,$92,$85,$93,$93,$a0,$83,$94,$92,$8c,$a0,$86,$8f,$92,$a0,$8d
-        .byte   $85,$8e,$95,$ea,
+        .byte   $85,$8e,$95,$ea
 L575E   .byte   $1e,$20,$1e,$1e,$22
         .byte   $ea,$ea,$ea,$ea,$ea
 
@@ -1007,7 +1007,7 @@ L576B   jsr     Sub_WaitForCurrentRaster 	; JSR from $5d65
         ora     #$03                            ; Turn off all sprites other than boy and girl ($d015).
         sta     SpriteEnableRegister            ; Set SpriteEnableRegister ($d015) to A.
         lda     Var_BoyGirlToggle               ; ($5a08) #00 = Boy / #01 = Girl.
-        beq     ChangeToGirl    		; Branch if boy active.
+        beq     ChangeToGirl    		        ; Branch if boy active.
         jmp     ChangeToBoy                     ; Jump if girl active.
 
 ChangeToGirl 
@@ -1062,19 +1062,19 @@ ChangeToBoy
 
         .fill   9,$ea
 
-L5800   inc     Var_SomethingRandom 		; Increase Var_SomethingRandom
+L5800   inc     Var_SomethingRandom 		    ; Increase Var_SomethingRandom
         jsr     Sub_GoSlowRedZone               ; Check if in red health zone and update player speed if true.
         jsr     Sub_HealthBarUpdates
-        nop					; No operation.
-        nop					; No operation.	
+        nop					                    ; No operation.
+        nop					                    ; No operation.	
         lda     Var_5a00
         cmp     #$00
         beq     +
-        lda     Var_JumpDirection 		; Never taken (Left = #ff / Right = #01 / Up = #00)
-        sta     Var_LeftRightInput 		; Never taken
-+ 	lda     Var_Jumping 		        ; #01 jumping / #00 not jumping
-        cmp     #$00       			; Compare Var_Jumping
-        bne     If_5836    			; Branch if jumping
+        lda     Var_JumpDirection 		        ; Never taken (Left = #ff / Right = #01 / Up = #00)
+        sta     Var_LeftRightInput 		        ; Never taken
++ 	    lda     Var_Jumping 		            ; #01 jumping / #00 not jumping
+        cmp     #$00       			            ; Compare Var_Jumping
+        bne     If_5836    			            ; Branch if jumping
         lda     #$a9
         sta     Sub_GetInputs                   ; Get keyboard and joystick inputs and store to variables.
         lda     #$ad                            ; Load A with #ad. This changes the Sprite 0 frame update to a 'Load function'.
@@ -1311,13 +1311,16 @@ Sub_IncreaseHealthBlock
 
         .fill   3,$ea
 
-L59E6   lda     Var_Jumping 			; #01 jumping / #00 not jumping
-        beq     +    				; Branch if not jumping
-        dec     Var_JumpSkipDamage 		; Var_JumpSkipDamage will be set to #00 in the loop
-        bne     _rts				; Branch if not equal zero
-        lda     #$00				; A = #00
-        sta     Var_JumpSkipDamage 		; Var_JumpSomething = #00
-        jsr     Sub_ReduceHealthBar 		; Reduce health while jumping
+L59E6   lda     Var_Jumping 			        ; #01 jumping / #00 not jumping
+        beq     +    				            ; Branch if not jumping
+        dec     Var_JumpSkipDamage 		        ; Var_JumpSkipDamage will be set to #00 in the loop
+        bne     _rts				            ; Branch if not equal zero
+        lda     #$00				            ; A = #00
+        sta     Var_JumpSkipDamage 		        ; Var_JumpSomething = #00
+        ;jsr     Sub_ReduceHealthBar 		    ; Reduce health while jumping
+        nop
+        nop
+        nop
 _rts	rts
 
 + 	jmp     MoveHealthDec
@@ -3023,7 +3026,7 @@ JUMP_c646
         nop					; No operation.
         nop					; No operation.
         nop					; No operation.
-        ldx     #$08                            ; ($c660) This will set the start level. 00=Forest, 02=Cinema, 04=Ghetto, 06=Graveyard, 08=Haunted House
+        ldx     #$00                            ; ($c660) This will set the start level. 00=Forest, 02=Cinema, 04=Ghetto, 06=Graveyard, 08=Haunted House
         jsr     Sub_SetupScreen
         nop					; No operation.
         nop					; No operation.

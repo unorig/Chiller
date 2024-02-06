@@ -20,7 +20,7 @@ SpritePointer0 = $07f8
 SpritePointer1 = $07f9
 SpritePointers = $07fa
 Sprite0XCoords = $d000
-Sprite0YPos =   $d001
+Sprite0YCoords =   $d001
 Sprite1XCoords = $d002
 Sprite1YCoords = $d003
 Adr_EnemyXPosition = $d004
@@ -42,6 +42,8 @@ ExtraBackgroundColor2 = $d023
 ExtraBackgroundColor3 = $d024
 Adr_SprExtraCol1 = $d025
 Adr_SprExtraCol2 = $d026
+Sprite0Colour = $d027
+Sprite1Colour = $d028
 EnemySprColour = $d029
 Adr_Voice3Control = $d412
 Adr_Voice3AttackDecay = $d413
@@ -82,7 +84,7 @@ L2A00   lsr     a
 
 Sub_PlayerPosition
         sta     Var_PlayerDirection 		; Set Var_PlayerDirection - default is down (00 = up / 01 = down / 02 = left / 03 = right).
-        lda     Sprite0YPos 			; A = Sprite0YPos
+        lda     Sprite0YCoords 			; A = Sprite0YCoords
         sec                			; Set carry
 L2A0B   sbc     #$2c       			; Subtract with carry. Removing top border height.
         lsr     a          			; Divide by 2
@@ -636,12 +638,12 @@ _rts	rts
 
 If_535D lda     Temp_0c   		        ; A = $534b (Always seems to be #0c)
         sta     Temp_534c  		        ; $534c = $53cb
-        lda     Sprite0YPos 		        ; A = SpriteMSBYPosition
+        lda     Sprite0YCoords 		        ; A = SpriteMSBYPosition
         sta     Temp_SpriteMSBYPosition 	; Temp_SpriteMSBYPosition = SpriteMSBYPosition
         lda     #$01       			; 01 (Down) is passed to Sub_PlayerPosition as direction of player.
         ldx     #$00       			; X = #00
         jsr     Sub_PlayerPosition              ; This will work out player position and suitable actions (E.g. mushroom, etc)
-        lda     Sprite0YPos
+        lda     Sprite0YCoords
         cmp     Temp_SpriteMSBYPosition
         bne     If_537E
         jmp     L54A0
@@ -666,7 +668,7 @@ L538E   inc     Var_SomethingRandom             ; Increment Var_SomethingRandom 
 
         .fill   2,$ea
 
-If_539E jsr     Sub_SetTempSprite0YPos          ; Set Temp_Sprite0YPos to the Sprite 0 Y Position and load A with Var_FallingStanding (#01 Falling or Standing / #00 Jumping).
+If_539E jsr     Sub_SetTempSprite0YCoords          ; Set Temp_Sprite0YCoords to the Sprite 0 Y Position and load A with Var_FallingStanding (#01 Falling or Standing / #00 Jumping).
         bne     BeginFall 		        ; Branch if Var_FallingStanding not #00 (Beginning to fall).
         lda     #$00			        ; 00 (Up) is passed to Sub_PlayerPosition as direction of player.
         jsr     Sub_PlayerPosition              ; This will work out player position and suitable actions (E.g. mushroom, etc)
@@ -740,20 +742,20 @@ L5418   lda     Var_Falling			; Load A with Var_Falling ($534e).
 
         .fill   2,$ea
 
-Temp_Sprite0YPos
+Temp_Sprite0YCoords
         .byte   $e3
 
-Sub_SetTempSprite0YPos                          ; Set Temp_Sprite0YPos to the Sprite 0 Y Position and load A with Var_FallingStanding (#01 Falling or Standing / #00 Jumping)
-        lda     Sprite0YPos
-        sta     Temp_Sprite0YPos
+Sub_SetTempSprite0YCoords                          ; Set Temp_Sprite0YCoords to the Sprite 0 Y Position and load A with Var_FallingStanding (#01 Falling or Standing / #00 Jumping)
+        lda     Sprite0YCoords
+        sta     Temp_Sprite0YCoords
         lda     Var_FallingStanding 	        ; #01 Not jumping / #00 Jumping
         rts
 
         .fill   2,$ea
 
 Sub_UpdateYPosJumping   
-        lda     Sprite0YPos          	        ; Load the Y position of Sprite0 into the accumulator (A)
-        cmp     Temp_Sprite0YPos     	        ; Compare the current Y position with the temporary Y position of Sprite0
+        lda     Sprite0YCoords          	        ; Load the Y position of Sprite0 into the accumulator (A)
+        cmp     Temp_Sprite0YCoords     	        ; Compare the current Y position with the temporary Y position of Sprite0
         bne     +              		        ; Branch if the positions are not equal (i.e., Sprite0 has moved vertically)
         lda     #$01                 	        ; Load the value #01 into the accumulator (A)
         sta     Var_FallingStanding             ; Store the value #01 into Var_FallingStanding, indicating that the sprite is now falling.
@@ -767,12 +769,12 @@ L544A   .byte   $05
         .byte   $18,$1a,$1c,$1f,$22,$25,$29,$2d,$ea,$ea,$ea
 L5466   .byte   $e3
 
-L5467   lda     Sprite0YPos                     ; Load accumulator with value in Sprite0YPos
+L5467   lda     Sprite0YCoords                     ; Load accumulator with value in Sprite0YCoords
         sta     L5466                           ; Store accumulator in memory location L5466
         lda     #$01                            ; 01 (Down) is passed to Sub_PlayerPosition as direction of player.
         jsr     Sub_PlayerPosition              ; This will work out player position and suitable actions (E.g. mushroom, etc)
         lda     L5466                           ; Load accumulator with value in L5466
-        cmp     Sprite0YPos                     ; Compare accumulator to value in Sprite0YPos
+        cmp     Sprite0YCoords                     ; Compare accumulator to value in Sprite0YCoords
         beq     +                               ; If they are equal, branch to the next line
         rts                                     ; Return from the subroutine
 
@@ -993,7 +995,7 @@ Sub_5733
         rts					; Return from subroutine.
 
 L574A   .byte   $90,$92,$85,$93,$93,$a0,$83,$94,$92,$8c,$a0,$86,$8f,$92,$a0,$8d
-        .byte   $85,$8e,$95,$ea,
+        .byte   $85,$8e,$95,$ea
 L575E   .byte   $1e,$20,$1e,$1e,$22
         .byte   $ea,$ea,$ea,$ea,$ea
 
@@ -1181,7 +1183,7 @@ SetupSpritePositions
         lda     Sprite1XCoords 	                ; Load A with Sprite1_X_Position ($d002)
         sta     Sprite0XCoords 		        ; Update Sprite0_X_Position ($d002) with Sprite1_X_Position
         stx     Sprite1XCoords 	                ; Update Sprite1_X_Position ($d002) with Sprite0_X_Position
-        ldx     Sprite0YPos 			; Load A with Sprite0_Y_Position
+        ldx     Sprite0YCoords 			; Load A with Sprite0_Y_Position
         jmp     ContSetupSpritePositions
 
         .byte   $8d,$f8,$07
@@ -1202,7 +1204,7 @@ ResetGirl
 
 ContSetupSpritePositions
         lda     Sprite1YCoords 		        ;Load A with Sprite1_Y_Position
-        sta     Sprite0YPos 			;Update Sprite0_Y_Position with Sprite1_Y_Position
+        sta     Sprite0YCoords 			;Update Sprite0_Y_Position with Sprite1_Y_Position
         stx     Sprite1YCoords 		        ;Update Sprite1_Y_Position with Sprite0_Y_Position
         lda     SpriteXMSBRegister
         and     #$01       			;Isolate first bit in SpriteXMSBRegister
@@ -2541,7 +2543,7 @@ L7F20   sta     L4516
         rts
 
 L7F27   sta     L4517
-        sta     Sprite0YPos
+        sta     Sprite0YCoords
         rts
 
 L7F2E   sta     Var_EnemyXPosition-1
@@ -2714,7 +2716,7 @@ Sub_UpdateEnemySprites
         .byte   $08,$d0,$e1,$60,$00,$00,$00,$60,$00,$a9,$00,$9d,$00,$d4,$e8,$e0
         .byte   $18,$d0,$f8,$60
 
-LC144   sta     Sprite0YPos
+LC144   sta     Sprite0YCoords
         lda     L4516
         sta     Sprite0XCoords
         jmp     LC1E1
@@ -3089,7 +3091,7 @@ If_C6AC jsr     LC032                           ; Call the subroutine at label L
         lda     #$f8                            ; A = #$f8
         sta     $07ff                           ; Store the value of A into the address $07ff.
         lda     L45B2                           ; Load the value at L45B2 into the accumulator (A).
-        sta     $d028                           ; Store the value of A into the address $d028.
+        sta     Sprite1Colour                           ; Store the value of A into the address Sprite1Colour.
         ldx     #$00                            ; X = #00 (initialize X to 0).
 
         nop                                     ; No operation (do nothing).
@@ -3246,7 +3248,7 @@ LC7D4   and     #$02       			;Perform a bitwise AND operation with the value #$
         sta     SpriteEnableRegister 		;Set SpriteEnableRegister ($d015) to A. Enable Girl sprite.
         lda     Sprite0XCoords 		        ;Load the value of a variable called Sprite0XCoords into the accumulator.
         sta     Sprite1XCoords 	                ;Store the result in a variable called Sprite1XCoords.
-        lda     Sprite0YPos 			;Load the value of a variable called Sprite0YPos into the accumulator.
+        lda     Sprite0YCoords 			;Load the value of a variable called Sprite0YCoords into the accumulator.
         sta     Sprite1YCoords 		;Store the result in a variable called Sprite1YCoords.
         lda     SpriteXMSBRegister 		;Load the value of a variable called SpriteXMSBRegister into the accumulator.
         and     #$01       			;Perform a bitwise AND operation with the value #$01.
@@ -3400,18 +3402,18 @@ Sub_UpdateSpritePositions
         rts                		        ; Return from subroutine
 
 DecreaseYposition
-        lda     Sprite0YPos,x 	                ; Load Sprite Y position
+        lda     Sprite0YCoords,x 	                ; Load Sprite Y position
         cmp     #$32       		        ; Sets when to stop updating sprite (Top of screen / score)
         beq     _rts 			        ; Branch if near top of screen
-        dec     Sprite0YPos,x 		        ; Increase vertical position on screen
+        dec     Sprite0YCoords,x 		        ; Increase vertical position on screen
         ldy     #$00       		        ; Y = #00
 _rts    rts                		        ; Return from subroutine
 
 IncreaseYposition
-        lda     Sprite0YPos,x 		        ;Load Sprite Y position
+        lda     Sprite0YCoords,x 		        ;Load Sprite Y position
         cmp     #$e3       		        ;Lowest point a sprite can go down the screen
         beq     _rts 			        ;Branch if at lowest point
-        inc     Sprite0YPos,x 		        ;Deccrease vertical position on screen
+        inc     Sprite0YCoords,x 		        ;Deccrease vertical position on screen
         ldy     #$00       		        ;Y = #00
 _rts	rts                		        ;Return from subroutine
 
@@ -4051,7 +4053,7 @@ LCEEE   inc     LCF76,x
 
         .byte   $ea
 
-LCEF6   sta     $d027 		                ; Sprite #0 color
+LCEF6   sta     Sprite0Colour 		                ; Sprite #0 color
         lda     L45EC
         jmp     Jump_CAED
 

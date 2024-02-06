@@ -1,4 +1,2 @@
-D:\OneDrive\C64\Assemblers\64tass\64tass.exe -a "D:\OneDrive\C64\Chiller\Chilled.asm" -o "D:\OneDrive\C64\Chiller\chill_compiled.prg"
-D:\OneDrive\C64\Tools\exomizer.exe sfx $0818 -x 1 "D:\OneDrive\C64\Chiller\chill_compiled.prg" -o "D:\OneDrive\C64\Chiller\build\chill_packed.prg" -p 1
-del D:\OneDrive\C64\Chiller\chill_compiled.prg
-D:\OneDrive\C64\Emulators\RetroDebugger.exe -wait 2500 -autojmp -prg "D:\OneDrive\C64\Chiller\build\chill_packed.prg"
+D:\OneDrive\C64\Assemblers\64tass\64tass.exe -a "D:\OneDrive\C64\Chiller\Disassembled_Chiller.asm" -o "D:\OneDrive\C64\Chiller\chill_compiled.prg"
+"D:\OneDrive\C64\Tools\Emulators\RetroDebugger.exe" -wait 3000 -jmp x2dfa -prg "D:\OneDrive\C64\Chiller\chill_compiled.prg"

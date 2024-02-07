@@ -85,9 +85,22 @@ GETIN = $ffe4
 
 ; Chiller variables
 
-DownInput        = $C1EC
-LeftRightInput   = $C1ED
-UpInput          = $C1EE
+Adr_MagicCrossNumLeft   = $041c
+Adr_MagicCrossNumRight  = $041d
+
+Var_PlayerDirection     = $2AFE
+
+GoSlowRedZone           = $450C
+
+BoyGirlToggle           = $5A08
+
+Var_BinaryEnemyNum      = $CF08
+Var_JumpDirection       = $C19C
+DownInput               = $C1EC
+LeftRightInput          = $C1ED
+UpInput                 = $C1EE
+
+Var_GameOverFlag        = $CF7D
 
 ; Game
 
@@ -796,8 +809,8 @@ l_2A00
                     CLC                             ; (2A01) Clear Carry Flag
                     BCC l_2A29                      ; (2A02) Branch to $2A29 if Carry Clear
 
-l_2A04
-                    STA $2AFE                       ; (2A04) Store A to $2AFE. Seems like player number possibly. Player 1 will only move if 1.
+Sub_PlayerPosition
+                    STA Var_PlayerDirection             ; (2A04) Store A to Var_PlayerDirection. Seems like player number possibly. Player 1 will only move if 1.
                     LDA Sprite0_Y                   ; (2A07) Load A with $D001
                     SEC                             ; (2A0A) Set Carry Flag
                     SBC #$2C                        ; (2A0B) Subtract with Carry #$2C (44 / 00101100)
@@ -842,31 +855,31 @@ l_2A43
                     CLC                             ; (2A45) Clear Carry Flag
                     ADC #$04                        ; (2A46) Add with Carry with #$04 (4 / 00000100)
                     STA $FC                         ; (2A48) Store A to $FC
-                    LDX $2AFE                       ; (2A4A) Load X with $2AFE
+                    LDX Var_PlayerDirection                       ; (2A4A) Load X with Var_PlayerDirection
                     LDA $5145,X                     ; (2A4D) Load A with $5145,X
                     TAY                             ; (2A50) Transfer A to Y
                     LDA ($FB),Y                     ; (2A51) Load A with ($FB),Y
                     CMP #$A0                        ; (2A53) Subtract #$A0 from A (160 / 10100000)
-                    BNE l_2A60                      ; (2A55) Branch to $2A60 if Not Equal
+                    BNE l_CheckOnPlatform           ; (2A55) Branch to $2A60 if Not Equal
 
-l_2A57
+l_PlayerMidAir
                     LDX #$00                        ; (2A57) Set X to #$00 (0 / 00000000)
-                    LDA $2AFE                       ; (2A59) Load A with $2AFE
-                    JSR l_C900                      ; (2A5C) Jump to Subroutine at $C900
+                    LDA Var_PlayerDirection         ; (2A59) Load A with Var_PlayerDirection
+                    JSR Sub_UpdateSpritePositions   ; (2A5C) Jump to Subroutine at $C900
                     RTS                             ; (2A5F) Return from Subroutine
 
-l_2A60
+l_CheckOnPlatform
                     CMP #$2A                        ; (2A60) Subtract #$2A from A (42 / 00101010)
-                    BPL l_2A67                      ; (2A62) Branch to $2A67 if positive
-                    JMP l_2A57                      ; (2A64) Jump to $2A57
+                    BPL l_CheckOnMushroom           ; (2A62) Branch to $2A67 if positive
+                    JMP l_PlayerMidAir              ; (2A64) Jump to $2A57
 
-l_2A67
+l_CheckOnMushroom
                     CMP #$54                        ; (2A67) Subtract #$54 from A (84 / 01010100)
                     BPL l_2A6E                      ; (2A69) Branch to $2A6E if positive
                     JMP l_5A9A                      ; (2A6B) Jump to $5A9A
 
 l_2A6E
-                    JMP l_5AC7                      ; (2A6E) Jump to $5AC7
+                    JMP l_GetMushroom               ; (2A6E) Jump to $5AC7
 
 ; Memory $2A71
             .byte $60
@@ -1151,7 +1164,7 @@ l_2D60
 ; Memory $2D7B
 
 l_2D7B
-                    LDA $CF7D                       ; (2D7B) Load A with $CF7D
+                    LDA Var_GameOverFlag                       ; (2D7B) Load A with Var_GameOverFlag
                     CMP #$01                        ; (2D7E) Subtract #$01 from A (1 / 00000001)
                     BEQ l_2D85                      ; (2D80) Branch to $2D85 if Equal
                     JMP l_2EB3                      ; (2D82) Jump to $2EB3
@@ -1175,14 +1188,16 @@ l_2D8D
             .byte $EA
 
 ; Memory $2D97
-
-l_2D97
+;*********************************************************************************************************************
+;*                  Main menu loop                                                                                   *
+;*********************************************************************************************************************
+l_MainMenuLoop
                     LDA KeyJoy2                     ; (2D97) Load A with $DC00
                     AND #$10                        ; (2D9A) Logical AND with Accumulator and #$10 (16 / 00010000)
-                    BNE l_2DB6                      ; (2D9C) Branch to $2DB6 if Not Equal
-                    BEQ l_2DC9                      ; (2D9E) Branch to $2DC9 if Equal
+                    BNE l_Menu_FireNotPressed                      ; (2D9C) Branch to $2DB6 if Not Equal
+                    BEQ l_Menu_FirePressed                      ; (2D9E) Branch to $2DC9 if Equal
 
-l_2DA0
+l_ThisRunsAfterDeath
                     LDA #$00                        ; (2DA0) Set A to #$00 (0 / 00000000)
                     STA SpriteEnableRegister        ; (2DA2) Store A to $D015
                     LDA $45EE                       ; (2DA5) Load A with $45EE
@@ -1192,19 +1207,19 @@ l_2DA0
                     STA $CF66                       ; (2DB0) Store A to $CF66
                     JSR l_C6E7                      ; (2DB3) Jump to Subroutine at $C6E7
 
-l_2DB6
+l_Menu_FireNotPressed
                     LDA $CF7F                       ; (2DB6) Load A with $CF7F
                     CMP #$00                        ; (2DB9) Subtract #$00 from A (0 / 00000000)
-                    BEQ l_2DC0                      ; (2DBB) Branch to $2DC0 if Equal
+                    BEQ l_ResetToMenuScreen                      ; (2DBB) Branch to $2DC0 if Equal
                     JMP l_2CB4                      ; (2DBD) Jump to $2CB4
 
-l_2DC0
+l_ResetToMenuScreen
                     JSR l_7720                      ; (2DC0) Jump to Subroutine at $7720
                     LDA $C5                         ; (2DC3) Load A with $C5
                     CMP #$40                        ; (2DC5) Subtract #$40 from A (64 / 01000000)
-                    BEQ l_2D97                      ; (2DC7) Branch to $2D97 if Equal
+                    BEQ l_MainMenuLoop                      ; (2DC7) Branch to $2D97 if Equal
 
-l_2DC9
+l_Menu_FirePressed
                     LDA BorderColour                ; (2DC9) Load A with $D020
                     AND #$0F                        ; (2DCC) Logical AND with Accumulator and #$0F (15 / 00001111)
                     BEQ l_2DD3                      ; (2DCE) Branch to $2DD3 if Equal
@@ -1239,7 +1254,7 @@ l_2E62
                     LDA $45ED                       ; (2E62) Load A with $45ED
                     STA $CF7C                       ; (2E65) Store A to $CF7C
                     LDA #$00                        ; (2E68) Set A to #$00 (0 / 00000000)
-                    STA $CF7D                       ; (2E6A) Store A to $CF7D
+                    STA Var_GameOverFlag                       ; (2E6A) Store A to Var_GameOverFlag
                     LDA $450E                       ; (2E6D) Load A with $450E
                     JMP l_2E8B                      ; (2E70) Jump to $2E8B
 
@@ -1273,7 +1288,7 @@ l_2EB3
 ; Memory $2EB7
 
 l_2EB7
-                    LDA $CF08,X                     ; (2EB7) Load A with $CF08,X
+                    LDA Var_BinaryEnemyNum,X        ; (2EB7) Load A with Var_BinaryEnemyNum,X
                     AND SpriteEnableRegister        ; (2EBA) Logical AND with Accumulator $D015
                     CMP #$00                        ; (2EBD) Subtract #$00 from A (0 / 00000000)
                     BEQ l_2EC4                      ; (2EBF) Branch to $2EC4 if Equal
@@ -1356,26 +1371,26 @@ l_2F4D
 
 ; Memory $2FB2
 
-l_2FB2
+Sub_StartEnemyUpdate
                     INC $CF75                       ; (2FB2) Increment Memory $CF75
                     LDA $CF75                       ; (2FB5) Load A with $CF75
                     CMP #$FF                        ; (2FB8) Subtract #$FF from A (255 / 11111111)
-                    BEQ l_2FBD                      ; (2FBA) Branch to $2FBD if Equal
+                    BEQ l_EnemyPositionLoop         ; (2FBA) Branch to $2FBD if Equal
                     RTS                             ; (2FBC) Return from Subroutine
 
-l_2FBD
+l_EnemyPositionLoop
                     LDA #$00                        ; (2FBD) Set A to #$00 (0 / 00000000)
                     STA $CF75                       ; (2FBF) Store A to $CF75
                     LDX #$00                        ; (2FC2) Set X to #$00 (0 / 00000000)
 
-l_2FC4
-                    LDA $CF08,X                     ; (2FC4) Load A with $CF08,X
+l_UpdateEnemy
+                    LDA Var_BinaryEnemyNum,X        ; (2FC4) Load A with Var_BinaryEnemyNum,X
                     AND SpriteEnableRegister        ; (2FC7) Logical AND with Accumulator $D015
                     CMP #$00                        ; (2FCA) Subtract #$00 from A (0 / 00000000)
-                    BNE l_2FF5                      ; (2FCC) Branch to $2FF5 if Not Equal
+                    BNE l_NextEnemy                 ; (2FCC) Branch to $2FF5 if Not Equal
                     LDA $CF76,X                     ; (2FCE) Load A with $CF76,X
                     CMP #$00                        ; (2FD1) Subtract #$00 from A (0 / 00000000)
-                    BEQ l_2FF5                      ; (2FD3) Branch to $2FF5 if Equal
+                    BEQ l_NextEnemy                 ; (2FD3) Branch to $2FF5 if Equal
                     TXA                             ; (2FD5) Transfer X to A
                     PHA                             ; (2FD6) Push Accumulator to Stack
                     JSR l_C9F1                      ; (2FD7) Jump to Subroutine at $C9F1
@@ -1384,19 +1399,19 @@ l_2FC4
                     TYA                             ; (2FDC) Transfer Y to A
                     AND #$7F                        ; (2FDD) Logical AND with Accumulator and #$7F (127 / 01111111)
                     CMP $45E2,X                     ; (2FDF) Subtract $45E2,X from A
-                    BPL l_2FF5                      ; (2FE2) Branch to $2FF5 if positive
+                    BPL l_NextEnemy                 ; (2FE2) Branch to $2FF5 if positive
                     TXA                             ; (2FE4) Transfer X to A
-                    JSR l_C0E4                      ; (2FE5) Jump to Subroutine at $C0E4
+                    JSR Sub_UpdateEnemySprites      ; (2FE5) Jump to Subroutine at $C0E4
                     DEC $CF76,X                     ; (2FE8) Decrement $CF76,X
                     LDA #$01                        ; (2FEB) Set A to #$01 (1 / 00000001)
                     STA $CF29,X                     ; (2FED) Store A to $CF29,X
                     LDA #$00                        ; (2FF0) Set A to #$00 (0 / 00000000)
                     STA $CF1A,X                     ; (2FF2) Store A to $CF1A,X
 
-l_2FF5
+l_NextEnemy
                     INX                             ; (2FF5) Increment X
                     CPX #$05                        ; (2FF6) Subtract #$05 from X (5 / 00000101)
-                    BNE l_2FC4                      ; (2FF8) Branch to $2FC4 if Not Equal
+                    BNE l_UpdateEnemy               ; (2FF8) Branch to $2FC4 if Not Equal
                     RTS                             ; (2FFA) Return from Subroutine
 
 ; Memory $2FFB
@@ -1990,7 +2005,7 @@ l_535D
                     STA $534A                       ; (5366) Store A to $534A
                     LDA #$01                        ; (5369) Set A to #$01 (1 / 00000001)
                     LDX #$00                        ; (536B) Set X to #$00 (0 / 00000000)
-                    JSR l_2A04                      ; (536D) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition          ; (536D) Jump to Subroutine at $2A04
                     LDA Sprite0_Y                   ; (5370) Load A with $D001
                     CMP $534A                       ; (5373) Subtract $534A from A
                     BNE l_537E                      ; (5376) Branch to $537E if Not Equal
@@ -2031,7 +2046,7 @@ l_539E
                     JSR l_542B                      ; (539E) Jump to Subroutine at $542B
                     BNE l_53C6                      ; (53A1) Branch to $53C6 if Not Equal
                     LDA #$00                        ; (53A3) Set A to #$00 (0 / 00000000)
-                    JSR l_2A04                      ; (53A5) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition                      ; (53A5) Jump to Subroutine at $2A04
                     JSR l_5437                      ; (53A8) Jump to Subroutine at $5437
                     LDX $2A7E                       ; (53AB) Load X with $2A7E
                     CPX #$18                        ; (53AE) Subtract #$18 from X (24 / 00011000)
@@ -2156,7 +2171,7 @@ l_5467
                     LDA Sprite0_Y                   ; (5467) Load A with $D001
                     STA $5466                       ; (546A) Store A to $5466
                     LDA #$01                        ; (546D) Set A to #$01 (1 / 00000001)
-                    JSR l_2A04                      ; (546F) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition                      ; (546F) Jump to Subroutine at $2A04
                     LDA $5466                       ; (5472) Load A with $5466
                     CMP Sprite0_Y                   ; (5475) Subtract $D001 from A
                     BEQ l_547B                      ; (5478) Branch to $547B if Equal
@@ -2204,9 +2219,9 @@ l_54A0
 
 l_54AC
                     LDA $549F                       ; (54AC) Load A with $549F
-                    BEQ l_54B2                      ; (54AF) Branch to $54B2 if Equal
+                    BEQ l_54B4                      ; (54AF) Branch to $54B2 if Equal
                     JMP l_54C1                      ; (54B1) Jump to $54C1
-                    LDA #$01                        ; (54B4) Set A to #$01 (1 / 00000001)
+l_54B4              LDA #$01                        ; (54B4) Set A to #$01 (1 / 00000001)
                     STA $549F                       ; (54B6) Store A to $549F
                     JSR l_5483                      ; (54B9) Jump to Subroutine at $5483
                     JMP l_54DC                      ; (54BC) Jump to $54DC
@@ -2452,13 +2467,13 @@ l_576B
                     LDA SpriteEnableRegister        ; (5773) Load A with $D015
                     ORA #$03                        ; (5776) Logical OR with Accumulator and #$03 (3 / 00000011)
                     STA SpriteEnableRegister        ; (5778) Store A to $D015
-                    LDA $5A08                       ; (577B) Load A with $5A08
+                    LDA BoyGirlToggle                       ; (577B) Load A with BoyGirlToggle. #00 = Boy / #01 = Girl.
                     BEQ l_5783                      ; (577E) Branch to $5783 if Equal
                     JMP l_57BD                      ; (5780) Jump to $57BD
 
 l_5783
                     LDA #$01                        ; (5783) Set A to #$01 (1 / 00000001)
-                    STA $5A08                       ; (5785) Store A to $5A08
+                    STA BoyGirlToggle                       ; (5785) Store A to BoyGirlToggle
                     LDA #$E8                        ; (5788) Set A to #$E8 (232 / 11101000)
                     STA $582D                       ; (578A) Store A to $582D
                     LDA #$EC                        ; (578D) Set A to #$EC (236 / 11101100)
@@ -2483,7 +2498,7 @@ l_5783
 
 l_57BD
                     LDA #$00                        ; (57BD) Set A to #$00 (0 / 00000000)
-                    STA $5A08                       ; (57BF) Store A to $5A08
+                    STA BoyGirlToggle                       ; (57BF) Store A to BoyGirlToggle
                     LDA #$D8                        ; (57C2) Set A to #$D8 (216 / 11011000)
                     STA $582D                       ; (57C4) Store A to $582D
                     LDA #$DC                        ; (57C7) Set A to #$DC (220 / 11011100)
@@ -2513,14 +2528,14 @@ l_57BD
 
 l_5800
                     INC $CF02                       ; (5800) Increment Memory $CF02
-                    JSR l_5961                      ; (5803) Jump to Subroutine at $5961
-                    JSR l_5B00                      ; (5806) Jump to Subroutine at $5B00
+                    JSR Sub_GoSlowRedZone           ; (5803) Jump to Subroutine at $5961
+                    JSR Sub_HealthBarUpdates        ; (5806) Jump to Subroutine at $5B00
                     NOP                             ; (5809) No operation
                     NOP                             ; (580A) No operation
                     LDA $5A00                       ; (580B) Load A with $5A00
                     CMP #$00                        ; (580E) Subtract #$00 from A (0 / 00000000)
                     BEQ l_5818                      ; (5810) Branch to $5818 if Equal
-                    LDA $5A01                       ; (5812) Load A with $5A01
+                    LDA Var_JumpDirection           ; (5812) Load A with Var_JumpDirection
                     STA LeftRightInput              ; (5815) Store A to LeftRightInput
 
 l_5818
@@ -2531,7 +2546,7 @@ l_5818
                     STA $C84D                       ; (5821) Store A to $C84D
                     LDA #$AD                        ; (5824) Set A to #$AD (173 / 10101101)
                     STA $5980                       ; (5826) Store A to $5980
-                    JSR l_58B3                      ; (5829) Jump to Subroutine at $58B3
+                    JSR Sub_CheckSlidingOnRope      ; (5829) Jump to Subroutine at $58B3
                     LDA #$E8                        ; (582C) Set A to #$E8 (232 / 11101000)
                     STA $C79C                       ; (582E) Store A to $C79C
                     LDA #$EC                        ; (5831) Set A to #$EC (236 / 11101100)
@@ -2586,7 +2601,7 @@ l_5880
                     LDA #$00                        ; (5880) Set A to #$00 (0 / 00000000)
                     STA $5A00                       ; (5882) Store A to $5A00
                     LDA LeftRightInput                       ; (5885) Load A with LeftRightInput
-                    STA $5A01                       ; (5888) Store A to $5A01
+                    STA Var_JumpDirection                       ; (5888) Store A to Var_JumpDirection
                     LDA #$60                        ; (588B) Set A to #$60 (96 / 01100000)
                     STA $C84D                       ; (588D) Store A to $C84D
                     STA $5980                       ; (5890) Store A to $5980
@@ -2608,7 +2623,7 @@ l_58A8
                     STA $C7C6                       ; (58AD) Store A to $C7C6
                     JMP l_5483                      ; (58B0) Jump to $5483
 
-l_58B3
+Sub_CheckSlidingOnRope
                     LDA $4503                       ; (58B3) Load A with $4503
                     BNE l_58BB                      ; (58B6) Branch to $58BB if Not Equal
                     RTS                             ; (58B8) Return from Subroutine
@@ -2714,18 +2729,18 @@ l_594E
                     STX $07F9                       ; (595D) Store X to $07F9
                     RTS                             ; (5960) Return from Subroutine
 
-l_5961
+Sub_GoSlowRedZone
                     LDA $0430                       ; (5961) Load A with $0430
                     CMP #$A9                        ; (5964) Subtract #$A9 from A (169 / 10101001)
                     BEQ l_5973                      ; (5966) Branch to $5973 if Equal
                     LDA #$80                        ; (5968) Set A to #$80 (128 / 10000000)
                     STA $CA19                       ; (596A) Store A to $CA19
                     LDA #$04                        ; (596D) Set A to #$04 (4 / 00000100)
-                    STA $450C                       ; (596F) Store A to $450C
+                    STA GoSlowRedZone                       ; (596F) Store A to GoSlowRedZone
                     RTS                             ; (5972) Return from Subroutine
 
 l_5973
-                    LDA $450C                       ; (5973) Load A with $450C
+                    LDA GoSlowRedZone                       ; (5973) Load A with GoSlowRedZone
                     CMP #$04                        ; (5976) Subtract #$04 from A (4 / 00000100)
                     BEQ l_597B                      ; (5978) Branch to $597B if Equal
                     RTS                             ; (597A) Return from Subroutine
@@ -2754,7 +2769,7 @@ l_598F
 l_5997
                     RTS                             ; (5997) Return from Subroutine
 
-l_5998
+Sub_GetCurrentHealthBar
                     LDX #$FF                        ; (5998) Set X to #$FF (255 / 11111111)
 
 l_599A
@@ -2764,8 +2779,8 @@ l_599A
                     BEQ l_599A                      ; (59A0) Branch to $599A if Equal
                     RTS                             ; (59A2) Return from Subroutine
 
-l_59A3
-                    JSR l_5998                      ; (59A3) Jump to Subroutine at $5998
+l_ReduceHealthBar
+                    JSR Sub_GetCurrentHealthBar                      ; (59A3) Jump to Subroutine at $5998
                     LDA $042E,X                     ; (59A6) Load A with $042E,X
                     CMP #$A1                        ; (59A9) Subtract #$A1 from A (161 / 10100001)
                     BEQ l_59B3                      ; (59AB) Branch to $59B3 if Equal
@@ -2791,10 +2806,10 @@ l_59B3
 ; Memory $59C0
 
 l_59C0
-                    JMP l_5A70                      ; (59C0) Jump to $5A70
+                    JMP l_NoHealthLeft              ; (59C0) Jump to $5A70
 
 l_59C3
-                    JSR l_5998                      ; (59C3) Jump to Subroutine at $5998
+                    JSR Sub_GetCurrentHealthBar     ; (59C3) Jump to Subroutine at $5998
                     CPX #$21                        ; (59C6) Subtract #$21 from X (33 / 00100001)
                     BEQ l_59D0                      ; (59C8) Branch to $59D0 if Equal
                     INC $042E,X                     ; (59CA) Increment Memory $042E,X
@@ -2827,7 +2842,7 @@ l_59E6
                     BNE l_59F8                      ; (59EE) Branch to $59F8 if Not Equal
                     LDA #$00                        ; (59F0) Set A to #$00 (0 / 00000000)
                     STA $5A09                       ; (59F2) Store A to $5A09
-                    JSR l_59A3                      ; (59F5) Jump to Subroutine at $59A3
+                    JSR l_ReduceHealthBar                      ; (59F5) Jump to Subroutine at $59A3
 
 l_59F8
                     RTS                             ; (59F8) Return from Subroutine
@@ -2843,7 +2858,7 @@ l_59F9
 ; Memory $5A20
 
 l_5A20
-                    LDA LeftRightInput                       ; (5A20) Load A with LeftRightInput
+                    LDA LeftRightInput              ; (5A20) Load A with LeftRightInput
                     BEQ l_5A3C                      ; (5A23) Branch to $5A3C if Equal
                     DEC $5A0A                       ; (5A25) Decrement $5A0A
                     BNE l_5A3C                      ; (5A28) Branch to $5A3C if Not Equal
@@ -2853,7 +2868,7 @@ l_5A20
                     BNE l_5A3C                      ; (5A32) Branch to $5A3C if Not Equal
                     LDA #$03                        ; (5A34) Set A to #$03 (3 / 00000011)
                     STA $5A0B                       ; (5A36) Store A to $5A0B
-                    JSR l_59A3                      ; (5A39) Jump to Subroutine at $59A3
+                    JSR l_ReduceHealthBar           ; (5A39) Jump to Subroutine at $59A3
 
 l_5A3C
                     RTS                             ; (5A3C) Return from Subroutine
@@ -2865,13 +2880,13 @@ l_5A3C
 
 l_5A41
                     JSR l_7659                      ; (5A41) Jump to Subroutine at $7659
-                    LDA $5A08                       ; (5A44) Load A with $5A08
-                    BNE l_5A4F                      ; (5A47) Branch to $5A4F if Not Equal
+                    LDA BoyGirlToggle               ; (5A44) Load A with BoyGirlToggle. #00 = Boy / #01 = Girl.
+                    BNE l_ChangeBorderPink          ; (5A47) Branch to $5A4F if Not Equal
                     LDA #$06                        ; (5A49) Set A to #$06 (6 / 00000110)
                     STA BorderColour                ; (5A4B) Store A to $D020
                     RTS                             ; (5A4E) Return from Subroutine
 
-l_5A4F
+l_ChangeBorderPink
                     LDA #$0A                        ; (5A4F) Set A to #$0A (10 / 00001010)
                     STA BorderColour                ; (5A51) Store A to $D020
                     RTS                             ; (5A54) Return from Subroutine
@@ -2883,7 +2898,7 @@ l_5A4F
 
 l_5A60
                     LDA #$02                        ; (5A60) Set A to #$02 (2 / 00000010)
-                    STA $450C                       ; (5A62) Store A to $450C
+                    STA GoSlowRedZone                       ; (5A62) Store A to GoSlowRedZone
                     LDA #$00                        ; (5A65) Set A to #$00 (0 / 00000000)
                     STA $CF07                       ; (5A67) Store A to $CF07
                     JMP l_5D80                      ; (5A6A) Jump to $5D80
@@ -2893,11 +2908,11 @@ l_5A60
 
 ; Memory $5A70
 
-l_5A70
+l_NoHealthLeft
                     LDA #$01                        ; (5A70) Set A to #$01 (1 / 00000001)
-                    STA $CF7D                       ; (5A72) Store A to $CF7D
+                    STA Var_GameOverFlag                ; (5A72) Store A to Var_GameOverFlag
                     LDA #$02                        ; (5A75) Set A to #$02 (2 / 00000010)
-                    STA $450C                       ; (5A77) Store A to $450C
+                    STA GoSlowRedZone               ; (5A77) Store A to GoSlowRedZone
                     LDA #$00                        ; (5A7A) Set A to #$00 (0 / 00000000)
                     STA $CF07                       ; (5A7C) Store A to $CF07
                     LDA #$20                        ; (5A7F) Set A to #$20 (32 / 00100000)
@@ -2911,7 +2926,7 @@ l_5A70
 
 l_5A88
                     LDA #$02                        ; (5A88) Set A to #$02 (2 / 00000010)
-                    STA $450C                       ; (5A8A) Store A to $450C
+                    STA GoSlowRedZone                       ; (5A8A) Store A to GoSlowRedZone
                     LDA #$00                        ; (5A8D) Set A to #$00 (0 / 00000000)
                     STA $CF07                       ; (5A8F) Store A to $CF07
                     LDA #$20                        ; (5A92) Set A to #$20 (32 / 00100000)
@@ -2928,7 +2943,7 @@ l_5A9A
                     BMI l_5AAA                      ; (5A9C) Branch to $5AAA if minus 
                     CPY #$50                        ; (5A9E) Subtract #$50 from Y (80 / 01010000)
                     BEQ l_5AA5                      ; (5AA0) Branch to $5AA5 if Equal
-                    JMP l_2A57                      ; (5AA2) Jump to $2A57
+                    JMP l_PlayerMidAir                      ; (5AA2) Jump to $2A57
 
 l_5AA5
                     DEC $5A0F                       ; (5AA5) Decrement $5A0F
@@ -2965,7 +2980,7 @@ l_5ABF
                     STA ($FB),Y                     ; (5AC4) Store A to ($FB),Y
                     RTS                             ; (5AC6) Return from Subroutine
 
-l_5AC7
+l_GetMushroom 
                     CMP #$54                        ; (5AC7) Subtract #$54 from A (84 / 01010100)
                     BNE l_5AD5                      ; (5AC9) Branch to $5AD5 if Not Equal
                     LDX #$18                        ; (5ACB) Set X to #$18 (24 / 00011000)
@@ -3002,7 +3017,7 @@ l_5AE3
 
 ; Memory $5B00
 
-l_5B00
+Sub_HealthBarUpdates
                     LDA $5A0D                       ; (5B00) Load A with $5A0D
                     BEQ l_5B15                      ; (5B03) Branch to $5B15 if Equal
                     DEC $5A0E                       ; (5B05) Decrement $5A0E
@@ -3076,25 +3091,25 @@ l_5B57
 
 l_5B5E
                     NOP                             ; (5B5E) No operation
-                    LDA $041D                       ; (5B5F) Load A with $041D
+                    LDA Adr_MagicCrossNumRight                       ; (5B5F) Load A with Adr_MagicCrossNumRight
                     CMP #$B9                        ; (5B62) Subtract #$B9 from A (185 / 10111001)
                     BEQ l_5B6C                      ; (5B64) Branch to $5B6C if Equal
-                    INC $041D                       ; (5B66) Increment Memory $041D
+                    INC Adr_MagicCrossNumRight                       ; (5B66) Increment Memory Adr_MagicCrossNumRight
                     JMP l_5B86                      ; (5B69) Jump to $5B86
 
 l_5B6C
-                    LDA $041C                       ; (5B6C) Load A with $041C
+                    LDA Adr_MagicCrossNumLeft                        ; (5B6C) Load A with Adr_MagicCrossNumLeft 
                     CMP #$B9                        ; (5B6F) Subtract #$B9 from A (185 / 10111001)
                     BNE l_5B7E                      ; (5B71) Branch to $5B7E if Not Equal
                     LDA #$B0                        ; (5B73) Set A to #$B0 (176 / 10110000)
-                    STA $041D                       ; (5B75) Store A to $041D
-                    STA $041C                       ; (5B78) Store A to $041C
+                    STA Adr_MagicCrossNumRight      ; (5B75) Store A to Adr_MagicCrossNumRight
+                    STA Adr_MagicCrossNumLeft       ; (5B78) Store A to Adr_MagicCrossNumLeft 
                     JMP l_5B86                      ; (5B7B) Jump to $5B86
 
 l_5B7E
                     LDA #$B0                        ; (5B7E) Set A to #$B0 (176 / 10110000)
-                    STA $041D                       ; (5B80) Store A to $041D
-                    INC $041C                       ; (5B83) Increment Memory $041C
+                    STA Adr_MagicCrossNumRight      ; (5B80) Store A to Adr_MagicCrossNumRight
+                    INC Adr_MagicCrossNumLeft       ; (5B83) Increment Memory Adr_MagicCrossNumLeft 
 
 l_5B86
                     JMP l_7F00                      ; (5B86) Jump to $7F00
@@ -3106,7 +3121,7 @@ l_5B89
 l_5B8D
                     CPY #$50                        ; (5B8D) Subtract #$50 from Y (80 / 01010000)
                     BEQ l_5B94                      ; (5B8F) Branch to $5B94 if Equal
-                    JMP l_2A57                      ; (5B91) Jump to $2A57
+                    JMP l_PlayerMidAir                      ; (5B91) Jump to $2A57
 
 l_5B94
                     RTS                             ; (5B94) Return from Subroutine
@@ -3116,14 +3131,14 @@ l_5B95
                     BPL l_5BAD                      ; (5B97) Branch to $5BAD if positive
                     CPY #$50                        ; (5B99) Subtract #$50 from Y (80 / 01010000)
                     BEQ l_5BA0                      ; (5B9B) Branch to $5BA0 if Equal
-                    JMP l_2A57                      ; (5B9D) Jump to $2A57
+                    JMP l_PlayerMidAir                      ; (5B9D) Jump to $2A57
 
 l_5BA0
                     DEC $5A14                       ; (5BA0) Decrement $5A14
                     BNE l_5B94                      ; (5BA3) Branch to $5B94 if Not Equal
                     LDA #$03                        ; (5BA5) Set A to #$03 (3 / 00000011)
                     STA $5A14                       ; (5BA7) Store A to $5A14
-                    JMP l_2A57                      ; (5BAA) Jump to $2A57
+                    JMP l_PlayerMidAir                      ; (5BAA) Jump to $2A57
 
 l_5BAD
                     JMP l_7673                      ; (5BAD) Jump to $7673
@@ -3389,7 +3404,7 @@ l_5D4F
 
 l_5D60
                     LDA #$01                        ; (5D60) Set A to #$01 (1 / 00000001)
-                    STA $5A08                       ; (5D62) Store A to $5A08
+                    STA BoyGirlToggle                       ; (5D62) Store A to BoyGirlToggle
                     JSR l_576B                      ; (5D65) Jump to Subroutine at $576B
                     RTS                             ; (5D68) Return from Subroutine
 
@@ -3432,7 +3447,7 @@ l_5DA9
                     LDA #$00                        ; (5DB1) Set A to #$00 (0 / 00000000)
                     STA $5A0D                       ; (5DB3) Store A to $5A0D
                     STA $5A11                       ; (5DB6) Store A to $5A11
-                    JMP l_2DA0                      ; (5DB9) Jump to $2DA0
+                    JMP l_ThisRunsAfterDeath                      ; (5DB9) Jump to $2DA0
 
 ; Memory $5DBC
             .byte $00,$00,$00,$00,$DD,$DD,$DD,$DD,$DD,$DD,$DD,$DD,$DD,$DD,$DD,$DD
@@ -4101,7 +4116,7 @@ l_72A4
 ; Memory $72BA
 
 l_72BA
-                    JSR l_59A3                      ; (72BA) Jump to Subroutine at $59A3
+                    JSR l_ReduceHealthBar                      ; (72BA) Jump to Subroutine at $59A3
                     DEC $72B9                       ; (72BD) Decrement $72B9
                     BNE l_72DD                      ; (72C0) Branch to $72DD if Not Equal
                     LDA #$04                        ; (72C2) Set A to #$04 (4 / 00000100)
@@ -4229,7 +4244,7 @@ l_75A7
 l_75B0
                     LDA $5A11                       ; (75B0) Load A with $5A11
                     BNE l_75C7                      ; (75B3) Branch to $75C7 if Not Equal
-                    LDA $5A08                       ; (75B5) Load A with $5A08
+                    LDA BoyGirlToggle                       ; (75B5) Load A with BoyGirlToggle. #00 = Boy / #01 = Girl.
                     BNE l_75C2                      ; (75B8) Branch to $75C2 if Not Equal
                     LDA #$06                        ; (75BA) Set A to #$06 (6 / 00000110)
                     STA BorderColour                ; (75BC) Store A to $D020
@@ -4377,7 +4392,7 @@ l_769A
                     INX                             ; (769D) Increment X
                     INX                             ; (769E) Increment X
                     JSR l_5E19                      ; (769F) Jump to Subroutine at $5E19
-                    LDA $5A08                       ; (76A2) Load A with $5A08
+                    LDA BoyGirlToggle                       ; (76A2) Load A with BoyGirlToggle. #00 = Boy / #01 = Girl.
                     BEQ l_76BB                      ; (76A5) Branch to $76BB if Equal
                     LDA $07F8                       ; (76A7) Load A with $07F8
                     LDX $07F9                       ; (76AA) Load X with $07F9
@@ -4688,7 +4703,7 @@ l_7F50
                     LDA ($FB),Y                     ; (7F58) Load A with ($FB),Y
                     AND #$04                        ; (7F5A) Logical AND with Accumulator and #$04 (4 / 00000100)
                     TAX                             ; (7F5C) Transfer A to X
-                    LDA $5A08                       ; (7F5D) Load A with $5A08
+                    LDA BoyGirlToggle                       ; (7F5D) Load A with BoyGirlToggle. #00 = Boy / #01 = Girl.
                     BEQ l_7F67                      ; (7F60) Branch to $7F67 if Equal
                     CPX #$00                        ; (7F62) Subtract #$00 from X (0 / 00000000)
                     BEQ l_7F6C                      ; (7F64) Branch to $7F6C if Equal
@@ -5832,7 +5847,7 @@ l_C032
 
 ; Memory $C0E4
 
-l_C0E4
+Sub_UpdateEnemySprites
                     JSR l_5662                      ; (C0E4) Jump to Subroutine at $5662
                     JSR l_CB24                      ; (C0E7) Jump to Subroutine at $CB24
                     LDA $C0E3                       ; (C0EA) Load A with $C0E3
@@ -5975,7 +5990,7 @@ l_C2C9
 
 l_C37A
                     TYA                             ; (C37A) Transfer Y to A
-                    JSR l_C900                      ; (C37B) Jump to Subroutine at $C900
+                    JSR Sub_UpdateSpritePositions                      ; (C37B) Jump to Subroutine at $C900
                     RTS                             ; (C37E) Return from Subroutine
 
 ; Memory $C37F
@@ -6145,9 +6160,9 @@ l_C525
                     BNE l_C538                      ; (C52A) Branch to $C538 if Not Equal
                     LDX #$01                        ; (C52C) Set X to #$01 (1 / 00000001)
                     LDA #$03                        ; (C52E) Set A to #$03 (3 / 00000011)
-                    JSR l_2A04                      ; (C530) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition                      ; (C530) Jump to Subroutine at $2A04
                     LDA #$02                        ; (C533) Set A to #$02 (2 / 00000010)
-                    JSR l_2A04                      ; (C535) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition                      ; (C535) Jump to Subroutine at $2A04
 
 l_C538
                     LDA $CF43                       ; (C538) Load A with $CF43
@@ -6270,7 +6285,7 @@ l_C694
                     STA $CEFF                       ; (C69B) Store A to $CEFF
 
 l_C69E
-                    JSR l_C0E4                      ; (C69E) Jump to Subroutine at $C0E4
+                    JSR Sub_UpdateEnemySprites                      ; (C69E) Jump to Subroutine at $C0E4
                     INC $CEFF                       ; (C6A1) Increment Memory $CEFF
                     LDA $CEFF                       ; (C6A4) Load A with $CEFF
                     CMP $45AC                       ; (C6A7) Subtract $45AC from A
@@ -6336,7 +6351,7 @@ l_C700
                     CLC                             ; (C703) Clear Carry Flag
                     SBC #$DF                        ; (C704) Subtract with Carry #$DF (223 / 11011111)
                     LDX #$01                        ; (C706) Set X to #$01 (1 / 00000001)
-                    JSR l_C900                      ; (C708) Jump to Subroutine at $C900
+                    JSR Sub_UpdateSpritePositions                      ; (C708) Jump to Subroutine at $C900
                     CPY #$00                        ; (C70B) Subtract #$00 from Y (0 / 00000000)
                     BEQ l_C717                      ; (C70D) Branch to $C717 if Equal
                     RTS                             ; (C70F) Return from Subroutine
@@ -6355,10 +6370,10 @@ l_C717
 
 ; Memory $C71B
 
-l_C71B
+l_PlayerMovementInputs
                     LDA #$00                        ; (C71B) Set A to #$00 (0 / 00000000)
                     STA $CF06                       ; (C71D) Store A to $CF06
-                    JSR l_C84D                      ; (C720) Jump to Subroutine at $C84D
+                    JSR l_GetJoystickInputs         ; (C720) Jump to Subroutine at $C84D
                     LDA DownInput                   ; (C723) Load A with DownInput
                     CMP #$FF                        ; (C726) Subtract #$FF from A (255 / 11111111)
                     BNE l_CheckDownInput            ; (C728) Branch to $C74C if Not Equal
@@ -6367,7 +6382,7 @@ l_C71B
                     BEQ l_CheckDownInput            ; (C72F) Branch to $C74C if Equal
                     LDA #$00                        ; (C731) Set A to #$00 (0 / 00000000)
                     TAX                             ; (C733) Transfer A to X
-                    JSR l_2A04                      ; (C734) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition                      ; (C734) Jump to Subroutine at $2A04
                     INC $CF06                       ; (C737) Increment Memory $CF06
                     LDA $4504                       ; (C73A) Load A with $4504
                     CMP #$00                        ; (C73D) Subtract #$00 from A (0 / 00000000)
@@ -6387,7 +6402,7 @@ l_CheckDownInput
                     BEQ l_CheckLeftInput            ; (C758) Branch to $C776 if Equal
                     LDA #$01                        ; (C75A) Set A to #$01 (1 / 00000001)
                     LDX #$00                        ; (C75C) Set X to #$00 (0 / 00000000)
-                    JSR l_2A04                      ; (C75E) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition                      ; (C75E) Jump to Subroutine at $2A04
                     INC $CF06                       ; (C761) Increment Memory $CF06
                     LDA $4505                       ; (C764) Load A with $4505
                     CMP #$00                        ; (C767) Subtract #$00 from A (0 / 00000000)
@@ -6401,24 +6416,24 @@ l_CheckDownInput
 l_CheckLeftInput
                     LDA LeftRightInput              ; (C776) Load A with LeftRightInput
                     CMP #$FF                        ; (C779) Subtract #$FF from A (255 / 11111111)
-                    BNE l_CheckRightInput           ; (C77B) Branch to $C7A0 if Not Equal
+                    BNE l__CheckRightInput           ; (C77B) Branch to $C7A0 if Not Equal
                     LDA $4502                       ; (C77D) Load A with $4502
                     CMP #$00                        ; (C780) Subtract #$00 from A (0 / 00000000)
-                    BEQ l_CheckRightInput           ; (C782) Branch to $C7A0 if Equal
+                    BEQ l__CheckRightInput           ; (C782) Branch to $C7A0 if Equal
                     LDA #$02                        ; (C784) Set A to #$02 (2 / 00000010)
                     LDX #$00                        ; (C786) Set X to #$00 (0 / 00000000)
-                    JSR l_2A04                      ; (C788) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition                      ; (C788) Jump to Subroutine at $2A04
                     INC $CF06                       ; (C78B) Increment Memory $CF06
                     LDA $4506                       ; (C78E) Load A with $4506
                     CMP #$00                        ; (C791) Subtract #$00 from A (0 / 00000000)
-                    BEQ l_CheckRightInput           ; (C793) Branch to $C7A0 if Equal
+                    BEQ l__CheckRightInput           ; (C793) Branch to $C7A0 if Equal
                     LDA $07F8                       ; (C795) Load A with $07F8
                     AND #$03                        ; (C798) Logical AND with Accumulator and #$03 (3 / 00000011)
                     CLC                             ; (C79A) Clear Carry Flag
                     ADC #$E8                        ; (C79B) Add with Carry with #$E8 (232 / 11101000)
                     STA $07F8                       ; (C79D) Store A to $07F8
 
-l_CheckRightInput
+l__CheckRightInput
                     LDA LeftRightInput              ; (C7A0) Load A with LeftRightInput
                     CMP #$01                        ; (C7A3) Subtract #$01 from A (1 / 00000001)
                     BNE l_CheckUpInput              ; (C7A5) Branch to $C7CA if Not Equal
@@ -6427,7 +6442,7 @@ l_CheckRightInput
                     BEQ l_CheckUpInput              ; (C7AC) Branch to $C7CA if Equal
                     LDA #$03                        ; (C7AE) Set A to #$03 (3 / 00000011)
                     LDX #$00                        ; (C7B0) Set X to #$00 (0 / 00000000)
-                    JSR l_2A04                      ; (C7B2) Jump to Subroutine at $2A04
+                    JSR Sub_PlayerPosition                      ; (C7B2) Jump to Subroutine at $2A04
                     INC $CF06                       ; (C7B5) Increment Memory $CF06
                     LDA $4507                       ; (C7B8) Load A with $4507
                     CMP #$00                        ; (C7BB) Subtract #$00 from A (0 / 00000000)
@@ -6488,7 +6503,7 @@ l_C819
 l_C827
                     INC $CF07                       ; (C827) Increment Memory $CF07
                     LDA $CF07                       ; (C82A) Load A with $CF07
-                    CMP $450C                       ; (C82D) Subtract $450C from A
+                    CMP GoSlowRedZone                       ; (C82D) Subtract GoSlowRedZone from A
                     BNE l_C83F                      ; (C830) Branch to $C83F if Not Equal
                     LDA #$00                        ; (C832) Set A to #$00 (0 / 00000000)
                     STA $CF07                       ; (C834) Store A to $CF07
@@ -6507,95 +6522,95 @@ l_C83F
 
 ; Memory $C84D
 
-l_C84D
+l_GetJoystickInputs
                     LDA #$00                        ; (C84D) Set A to #$00 (0 / 00000000)
-                    STA UpInput                       ; (C84F) Store A to UpInput
+                    STA UpInput                     ; (C84F) Store A to UpInput
                     LDA $4511                       ; (C852) Load A with $4511
                     CMP #$01                        ; (C855) Subtract #$01 from A (1 / 00000001)
                     BEQ l_C861                      ; (C857) Branch to $C861 if Equal
                     LDA #$00                        ; (C859) Set A to #$00 (0 / 00000000)
-                    STA DownInput                       ; (C85B) Store A to DownInput
-                    STA LeftRightInput                       ; (C85E) Store A to LeftRightInput
+                    STA DownInput                   ; (C85B) Store A to DownInput
+                    STA LeftRightInput              ; (C85E) Store A to LeftRightInput
 
 l_C861
                     LDA $C5                         ; (C861) Load A with $C5
                     CMP #$40                        ; (C863) Subtract #$40 from A (64 / 01000000)
                     BEQ l_C8AB                      ; (C865) Branch to $C8AB if Equal
                     LDA #$00                        ; (C867) Set A to #$00 (0 / 00000000)
-                    STA DownInput                       ; (C869) Store A to DownInput
-                    STA LeftRightInput                       ; (C86C) Store A to LeftRightInput
+                    STA DownInput                   ; (C869) Store A to DownInput
+                    STA LeftRightInput              ; (C86C) Store A to LeftRightInput
                     LDA $C5                         ; (C86F) Load A with $C5
                     CMP $4512                       ; (C871) Subtract $4512 from A
                     BNE l_C87B                      ; (C874) Branch to $C87B if Not Equal
                     LDA #$FF                        ; (C876) Set A to #$FF (255 / 11111111)
-                    STA DownInput                       ; (C878) Store A to DownInput
+                    STA DownInput                   ; (C878) Store A to DownInput
 
 l_C87B
                     LDA $C5                         ; (C87B) Load A with $C5
                     CMP $4512                       ; (C87D) Subtract $4512 from A
                     BNE l_C887                      ; (C880) Branch to $C887 if Not Equal
                     LDA #$FF                        ; (C882) Set A to #$FF (255 / 11111111)
-                    STA DownInput                       ; (C884) Store A to DownInput
+                    STA DownInput                   ; (C884) Store A to DownInput
 
 l_C887
                     LDA $C5                         ; (C887) Load A with $C5
                     CMP $4513                       ; (C889) Subtract $4513 from A
                     BNE l_C893                      ; (C88C) Branch to $C893 if Not Equal
                     LDA #$01                        ; (C88E) Set A to #$01 (1 / 00000001)
-                    STA DownInput                       ; (C890) Store A to DownInput
+                    STA DownInput                   ; (C890) Store A to DownInput
 
 l_C893
                     LDA $C5                         ; (C893) Load A with $C5
                     CMP $4514                       ; (C895) Subtract $4514 from A
                     BNE l_C89F                      ; (C898) Branch to $C89F if Not Equal
                     LDA #$FF                        ; (C89A) Set A to #$FF (255 / 11111111)
-                    STA LeftRightInput                       ; (C89C) Store A to LeftRightInput
+                    STA LeftRightInput              ; (C89C) Store A to LeftRightInput
 
 l_C89F
                     LDA $C5                         ; (C89F) Load A with $C5
                     CMP $4515                       ; (C8A1) Subtract $4515 from A
                     BNE l_C8AB                      ; (C8A4) Branch to $C8AB if Not Equal
                     LDA #$01                        ; (C8A6) Set A to #$01 (1 / 00000001)
-                    STA LeftRightInput                       ; (C8A8) Store A to LeftRightInput
+                    STA LeftRightInput              ; (C8A8) Store A to LeftRightInput
 
 l_C8AB
                     LDA $028D                       ; (C8AB) Load A with $028D
                     CMP #$00                        ; (C8AE) Subtract #$00 from A (0 / 00000000)
-                    BEQ l_C8B7                      ; (C8B0) Branch to $C8B7 if Equal
+                    BEQ CheckJoyUp                  ; (C8B0) Branch to $C8B7 if Equal
                     LDA #$01                        ; (C8B2) Set A to #$01 (1 / 00000001)
-                    STA UpInput                       ; (C8B4) Store A to UpInput
+                    STA UpInput                     ; (C8B4) Store A to UpInput
 
-l_C8B7
+CheckJoyUp
                     JSR l_C9C4                      ; (C8B7) Jump to Subroutine at $C9C4
                     AND #$01                        ; (C8BA) Logical AND with Accumulator and #$01 (1 / 00000001)
                     CMP #$01                        ; (C8BC) Subtract #$01 from A (1 / 00000001)
-                    BEQ l_C8C5                      ; (C8BE) Branch to $C8C5 if Equal
+                    BEQ CheckJoyDown                ; (C8BE) Branch to $C8C5 if Equal
                     LDA #$01                        ; (C8C0) Set A to #$01 (1 / 00000001)
-                    STA UpInput                       ; (C8C2) Store A to UpInput
+                    STA UpInput                     ; (C8C2) Store A to UpInput
 
-l_C8C5
-                    LDA KeyJoy2                     ; (C8C5) Load A with $DC00
+CheckJoyDown
+                    LDA KeyJoy2                     ; (C8C5) Load A with $DC00. 0000 0010 down pressed.
                     AND #$02                        ; (C8C8) Logical AND with Accumulator and #$02 (2 / 00000010)
                     CMP #$02                        ; (C8CA) Subtract #$02 from A (2 / 00000010)
-                    BEQ l_C8D3                      ; (C8CC) Branch to $C8D3 if Equal
+                    BEQ CheckJoyLeft                ; (C8CC) Branch to $C8D3 if Equal. Down input not received.
                     LDA #$01                        ; (C8CE) Set A to #$01 (1 / 00000001)
-                    STA DownInput                       ; (C8D0) Store A to DownInput
+                    STA DownInput                   ; (C8D0) Store A to DownInput. Down input received.
 
-l_C8D3
-                    LDA KeyJoy2                     ; (C8D3) Load A with $DC00
+CheckJoyLeft
+                    LDA KeyJoy2                     ; (C8D3) Load A with $DC00. 0000 0100 left pressed.
                     AND #$04                        ; (C8D6) Logical AND with Accumulator and #$04 (4 / 00000100)
                     CMP #$04                        ; (C8D8) Subtract #$04 from A (4 / 00000100)
-                    BEQ l_C8E1                      ; (C8DA) Branch to $C8E1 if Equal
+                    BEQ CheckJoyRight               ; (C8DA) Branch to $C8E1 if Equal
                     LDA #$FF                        ; (C8DC) Set A to #$FF (255 / 11111111)
-                    STA LeftRightInput                       ; (C8DE) Store A to LeftRightInput
+                    STA LeftRightInput              ; (C8DE) Store A to LeftRightInput. Right input received.
 
-l_C8E1
-                    LDA KeyJoy2                     ; (C8E1) Load A with $DC00
+CheckJoyRight
+                    LDA KeyJoy2                     ; (C8E1) Load A with $DC00. 0000 1000 right pressed.
                     AND #$08                        ; (C8E4) Logical AND with Accumulator and #$08 (8 / 00001000)
                     CMP #$08                        ; (C8E6) Subtract #$08 from A (8 / 00001000)
-                    BEQ l_C8EF                      ; (C8E8) Branch to $C8EF if Equal
+                    BEQ l_C8EF                      ; (C8E8) Branch to $C8EF if Equal. RTS.
                     LDA #$01                        ; (C8EA) Set A to #$01 (1 / 00000001)
-                    STA LeftRightInput                       ; (C8EC) Store A to LeftRightInput
+                    STA LeftRightInput              ; (C8EC) Store A to LeftRightInput. Right input received.
 
 l_C8EF
                     RTS                             ; (C8EF) Return from Subroutine
@@ -6605,7 +6620,7 @@ l_C8EF
 
 ; Memory $C900
 
-l_C900
+Sub_UpdateSpritePositions
                     LDY #$FF                        ; (C900) Load Y with #$FF (255 / 11111111)
                     STA $C8FE                       ; (C902) Store A to $C8FE
                     STX $C8FF                       ; (C905) Store X to $C8FF
@@ -6750,7 +6765,7 @@ l_CA12
                     BNE l_CA24                      ; (CA1A) Branch to $CA24 if Not Equal
                     LDA #$00                        ; (CA1C) Set A to #$00 (0 / 00000000)
                     STA $CF03                       ; (CA1E) Store A to $CF03
-                    JSR l_C71B                      ; (CA21) Jump to Subroutine at $C71B
+                    JSR l_PlayerMovementInputs      ; (CA21) Jump to Subroutine at $C71B
 
 l_CA24
                     JMP l_2D4B                      ; (CA24) Jump to $2D4B
@@ -6777,7 +6792,7 @@ l_CA2C
 
 l_CA51
                     JSR l_C011                      ; (CA51) Jump to Subroutine at $C011
-                    JSR l_2FB2                      ; (CA54) Jump to Subroutine at $2FB2
+                    JSR Sub_StartEnemyUpdate        ; (CA54) Jump to Subroutine at $2FB2
                     LDA $CF7F                       ; (CA57) Load A with $CF7F
                     CMP #$FF                        ; (CA5A) Subtract #$FF from A (255 / 11111111)
                     BNE l_CA61                      ; (CA5C) Branch to $CA61 if Not Equal
@@ -6842,7 +6857,7 @@ l_CB24
                     LDA $451A,X                     ; (CB34) Load A with $451A,X
                     STA Sprite2_Y,Y                 ; (CB37) Store A to $D005,Y
                     LDY $CB23                       ; (CB3A) Load Y with $CB23
-                    LDA $CF08,Y                     ; (CB3D) Load A with $CF08,Y
+                    LDA Var_BinaryEnemyNum,Y                     ; (CB3D) Load A with Var_BinaryEnemyNum,Y
                     EOR #$FF                        ; (CB40) Exclusive OR (XOR) with Accumulator and #$FF (255 / 11111111)
                     AND Sprite_upper_X              ; (CB42) Logical AND with Accumulator $D010
                     STA Sprite_upper_X              ; (CB45) Store A to $D010
@@ -6875,7 +6890,7 @@ l_CB61
                     LDX $CB23                       ; (CB7D) Load X with $CB23
                     INX                             ; (CB80) Increment X
                     INX                             ; (CB81) Increment X
-                    JSR l_C900                      ; (CB82) Jump to Subroutine at $C900
+                    JSR Sub_UpdateSpritePositions                      ; (CB82) Jump to Subroutine at $C900
                     LDY $CF13                       ; (CB85) Load Y with $CF13
                     JMP l_CB61                      ; (CB88) Jump to $CB61
 
@@ -6890,7 +6905,7 @@ l_CB8B
                     LDA $4519,X                     ; (CB98) Load A with $4519,X
                     STA Sprite2_X,Y                 ; (CB9B) Store A to $D004,Y
                     LDY $CB23                       ; (CB9E) Load Y with $CB23
-                    LDA $CF08,Y                     ; (CBA1) Load A with $CF08,Y
+                    LDA Var_BinaryEnemyNum,Y                     ; (CBA1) Load A with Var_BinaryEnemyNum,Y
                     EOR #$FF                        ; (CBA4) Exclusive OR (XOR) with Accumulator and #$FF (255 / 11111111)
                     AND Sprite_upper_X              ; (CBA6) Logical AND with Accumulator $D010
                     STA Sprite_upper_X              ; (CBA9) Store A to $D010
@@ -6926,7 +6941,7 @@ l_CBCA
                     LDX $CB23                       ; (CBE6) Load X with $CB23
                     INX                             ; (CBE9) Increment X
                     INX                             ; (CBEA) Increment X
-                    JSR l_C900                      ; (CBEB) Jump to Subroutine at $C900
+                    JSR Sub_UpdateSpritePositions                      ; (CBEB) Jump to Subroutine at $C900
                     LDY $CF13                       ; (CBEE) Load Y with $CF13
                     JMP l_CBCA                      ; (CBF1) Jump to $CBCA
 
@@ -7140,7 +7155,7 @@ l_CD55
                     STA $CF45                       ; (CD62) Store A to $CF45
                     LDA $CF44                       ; (CD65) Load A with $CF44
                     LDX #$07                        ; (CD68) Set X to #$07 (7 / 00000111)
-                    JSR l_C900                      ; (CD6A) Jump to Subroutine at $C900
+                    JSR Sub_UpdateSpritePositions                      ; (CD6A) Jump to Subroutine at $C900
                     CPY #$FF                        ; (CD6D) Subtract #$FF from Y (255 / 11111111)
                     BNE l_CD79                      ; (CD6F) Branch to $CD79 if Not Equal
                     LDA SpriteEnableRegister        ; (CD71) Load A with $D015
@@ -7345,7 +7360,7 @@ l_CEC2
 
 l_CEEE
                     INC $CF76,X                     ; (CEEE) Increment Memory $CF76,X
-                    LDA $CF08,X                     ; (CEF1) Load A with $CF08,X
+                    LDA Var_BinaryEnemyNum,X                     ; (CEF1) Load A with Var_BinaryEnemyNum,X
                     RTS                             ; (CEF4) Return from Subroutine
 
 ; Memory $CEF5

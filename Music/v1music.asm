@@ -22,7 +22,7 @@ _L60D3  sta     $d400,x
         lda     #$61
         sta     $b8
         sta     $ba
-        jsr     L60A0
+        jsr     l_60A0
         sei
         lda     #$f5
         sta     $0314
@@ -122,7 +122,7 @@ _L6174  lda     $02aa
         jmp     $ea31
 
 Sub_DisableMusic
-		lda     #$00
+	lda     #$00
         ldx     #$20
 _L61D6  sta     $d400,x
         dex

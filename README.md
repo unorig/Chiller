@@ -11,8 +11,7 @@ Considering improvements such as:
 
 ## The code
 
-The dis65 files are from 6502 Bench (https://6502bench.com/) which I highly recommend if you are doing any 6502 disassembly.<br>
-The S files are the Assembly output from 6502 Bench which will assemble using 64Tass (https://sourceforge.net/projects/tass64/).
+The code has previously been disassembled using various tools but now leveraging [@ricardoquesada](https://github.com/ricardoquesada) [regenerator2000](https://github.com/ricardoquesada/regenerator2000)
 
 
 

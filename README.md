@@ -11,7 +11,7 @@ Considering improvements such as:
 
 ## The code
 
-The code has previously been disassembled using various tools but now leveraging [@ricardoquesada](https://github.com/ricardoquesada) [regenerator2000](https://github.com/ricardoquesada/regenerator2000)
+The code has previously been disassembled using various tools but now leveraging [@ricardoquesada](https://github.com/ricardoquesada)'s [regenerator2000](https://github.com/ricardoquesada/regenerator2000). If you are not familiar with Richardo's work, I highly recommend you check out his work on reverse engineering Commando to create [Commando 2084](https://github.com/ricardoquesada/c64-commando-2084). He also had a blog explaining his work [here](https://retro.moe/2019/10/02/commando-disassembled-fully-commented-code/).
 
 
 
